@@ -1,0 +1,19 @@
+{
+  "name": "ubaid-al-abayat",
+  "version": "1.0.0",
+  "description": "Premium Pakistani Fashion/Abaya E-commerce Platform",
+  "main": "server/server.js",
+  "scripts": {
+    "install:all": "npm install && npm install --prefix client && npm install --prefix server",
+    "server": "npm run dev --prefix server",
+    "client": "npm run dev --prefix client",
+    "dev": "concurrently \"npm run server\" \"npm run client\"",
+    "start": "npm start --prefix server",
+    "build:client": "npm run build --prefix client",
+    "seed": "echo 'Seeding is disabled. Please upload products manually from the admin panel.'"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}

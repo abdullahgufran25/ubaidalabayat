@@ -1,0 +1,81 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply font-sans bg-luxury-light text-luxury-dark;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-serif;
+  }
+}
+
+/* Custom premium transitions and buttons */
+.luxury-btn {
+  @apply bg-luxury-dark text-white px-6 py-3 font-medium uppercase tracking-widest text-xs hover:bg-luxury-gold hover:text-luxury-dark transition-all duration-300 ease-in-out disabled:opacity-50 disabled:cursor-not-allowed;
+}
+
+.luxury-btn-outline {
+  @apply border border-luxury-dark text-luxury-dark px-6 py-3 font-medium uppercase tracking-widest text-xs hover:bg-luxury-dark hover:text-white transition-all duration-300 ease-in-out disabled:opacity-50 disabled:cursor-not-allowed;
+}
+
+.luxury-btn-gold {
+  @apply bg-luxury-gold text-luxury-dark px-6 py-3 font-medium uppercase tracking-widest text-xs hover:bg-luxury-dark hover:text-white transition-all duration-300 ease-in-out disabled:opacity-50 disabled:cursor-not-allowed;
+}
+
+/* Custom minimal scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #FBFBF9;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #C5A880;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #A68B63;
+}
+
+/* Luxury animations */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.6s ease-out forwards;
+}
+
+/* Banner overlay gradient */
+.banner-overlay {
+  background: linear-gradient(to right, rgba(17, 17, 17, 0.7) 0%, rgba(17, 17, 17, 0.2) 60%, rgba(17, 17, 17, 0) 100%);
+}
+
+/* Golden logo shimmer keyframe animation */
+@keyframes gold-shimmer {
+  0%, 100% {
+    filter: drop-shadow(0 0 1px rgba(197, 168, 128, 0.4)) brightness(1);
+    transform: scale(1);
+  }
+  50% {
+    filter: drop-shadow(0 0 8px rgba(197, 168, 128, 0.9)) brightness(1.25);
+    transform: scale(1.04);
+  }
+}
+
+.animate-logo-shimmer {
+  animation: gold-shimmer 4s infinite ease-in-out;
+  transition: all 0.3s ease;
+}
+.animate-logo-shimmer:hover {
+  filter: drop-shadow(0 0 12px rgba(197, 168, 128, 1)) brightness(1.35) !important;
+  transform: scale(1.08) !important;
+  animation-play-state: paused;
+}

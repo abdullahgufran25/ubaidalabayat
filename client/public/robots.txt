@@ -1,0 +1,9 @@
+# robots.txt for Ubaid Al Abayat
+User-agent: *
+Allow: /
+
+# Disallow admin panel crawling
+Disallow: /admin/
+Disallow: /account/
+
+Sitemap: https://ubaidalabayat.com/sitemap.xml
