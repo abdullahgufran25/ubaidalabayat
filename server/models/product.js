@@ -30,8 +30,13 @@ const productSchema = new mongoose.Schema(
       min: [0, 'Sale price must be positive'],
       validate: {
         validator: function (val) {
-          // If salePrice exists, it must be less than or equal to original price
-          return !val || val <= this.price;
+          // If salePrice does not exist, it is valid
+          if (val === undefined || val === null) return true;
+          const currentPrice = this.price !== undefined ? this.price : (this.getUpdate ? (this.getUpdate().$set?.price || this.getUpdate().price) : undefined);
+          if (currentPrice !== undefined) {
+            return val <= currentPrice;
+          }
+          return true;
         },
         message: 'Sale price must be less than or equal to original price',
       },
@@ -107,13 +112,17 @@ const productSchema = new mongoose.Schema(
 // Auto-generate slug from name if not provided or modified
 productSchema.pre('validate', function (next) {
   if (this.name && (!this.slug || this.isModified('name'))) {
-    // Generate a clean slug, append a random string or short ID to ensure uniqueness if needed, or rely on validator
-    const baseSlug = this.name
+    let baseSlug = this.name
       .toLowerCase()
       .trim()
       .replace(/[^\w\s-]/g, '')
       .replace(/[\s_-]+/g, '-')
       .replace(/^-+|-+$/g, '');
+
+    // If name contains only non-ASCII chars (like Urdu/Arabic), fallback to a clean timestamped slug
+    if (!baseSlug) {
+      baseSlug = `product-${Date.now()}`;
+    }
     this.slug = baseSlug;
   }
   next();

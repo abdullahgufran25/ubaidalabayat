@@ -1,15 +1,28 @@
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
+const os = require('os');
 const cloudinary = require('cloudinary').v2;
 
-// Configure local storage options for Multer (serves as temporary storage or permanent local storage fallback)
+// Ensure environment variables are loaded
+if (!process.env.CLOUDINARY_CLOUD_NAME) {
+  require('dotenv').config();
+  require('dotenv').config({ path: path.join(__dirname, '../.env') });
+  require('dotenv').config({ path: path.join(__dirname, '../../.env') });
+}
+
+// Configure storage options using os.tmpdir() to guarantee compatibility on Vercel serverless (read-only filesystem) & local
+const uploadDir = path.join(os.tmpdir(), 'ubaidalabayat_uploads');
+if (!fs.existsSync(uploadDir)) {
+  try {
+    fs.mkdirSync(uploadDir, { recursive: true });
+  } catch (err) {
+    console.warn('Temporary directory creation note:', err.message);
+  }
+}
+
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    const uploadDir = path.join(__dirname, '../uploads');
-    if (!fs.existsSync(uploadDir)) {
-      fs.mkdirSync(uploadDir, { recursive: true });
-    }
     cb(null, uploadDir);
   },
   filename: function (req, file, cb) {
@@ -37,19 +50,25 @@ const upload = multer({
   fileFilter: fileFilter,
 });
 
-// Configure Cloudinary if credentials are provided
-let isCloudinaryConfigured = false;
-if (
-  process.env.CLOUDINARY_CLOUD_NAME &&
-  process.env.CLOUDINARY_API_KEY &&
-  process.env.CLOUDINARY_API_SECRET
-) {
-  cloudinary.config({
-    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-    api_key: process.env.CLOUDINARY_API_KEY,
-    api_secret: process.env.CLOUDINARY_API_SECRET,
-  });
-  isCloudinaryConfigured = true;
+const ensureCloudinary = () => {
+  if (
+    process.env.CLOUDINARY_CLOUD_NAME &&
+    process.env.CLOUDINARY_API_KEY &&
+    process.env.CLOUDINARY_API_SECRET
+  ) {
+    cloudinary.config({
+      cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+      api_key: process.env.CLOUDINARY_API_KEY,
+      api_secret: process.env.CLOUDINARY_API_SECRET,
+    });
+    return true;
+  }
+  return false;
+};
+
+// Initial config check
+let isCloudinaryConfigured = ensureCloudinary();
+if (isCloudinaryConfigured) {
   console.log('Cloudinary service connected successfully.');
 } else {
   console.log('Cloudinary not configured. Falling back to local storage uploads.');
@@ -63,7 +82,7 @@ if (
 const uploadSingleImage = async (file) => {
   if (!file) return null;
 
-  if (isCloudinaryConfigured) {
+  if (ensureCloudinary()) {
     try {
       const result = await cloudinary.uploader.upload(file.path, {
         folder: 'ubaid_al_abayat',
@@ -75,8 +94,7 @@ const uploadSingleImage = async (file) => {
       return result.secure_url;
     } catch (error) {
       console.error('Cloudinary upload error:', error);
-      // Fallback: return local path if Cloudinary fails
-      const protocol = process.env.NODE_ENV === 'production' ? 'https' : 'http';
+      // Fallback: return relative path if Cloudinary fails
       return `/uploads/${file.filename}`;
     }
   } else {

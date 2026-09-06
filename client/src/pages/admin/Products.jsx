@@ -53,6 +53,12 @@ const Products = () => {
     fetchProducts();
   }, []);
 
+  useEffect(() => {
+    if (categories.length > 0 && !category) {
+      setCategory(categories[0]._id);
+    }
+  }, [categories, category]);
+
   const handleOpenCreateModal = () => {
     setEditingId(null);
     setName('');
@@ -103,6 +109,11 @@ const Products = () => {
       return;
     }
 
+    if (!editingId && files.length === 0) {
+      addToast('Please select at least one product image', 'warning');
+      return;
+    }
+
     setSubmitLoading(true);
 
     const formData = new FormData();
@@ -141,12 +152,14 @@ const Products = () => {
       }
 
       if (res.data.success) {
-        addToast(res.data.message, 'success');
+        addToast(res.data.message || 'Product saved successfully', 'success');
         setModalOpen(false);
         fetchProducts();
       }
     } catch (err) {
-      addToast(err.response?.data?.message || 'Failed to save product', 'error');
+      console.error('Product save error:', err);
+      const errorMsg = err.response?.data?.message || err.message || 'Failed to save product';
+      addToast(errorMsg, 'error');
     } finally {
       setSubmitLoading(false);
     }
@@ -379,6 +392,7 @@ const Products = () => {
                     onChange={(e) => setCategory(e.target.value)}
                     className="w-full text-sm border-2 border-luxury-gray p-2 px-3 rounded focus:outline-none focus:border-luxury-gold text-black font-medium bg-white"
                   >
+                    <option value="" disabled>Select a Category *</option>
                     {categories.map((cat) => (
                       <option key={cat._id} value={cat._id}>
                         {cat.name}

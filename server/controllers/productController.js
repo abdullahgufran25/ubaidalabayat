@@ -261,11 +261,29 @@ exports.createProduct = asyncHandler(async (req, res, next) => {
   if (typeof sizes === 'string') sizes = sizes.split(',').map(s => s.trim()).filter(Boolean);
   if (typeof colors === 'string') colors = colors.split(',').map(c => c.trim()).filter(Boolean);
 
+  // Generate unique slug
+  let baseSlug = name
+    .toLowerCase()
+    .trim()
+    .replace(/[^\w\s-]/g, '')
+    .replace(/[\s_-]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+  if (!baseSlug) baseSlug = `product-${Date.now()}`;
+  
+  let finalSlug = baseSlug;
+  const existingSlug = await Product.findOne({ slug: finalSlug });
+  if (existingSlug) {
+    finalSlug = `${baseSlug}-${Math.floor(1000 + Math.random() * 9000)}`;
+  }
+
+  const parsedSalePrice = salePrice && Number(salePrice) > 0 ? Number(salePrice) : undefined;
+
   const product = await Product.create({
     name,
+    slug: finalSlug,
     description,
     price: Number(price),
-    salePrice: salePrice ? Number(salePrice) : undefined,
+    salePrice: parsedSalePrice,
     category,
     sku: sku.toUpperCase(),
     sizes: sizes || [],
