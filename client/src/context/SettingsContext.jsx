@@ -17,6 +17,15 @@ export const SettingsProvider = ({ children }) => {
     pinterestUrl: '',
     aboutUsText: '',
     footerText: '© 2026 Ubaid Al Abayat. All Rights Reserved.',
+    bankName: 'Faysal Bank Limited (FBL)',
+    accountTitle: 'UBAID ULLAH',
+    accountNumber: '',
+    iban: '',
+    bankBranch: '',
+    bankInstructions: 'Please transfer the exact order amount and share the payment screenshot on WhatsApp with your Order ID for instant dispatch.',
+    bankTransferEnabled: true,
+    codEnabled: true,
+    cardPaymentEnabled: false,
   });
   
   const [banners, setBanners] = useState([]);

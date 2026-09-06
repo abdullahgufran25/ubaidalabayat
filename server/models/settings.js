@@ -56,6 +56,43 @@ const storeSettingsSchema = new mongoose.Schema(
       type: String,
       default: '© 2026 Ubaid Al Abayat. All Rights Reserved. Designed for elegance.',
     },
+    // Payment Methods Configuration
+    bankName: {
+      type: String,
+      default: 'Faysal Bank Limited (FBL)',
+    },
+    accountTitle: {
+      type: String,
+      default: 'UBAID ULLAH',
+    },
+    accountNumber: {
+      type: String,
+      default: '',
+    },
+    iban: {
+      type: String,
+      default: '',
+    },
+    bankBranch: {
+      type: String,
+      default: '',
+    },
+    bankInstructions: {
+      type: String,
+      default: 'Please transfer the exact order amount and share the payment screenshot on WhatsApp with your Order ID for instant dispatch.',
+    },
+    bankTransferEnabled: {
+      type: Boolean,
+      default: true,
+    },
+    codEnabled: {
+      type: Boolean,
+      default: true,
+    },
+    cardPaymentEnabled: {
+      type: Boolean,
+      default: false,
+    },
   },
   {
     timestamps: true,

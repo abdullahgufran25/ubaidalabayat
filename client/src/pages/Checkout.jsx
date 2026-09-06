@@ -1,16 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { ShoppingBag, CreditCard, Landmark, CheckCircle, AlertCircle, ArrowLeft, Truck } from 'lucide-react';
+import { ShoppingBag, CreditCard, Landmark, CheckCircle, AlertCircle, ArrowLeft, Truck, Copy, Check } from 'lucide-react';
 import axios from 'axios';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
+import { useSettings } from '../context/SettingsContext';
 
 const Checkout = () => {
   const navigate = useNavigate();
   const { cartItems, coupon, discountAmount, getSubtotal, getShippingCharges, getTotal, clearCart } = useCart();
   const { user } = useAuth();
   const { addToast } = useToast();
+  const { settings } = useSettings();
 
   // Form Shipping States
   const [fullName, setFullName] = useState('');
@@ -24,6 +26,34 @@ const Checkout = () => {
   // Payment State (COD is default in Pakistan)
   const [paymentMethod, setPaymentMethod] = useState('COD');
   const [placingOrder, setPlacingOrder] = useState(false);
+  const [copiedField, setCopiedField] = useState('');
+
+  const copyToClipboard = (text, fieldName) => {
+    if (!text) return;
+    navigator.clipboard.writeText(text);
+    setCopiedField(fieldName);
+    addToast(`${fieldName} copied to clipboard!`, 'success');
+    setTimeout(() => setCopiedField(''), 2000);
+  };
+
+  // Ensure active payment method is an enabled one
+  useEffect(() => {
+    if (settings) {
+      const cod = settings.codEnabled !== false;
+      const bank = settings.bankTransferEnabled !== false;
+      const card = settings.cardPaymentEnabled === true;
+      if (paymentMethod === 'COD' && !cod) {
+        if (bank) setPaymentMethod('Bank Transfer');
+        else if (card) setPaymentMethod('Online');
+      } else if (paymentMethod === 'Bank Transfer' && !bank) {
+        if (cod) setPaymentMethod('COD');
+        else if (card) setPaymentMethod('Online');
+      } else if (paymentMethod === 'Online' && !card) {
+        if (cod) setPaymentMethod('COD');
+        else if (bank) setPaymentMethod('Bank Transfer');
+      }
+    }
+  }, [settings, paymentMethod]);
 
   // Mock Credit Card States
   const [cardName, setCardName] = useState('');
@@ -239,131 +269,189 @@ const Checkout = () => {
             <div className="grid grid-cols-1 gap-3">
               
               {/* 1. Cash On Delivery */}
-              <label 
-                className={`flex items-start p-4 border rounded cursor-pointer transition-all ${
-                  paymentMethod === 'COD' 
-                    ? 'border-luxury-gold bg-luxury-cream/30 shadow-sm' 
-                    : 'border-luxury-gray hover:border-gray-300'
-                }`}
-              >
-                <input
-                  type="radio"
-                  name="paymentMethod"
-                  value="COD"
-                  checked={paymentMethod === 'COD'}
-                  onChange={(e) => setPaymentMethod(e.target.value)}
-                  className="mt-1 text-luxury-gold focus:ring-luxury-gold"
-                />
-                <div className="ml-3 flex-1">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-2">
-                      <Truck size={16} className="text-luxury-gold" />
-                      <span className="font-serif font-bold text-xs uppercase tracking-wider text-luxury-dark">
-                        Cash on Delivery (COD)
+              {settings?.codEnabled !== false && (
+                <label 
+                  className={`flex items-start p-4 border rounded cursor-pointer transition-all ${
+                    paymentMethod === 'COD' 
+                      ? 'border-luxury-gold bg-luxury-cream/30 shadow-sm' 
+                      : 'border-luxury-gray hover:border-gray-300'
+                  }`}
+                >
+                  <input
+                    type="radio"
+                    name="paymentMethod"
+                    value="COD"
+                    checked={paymentMethod === 'COD'}
+                    onChange={(e) => setPaymentMethod(e.target.value)}
+                    className="mt-1 text-luxury-gold focus:ring-luxury-gold"
+                  />
+                  <div className="ml-3 flex-1">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-2">
+                        <Truck size={16} className="text-luxury-gold" />
+                        <span className="font-serif font-bold text-xs uppercase tracking-wider text-luxury-dark">
+                          Cash on Delivery (COD)
+                        </span>
+                      </div>
+                      <span className="bg-green-100 text-green-800 text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded">
+                        Most Popular
                       </span>
                     </div>
-                    <span className="bg-green-100 text-green-800 text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded">
-                      Most Popular
-                    </span>
+                    <p className="text-[11px] text-luxury-textGray mt-1 leading-relaxed">
+                      Pay in cash directly to the courier when your order arrives at your doorstep. No advance payment required.
+                    </p>
                   </div>
-                  <p className="text-[11px] text-luxury-textGray mt-1 leading-relaxed">
-                    Pay in cash directly to the courier when your order arrives at your doorstep. No advance payment required.
-                  </p>
-                </div>
-              </label>
+                </label>
+              )}
 
-              {/* 2. Direct Bank Transfer (Faysal Bank) */}
-              <label 
-                className={`flex items-start p-4 border rounded cursor-pointer transition-all ${
-                  paymentMethod === 'Bank Transfer' 
-                    ? 'border-luxury-gold bg-luxury-cream/30 shadow-sm' 
-                    : 'border-luxury-gray hover:border-gray-300'
-                }`}
-              >
-                <input
-                  type="radio"
-                  name="paymentMethod"
-                  value="Bank Transfer"
-                  checked={paymentMethod === 'Bank Transfer'}
-                  onChange={(e) => setPaymentMethod(e.target.value)}
-                  className="mt-1 text-luxury-gold focus:ring-luxury-gold"
-                />
-                <div className="ml-3 flex-1">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-2">
-                      <Landmark size={16} className="text-luxury-gold" />
-                      <span className="font-serif font-bold text-xs uppercase tracking-wider text-luxury-dark">
-                        Faysal Bank Transfer / EasyPaisa
+              {/* 2. Direct Bank Transfer */}
+              {settings?.bankTransferEnabled !== false && (
+                <label 
+                  className={`flex items-start p-4 border rounded cursor-pointer transition-all ${
+                    paymentMethod === 'Bank Transfer' 
+                      ? 'border-luxury-gold bg-luxury-cream/30 shadow-sm' 
+                      : 'border-luxury-gray hover:border-gray-300'
+                  }`}
+                >
+                  <input
+                    type="radio"
+                    name="paymentMethod"
+                    value="Bank Transfer"
+                    checked={paymentMethod === 'Bank Transfer'}
+                    onChange={(e) => setPaymentMethod(e.target.value)}
+                    className="mt-1 text-luxury-gold focus:ring-luxury-gold"
+                  />
+                  <div className="ml-3 flex-1">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-2">
+                        <Landmark size={16} className="text-luxury-gold" />
+                        <span className="font-serif font-bold text-xs uppercase tracking-wider text-luxury-dark">
+                          Direct Bank Transfer / EasyPaisa / Raast
+                        </span>
+                      </div>
+                      <span className="bg-blue-100 text-blue-800 text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded">
+                        Extra 5% Privilege
                       </span>
                     </div>
-                    <span className="bg-blue-100 text-blue-800 text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded">
-                      Direct Transfer
-                    </span>
+                    <p className="text-[11px] text-luxury-textGray mt-1 leading-relaxed">
+                      Transfer directly to our official {settings?.bankName || 'bank'} account via Bank App, ATM, Raast, or Mobile Wallet.
+                    </p>
                   </div>
-                  <p className="text-[11px] text-luxury-textGray mt-1 leading-relaxed">
-                    Transfer directly to our official Faysal Bank account via Faysal Digibank App, ATM, Raast, or JazzCash/EasyPaisa.
-                  </p>
-                </div>
-              </label>
+                </label>
+              )}
 
-              {/* 3. Credit / Debit Card */}
-              <label 
-                className={`flex items-start p-4 border rounded cursor-pointer transition-all ${
-                  paymentMethod === 'Online' 
-                    ? 'border-luxury-gold bg-luxury-cream/30 shadow-sm' 
-                    : 'border-luxury-gray hover:border-gray-300'
-                }`}
-              >
-                <input
-                  type="radio"
-                  name="paymentMethod"
-                  value="Online"
-                  checked={paymentMethod === 'Online'}
-                  onChange={(e) => setPaymentMethod(e.target.value)}
-                  className="mt-1 text-luxury-gold focus:ring-luxury-gold"
-                />
-                <div className="ml-3 flex-1">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-2">
-                      <CreditCard size={16} className="text-luxury-gold" />
-                      <span className="font-serif font-bold text-xs uppercase tracking-wider text-luxury-dark">
-                        Credit / Debit Card
+              {/* 3. Credit / Debit Card (Shown only if enabled in CMS) */}
+              {settings?.cardPaymentEnabled === true && (
+                <label 
+                  className={`flex items-start p-4 border rounded cursor-pointer transition-all ${
+                    paymentMethod === 'Online' 
+                      ? 'border-luxury-gold bg-luxury-cream/30 shadow-sm' 
+                      : 'border-luxury-gray hover:border-gray-300'
+                  }`}
+                >
+                  <input
+                    type="radio"
+                    name="paymentMethod"
+                    value="Online"
+                    checked={paymentMethod === 'Online'}
+                    onChange={(e) => setPaymentMethod(e.target.value)}
+                    className="mt-1 text-luxury-gold focus:ring-luxury-gold"
+                  />
+                  <div className="ml-3 flex-1">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-2">
+                        <CreditCard size={16} className="text-luxury-gold" />
+                        <span className="font-serif font-bold text-xs uppercase tracking-wider text-luxury-dark">
+                          Credit / Debit Card
+                        </span>
+                      </div>
+                      <span className="bg-purple-100 text-purple-800 text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded">
+                        Visa / Mastercard
                       </span>
                     </div>
-                    <span className="bg-purple-100 text-purple-800 text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded">
-                      Visa / Mastercard
-                    </span>
+                    <p className="text-[11px] text-luxury-textGray mt-1 leading-relaxed">
+                      Pay securely using any Pakistani or International Visa / Mastercard debit or credit card.
+                    </p>
                   </div>
-                  <p className="text-[11px] text-luxury-textGray mt-1 leading-relaxed">
-                    Pay securely using any Pakistani or International Visa / Mastercard debit or credit card.
-                  </p>
-                </div>
-              </label>
+                </label>
+              )}
 
             </div>
 
-            {/* Faysal Bank Details Box (Shown when Bank Transfer selected) */}
+            {/* Dynamic Bank Transfer Details Box (Shown when Bank Transfer selected) */}
             {paymentMethod === 'Bank Transfer' && (
-              <div className="bg-luxury-cream/50 border border-luxury-gold/40 p-5 rounded space-y-3 text-xs animate-fade-in">
-                <div className="flex items-center space-x-2 border-b border-luxury-gold/20 pb-2">
-                  <Landmark size={18} className="text-luxury-goldDark" />
-                  <h4 className="font-serif font-bold text-luxury-dark uppercase tracking-wider text-xs">
-                    Official Faysal Bank Account Details
-                  </h4>
+              <div className="bg-luxury-cream/50 border border-luxury-gold/40 p-5 rounded space-y-4 text-xs animate-fade-in">
+                <div className="flex items-center justify-between border-b border-luxury-gold/20 pb-2">
+                  <div className="flex items-center space-x-2">
+                    <Landmark size={18} className="text-luxury-goldDark" />
+                    <h4 className="font-serif font-bold text-luxury-dark uppercase tracking-wider text-xs">
+                      Official Bank Coordinates
+                    </h4>
+                  </div>
+                  <span className="text-[10px] text-luxury-goldDark font-semibold uppercase tracking-wider bg-white px-2 py-0.5 rounded border border-luxury-gold/30">
+                    Prepayment Account
+                  </span>
                 </div>
+
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-[11px]">
-                  <div>
+                  <div className="bg-white p-3 rounded border border-luxury-gold/30">
                     <span className="text-luxury-textGray block text-[9px] uppercase font-bold tracking-wider">Bank Name:</span>
-                    <strong className="text-luxury-dark font-sans text-xs">Faysal Bank Limited (FBL)</strong>
+                    <strong className="text-luxury-dark font-sans text-xs">{settings?.bankName || 'Faysal Bank Limited (FBL)'}</strong>
                   </div>
-                  <div>
+
+                  <div className="bg-white p-3 rounded border border-luxury-gold/30">
                     <span className="text-luxury-textGray block text-[9px] uppercase font-bold tracking-wider">Account Title:</span>
-                    <strong className="text-luxury-dark font-sans text-xs">UBAID ULLAH</strong>
+                    <strong className="text-luxury-dark font-sans text-xs">{settings?.accountTitle || 'UBAID ULLAH'}</strong>
                   </div>
-                  <div className="sm:col-span-2 bg-white p-2.5 rounded border border-luxury-gold/30">
+
+                  {settings?.accountNumber && (
+                    <div className="sm:col-span-2 flex items-center justify-between bg-white p-3 rounded border border-luxury-gold/30">
+                      <div>
+                        <span className="text-luxury-textGray block text-[9px] uppercase font-bold tracking-wider">Account Number:</span>
+                        <strong className="text-luxury-dark font-mono text-sm tracking-widest">{settings.accountNumber}</strong>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => copyToClipboard(settings.accountNumber, 'Account Number')}
+                        className="flex items-center space-x-1.5 text-[10px] uppercase font-bold tracking-wider bg-luxury-cream text-luxury-dark px-3 py-1.5 rounded hover:bg-luxury-gold hover:text-white transition-all shadow-sm"
+                      >
+                        {copiedField === 'Account Number' ? <Check size={13} className="text-green-600" /> : <Copy size={13} />}
+                        <span>{copiedField === 'Account Number' ? 'Copied!' : 'Copy'}</span>
+                      </button>
+                    </div>
+                  )}
+
+                  {settings?.iban && (
+                    <div className="sm:col-span-2 flex items-center justify-between bg-white p-3 rounded border border-luxury-gold/30">
+                      <div>
+                        <span className="text-luxury-textGray block text-[9px] uppercase font-bold tracking-wider">IBAN Number:</span>
+                        <strong className="text-luxury-dark font-mono text-xs tracking-wider break-all">{settings.iban}</strong>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => copyToClipboard(settings.iban, 'IBAN')}
+                        className="flex items-center space-x-1.5 text-[10px] uppercase font-bold tracking-wider bg-luxury-cream text-luxury-dark px-3 py-1.5 rounded hover:bg-luxury-gold hover:text-white transition-all shadow-sm flex-shrink-0 ml-2"
+                      >
+                        {copiedField === 'IBAN' ? <Check size={13} className="text-green-600" /> : <Copy size={13} />}
+                        <span>{copiedField === 'IBAN' ? 'Copied!' : 'Copy'}</span>
+                      </button>
+                    </div>
+                  )}
+
+                  {settings?.bankBranch && (
+                    <div className="sm:col-span-2 bg-white p-2.5 rounded border border-luxury-gold/30">
+                      <span className="text-luxury-textGray block text-[9px] uppercase font-bold tracking-wider">Branch Details:</span>
+                      <p className="text-[11px] text-luxury-dark font-medium">{settings.bankBranch}</p>
+                    </div>
+                  )}
+
+                  <div className="sm:col-span-2 bg-white p-3 rounded border border-luxury-gold/30 space-y-1">
                     <span className="text-luxury-textGray block text-[9px] uppercase font-bold tracking-wider">Instructions:</span>
-                    <p className="text-[11px] text-luxury-dark mt-0.5 leading-relaxed">
-                      Please transfer the exact order amount (<strong className="text-luxury-goldDark font-bold font-sans">PKR {total}</strong>) and share the transaction screenshot on WhatsApp <strong className="text-luxury-dark">03287512751</strong> along with your Order ID for instant dispatch.
+                    <p className="text-[11px] text-luxury-dark leading-relaxed">
+                      {settings?.bankInstructions || 'Please transfer the exact order amount and share the payment screenshot on WhatsApp with your Order ID for instant dispatch.'}
+                    </p>
+                    <p className="text-[11px] text-luxury-dark pt-1 border-t border-gray-100">
+                      Amount to transfer: <strong className="text-luxury-goldDark font-bold font-sans text-xs">PKR {getTotal()}</strong> | WhatsApp for proof: <strong className="text-luxury-dark font-mono">{settings?.whatsappNumber || '03287512751'}</strong>
                     </p>
                   </div>
                 </div>

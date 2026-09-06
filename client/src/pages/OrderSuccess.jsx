@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { CheckCircle, Calendar, MapPin, Phone, MessageSquare, ArrowRight, Truck } from 'lucide-react';
+import { CheckCircle, Calendar, MapPin, Phone, MessageSquare, ArrowRight, Truck, Copy, Check, Landmark } from 'lucide-react';
 import axios from 'axios';
 import { useSettings } from '../context/SettingsContext';
 
@@ -9,6 +9,14 @@ const OrderSuccess = () => {
   const { settings } = useSettings();
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [copiedField, setCopiedField] = useState('');
+
+  const copyToClipboard = (text, fieldName) => {
+    if (!text) return;
+    navigator.clipboard.writeText(text);
+    setCopiedField(fieldName);
+    setTimeout(() => setCopiedField(''), 2000);
+  };
 
   useEffect(() => {
     const fetchOrderDetails = async () => {
@@ -86,13 +94,85 @@ Please confirm my order and let me know the status.`;
 
       {/* Payment Method Specific Instructions */}
       {order.paymentMethod === 'Bank Transfer' ? (
-        <div className="bg-amber-50 border border-amber-200 p-5 rounded max-w-2xl mx-auto space-y-2 text-center text-xs animate-fade-in">
-          <p className="font-serif font-bold text-amber-900 uppercase tracking-wider text-sm">
-            Bank Transfer Action Required: PKR {order.total}
+        <div className="bg-luxury-cream/50 border border-luxury-gold/50 p-6 rounded max-w-2xl mx-auto space-y-4 text-xs animate-fade-in text-left">
+          <div className="flex items-center justify-between border-b border-luxury-gold/30 pb-2 text-center sm:text-left">
+            <div className="flex items-center space-x-2">
+              <Landmark size={18} className="text-luxury-goldDark" />
+              <p className="font-serif font-bold text-luxury-dark uppercase tracking-wider text-sm">
+                Bank Transfer Required: PKR {order.total}
+              </p>
+            </div>
+            <span className="bg-amber-100 text-amber-800 text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded">
+              Awaiting Payment
+            </span>
+          </div>
+
+          <p className="text-luxury-dark leading-relaxed text-center sm:text-left">
+            Please transfer <strong className="text-luxury-goldDark font-bold">PKR {order.total}</strong> to our official account below and click the WhatsApp button to share the payment receipt for instant confirmation.
           </p>
-          <p className="text-amber-800 leading-relaxed">
-            Please transfer to our official <strong>Faysal Bank Limited (FBL)</strong> account (Title: <strong>UBAID ULLAH</strong>) and click the WhatsApp button below to share the payment screenshot with Order ID: <strong>{order.orderNumber}</strong>.
-          </p>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-[11px]">
+            <div className="bg-white p-3 rounded border border-luxury-gold/30">
+              <span className="text-luxury-textGray block text-[9px] uppercase font-bold tracking-wider">Bank Name:</span>
+              <strong className="text-luxury-dark font-sans text-xs">{settings?.bankName || 'Faysal Bank Limited (FBL)'}</strong>
+            </div>
+
+            <div className="bg-white p-3 rounded border border-luxury-gold/30">
+              <span className="text-luxury-textGray block text-[9px] uppercase font-bold tracking-wider">Account Title:</span>
+              <strong className="text-luxury-dark font-sans text-xs">{settings?.accountTitle || 'UBAID ULLAH'}</strong>
+            </div>
+
+            {settings?.accountNumber && (
+              <div className="sm:col-span-2 flex items-center justify-between bg-white p-3 rounded border border-luxury-gold/30">
+                <div>
+                  <span className="text-luxury-textGray block text-[9px] uppercase font-bold tracking-wider">Account Number:</span>
+                  <strong className="text-luxury-dark font-mono text-sm tracking-widest">{settings.accountNumber}</strong>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => copyToClipboard(settings.accountNumber, 'Account Number')}
+                  className="flex items-center space-x-1.5 text-[10px] uppercase font-bold tracking-wider bg-luxury-cream text-luxury-dark px-3 py-1.5 rounded hover:bg-luxury-gold hover:text-white transition-all shadow-sm"
+                >
+                  {copiedField === 'Account Number' ? <Check size={13} className="text-green-600" /> : <Copy size={13} />}
+                  <span>{copiedField === 'Account Number' ? 'Copied!' : 'Copy'}</span>
+                </button>
+              </div>
+            )}
+
+            {settings?.iban && (
+              <div className="sm:col-span-2 flex items-center justify-between bg-white p-3 rounded border border-luxury-gold/30">
+                <div>
+                  <span className="text-luxury-textGray block text-[9px] uppercase font-bold tracking-wider">IBAN:</span>
+                  <strong className="text-luxury-dark font-mono text-xs tracking-wider break-all">{settings.iban}</strong>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => copyToClipboard(settings.iban, 'IBAN')}
+                  className="flex items-center space-x-1.5 text-[10px] uppercase font-bold tracking-wider bg-luxury-cream text-luxury-dark px-3 py-1.5 rounded hover:bg-luxury-gold hover:text-white transition-all shadow-sm flex-shrink-0 ml-2"
+                >
+                  {copiedField === 'IBAN' ? <Check size={13} className="text-green-600" /> : <Copy size={13} />}
+                  <span>{copiedField === 'IBAN' ? 'Copied!' : 'Copy'}</span>
+                </button>
+              </div>
+            )}
+
+            {settings?.bankBranch && (
+              <div className="sm:col-span-2 bg-white p-2.5 rounded border border-luxury-gold/30">
+                <span className="text-luxury-textGray block text-[9px] uppercase font-bold tracking-wider">Branch:</span>
+                <p className="text-[11px] text-luxury-dark font-medium">{settings.bankBranch}</p>
+              </div>
+            )}
+          </div>
+
+          <div className="pt-2 text-center sm:text-left">
+            <button
+              onClick={handleWhatsAppStatus}
+              className="w-full sm:w-auto inline-flex items-center justify-center space-x-2 bg-green-600 hover:bg-green-700 text-white px-5 py-2.5 rounded text-xs font-bold uppercase tracking-wider transition-colors shadow-sm"
+            >
+              <MessageSquare size={14} />
+              <span>Share Payment Screenshot on WhatsApp</span>
+            </button>
+          </div>
         </div>
       ) : order.paymentMethod === 'COD' ? (
         <div className="bg-green-50 border border-green-200 p-4 rounded max-w-2xl mx-auto text-center text-xs text-green-800 animate-fade-in">

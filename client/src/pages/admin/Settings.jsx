@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Save, Settings as SettingsIcon, Landmark, Phone, Mail, MapPin, DollarSign, Facebook, Instagram } from 'lucide-react';
+import { Save, Settings as SettingsIcon, Landmark, Phone, Mail, MapPin, DollarSign, Facebook, Instagram, CreditCard, ShieldCheck, AlertCircle } from 'lucide-react';
 import axios from 'axios';
 import { useSettings } from '../../context/SettingsContext';
 import { useToast } from '../../context/ToastContext';
@@ -16,6 +16,17 @@ const Settings = () => {
   const [contactEmail, setContactEmail] = useState('');
   const [contactPhone, setContactPhone] = useState('');
   const [contactAddress, setContactAddress] = useState('');
+
+  // Payment & Bank Transfer CMS State
+  const [bankName, setBankName] = useState('Faysal Bank Limited (FBL)');
+  const [accountTitle, setAccountTitle] = useState('UBAID ULLAH');
+  const [accountNumber, setAccountNumber] = useState('');
+  const [iban, setIban] = useState('');
+  const [bankBranch, setBankBranch] = useState('');
+  const [bankInstructions, setBankInstructions] = useState('');
+  const [bankTransferEnabled, setBankTransferEnabled] = useState(true);
+  const [codEnabled, setCodEnabled] = useState(true);
+  const [cardPaymentEnabled, setCardPaymentEnabled] = useState(false);
 
   // Dynamic Social Links State
   const [socialLinks, setSocialLinks] = useState([]);
@@ -40,6 +51,16 @@ const Settings = () => {
       setSocialLinks(settings.socialLinks || []);
       setAboutUsText(settings.aboutUsText || '');
       setFooterText(settings.footerText || '');
+      // Bank & Payment states
+      setBankName(settings.bankName || 'Faysal Bank Limited (FBL)');
+      setAccountTitle(settings.accountTitle || 'UBAID ULLAH');
+      setAccountNumber(settings.accountNumber || '');
+      setIban(settings.iban || '');
+      setBankBranch(settings.bankBranch || '');
+      setBankInstructions(settings.bankInstructions || 'Please transfer the exact order amount and share the payment screenshot on WhatsApp with your Order ID for instant dispatch.');
+      setBankTransferEnabled(settings.bankTransferEnabled !== false);
+      setCodEnabled(settings.codEnabled !== false);
+      setCardPaymentEnabled(settings.cardPaymentEnabled === true);
     }
   }, [settings]);
 
@@ -78,6 +99,16 @@ const Settings = () => {
       socialLinks,
       aboutUsText,
       footerText,
+      // Payment & Bank Transfer CMS
+      bankName,
+      accountTitle,
+      accountNumber,
+      iban,
+      bankBranch,
+      bankInstructions,
+      bankTransferEnabled,
+      codEnabled,
+      cardPaymentEnabled,
     };
 
     try {
@@ -209,6 +240,175 @@ const Settings = () => {
                   className="w-full text-xs border border-luxury-gray p-2.5 rounded focus:outline-none"
                   placeholder="Street 10, DHA Karachi"
                 />
+              </div>
+            </div>
+          </div>
+
+          {/* Payment Methods & Direct Bank Transfer CMS */}
+          <div className="bg-white border border-luxury-gray p-6 sm:p-8 rounded space-y-6">
+            <div className="border-b border-luxury-gray pb-3">
+              <h2 className="font-serif text-base font-bold uppercase tracking-wider text-luxury-gold flex items-center">
+                <Landmark size={18} className="mr-2" />
+                <span>Payment Methods & Direct Bank Account (CMS)</span>
+              </h2>
+              <p className="text-[11px] text-luxury-textGray mt-1">
+                Manage your official bank account details for direct customer transfers and enable/disable checkout payment options.
+              </p>
+            </div>
+
+            {/* Payment Method Active Toggles */}
+            <div className="space-y-3">
+              <label className="text-[10px] uppercase font-bold tracking-wider text-luxury-textGray block">
+                Active Checkout Payment Methods
+              </label>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                {/* COD Toggle */}
+                <label className={`flex items-center p-3 border rounded cursor-pointer transition-all ${
+                  codEnabled ? 'border-green-500 bg-green-50/40' : 'border-gray-200 bg-gray-50 opacity-60'
+                }`}>
+                  <input
+                    type="checkbox"
+                    checked={codEnabled}
+                    onChange={(e) => setCodEnabled(e.target.checked)}
+                    className="rounded text-green-600 focus:ring-green-500 h-4 w-4"
+                  />
+                  <div className="ml-2.5">
+                    <span className="text-xs font-bold text-luxury-dark block">Cash on Delivery</span>
+                    <span className="text-[10px] text-luxury-textGray">{codEnabled ? 'Enabled' : 'Disabled'}</span>
+                  </div>
+                </label>
+
+                {/* Bank Transfer Toggle */}
+                <label className={`flex items-center p-3 border rounded cursor-pointer transition-all ${
+                  bankTransferEnabled ? 'border-luxury-gold bg-luxury-cream/40' : 'border-gray-200 bg-gray-50 opacity-60'
+                }`}>
+                  <input
+                    type="checkbox"
+                    checked={bankTransferEnabled}
+                    onChange={(e) => setBankTransferEnabled(e.target.checked)}
+                    className="rounded text-luxury-gold focus:ring-luxury-gold h-4 w-4"
+                  />
+                  <div className="ml-2.5">
+                    <span className="text-xs font-bold text-luxury-dark block">Bank Transfer</span>
+                    <span className="text-[10px] text-luxury-textGray">{bankTransferEnabled ? 'Enabled (Manual)' : 'Disabled'}</span>
+                  </div>
+                </label>
+
+                {/* Card Payment Toggle */}
+                <label className={`flex items-center p-3 border rounded cursor-pointer transition-all ${
+                  cardPaymentEnabled ? 'border-purple-500 bg-purple-50/40' : 'border-gray-200 bg-gray-50 opacity-60'
+                }`}>
+                  <input
+                    type="checkbox"
+                    checked={cardPaymentEnabled}
+                    onChange={(e) => setCardPaymentEnabled(e.target.checked)}
+                    className="rounded text-purple-600 focus:ring-purple-500 h-4 w-4"
+                  />
+                  <div className="ml-2.5">
+                    <span className="text-xs font-bold text-luxury-dark block">Credit / Debit Card</span>
+                    <span className="text-[10px] text-luxury-textGray">
+                      {cardPaymentEnabled ? 'Enabled (Simulation)' : 'Off (Gateway Needed)'}
+                    </span>
+                  </div>
+                </label>
+              </div>
+
+              {!cardPaymentEnabled && (
+                <p className="text-[10px] text-amber-700 bg-amber-50 border border-amber-200 p-2 rounded flex items-center">
+                  <AlertCircle size={12} className="mr-1.5 flex-shrink-0" />
+                  <span>
+                    Card payment is kept OFF by default to prevent fraud orders until a payment gateway (Safepay / Paymob) is linked.
+                  </span>
+                </p>
+              )}
+            </div>
+
+            {/* Bank Account Details Grid */}
+            <div className="border-t border-luxury-gray pt-4 space-y-4">
+              <h3 className="text-xs font-serif font-bold uppercase tracking-wider text-luxury-dark flex items-center">
+                <span>Official Bank Coordinates (Shown to Customers)</span>
+              </h3>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-1">
+                  <label className="text-[10px] uppercase font-bold tracking-wider text-luxury-textGray">
+                    Bank Name *
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={bankName}
+                    onChange={(e) => setBankName(e.target.value)}
+                    className="w-full text-xs border border-luxury-gray p-2.5 rounded focus:outline-none"
+                    placeholder="e.g. Faysal Bank Limited (FBL) or Meezan Bank"
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-[10px] uppercase font-bold tracking-wider text-luxury-textGray">
+                    Account Title / Beneficiary Name *
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={accountTitle}
+                    onChange={(e) => setAccountTitle(e.target.value)}
+                    className="w-full text-xs border border-luxury-gray p-2.5 rounded focus:outline-none"
+                    placeholder="e.g. UBAID ULLAH"
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-[10px] uppercase font-bold tracking-wider text-luxury-textGray">
+                    Account Number *
+                  </label>
+                  <input
+                    type="text"
+                    value={accountNumber}
+                    onChange={(e) => setAccountNumber(e.target.value)}
+                    className="w-full text-xs border border-luxury-gray p-2.5 rounded focus:outline-none font-mono"
+                    placeholder="e.g. 3010123456789012"
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-[10px] uppercase font-bold tracking-wider text-luxury-textGray">
+                    IBAN (International Bank Account Number)
+                  </label>
+                  <input
+                    type="text"
+                    value={iban}
+                    onChange={(e) => setIban(e.target.value.toUpperCase())}
+                    className="w-full text-xs border border-luxury-gray p-2.5 rounded focus:outline-none font-mono uppercase"
+                    placeholder="e.g. PK36FAYS0000001234567890"
+                  />
+                </div>
+
+                <div className="sm:col-span-2 space-y-1">
+                  <label className="text-[10px] uppercase font-bold tracking-wider text-luxury-textGray">
+                    Branch Name / Code (Optional)
+                  </label>
+                  <input
+                    type="text"
+                    value={bankBranch}
+                    onChange={(e) => setBankBranch(e.target.value)}
+                    className="w-full text-xs border border-luxury-gray p-2.5 rounded focus:outline-none"
+                    placeholder="e.g. Main Boulevard Branch, Lahore"
+                  />
+                </div>
+
+                <div className="sm:col-span-2 space-y-1">
+                  <label className="text-[10px] uppercase font-bold tracking-wider text-luxury-textGray">
+                    Transfer & WhatsApp Instructions for Buyer
+                  </label>
+                  <textarea
+                    rows={2}
+                    value={bankInstructions}
+                    onChange={(e) => setBankInstructions(e.target.value)}
+                    className="w-full text-xs border border-luxury-gray p-2.5 rounded focus:outline-none"
+                    placeholder="Please transfer the exact amount and share the screenshot on WhatsApp..."
+                  />
+                </div>
               </div>
             </div>
           </div>
