@@ -54,20 +54,18 @@ app.use(
 );
 
 // Enable CORS
-const allowedOrigins = [
-  process.env.CLIENT_URL || 'http://localhost:5173',
-  'http://localhost:3000',
-  'https://ubaid-al-abayat.vercel.app',
-  'https://ubaid-al-abayat.netlify.app',
-];
-
 app.use(
   cors({
     origin: function (origin, callback) {
+      // Allow all origins (all vercel domains, localhost, custom domains)
       if (!origin) return callback(null, true);
-      if (allowedOrigins.indexOf(origin) === -1) {
-        const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
-        return callback(new Error(msg), false);
+      if (
+        origin.includes('localhost') ||
+        origin.includes('vercel.app') ||
+        origin.includes('ubaid') ||
+        origin.includes('netlify.app')
+      ) {
+        return callback(null, true);
       }
       return callback(null, true);
     },

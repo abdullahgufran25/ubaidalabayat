@@ -101,6 +101,55 @@ const Products = () => {
     setFiles(Array.from(e.target.files));
   };
 
+  const compressImage = (file) => {
+    return new Promise((resolve) => {
+      if (!file.type.startsWith('image/') || file.size <= 1024 * 1024) {
+        return resolve(file);
+      }
+      const img = new Image();
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          let { width, height } = img;
+          const maxDim = 1600;
+          if (width > maxDim || height > maxDim) {
+            if (width > height) {
+              height = Math.round((height * maxDim) / width);
+              width = maxDim;
+            } else {
+              width = Math.round((width * maxDim) / height);
+              height = maxDim;
+            }
+          }
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, width, height);
+          canvas.toBlob(
+            (blob) => {
+              if (blob) {
+                const compressedFile = new File([blob], file.name.replace(/\.[^/.]+$/, '.jpg'), {
+                  type: 'image/jpeg',
+                  lastModified: Date.now(),
+                });
+                resolve(compressedFile);
+              } else {
+                resolve(file);
+              }
+            },
+            'image/jpeg',
+            0.85
+          );
+        };
+        img.onerror = () => resolve(file);
+        img.src = e.target.result;
+      };
+      reader.onerror = () => resolve(file);
+      reader.readAsDataURL(file);
+    });
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -132,9 +181,10 @@ const Products = () => {
     formData.append('isActive', isActive ? 'true' : 'false');
 
     if (files.length > 0) {
-      files.forEach((file) => {
-        formData.append('images', file);
-      });
+      for (const file of files) {
+        const processedFile = await compressImage(file);
+        formData.append('images', processedFile);
+      }
     }
 
     try {
@@ -158,7 +208,14 @@ const Products = () => {
       }
     } catch (err) {
       console.error('Product save error:', err);
-      const errorMsg = err.response?.data?.message || err.message || 'Failed to save product';
+      let errorMsg = err.response?.data?.message;
+      if (!errorMsg) {
+        if (err.message === 'Network Error') {
+          errorMsg = 'Network or server connection error. Please try uploading a smaller image or retry.';
+        } else {
+          errorMsg = err.message || 'Failed to save product';
+        }
+      }
       addToast(errorMsg, 'error');
     } finally {
       setSubmitLoading(false);
