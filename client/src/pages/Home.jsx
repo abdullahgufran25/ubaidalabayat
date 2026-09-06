@@ -4,6 +4,8 @@ import { ArrowRight, ShieldCheck, Truck, RotateCcw, MessageSquare } from 'lucide
 import axios from 'axios';
 import { useSettings } from '../context/SettingsContext';
 import ProductCard from '../components/ProductCard';
+import heroBanner1 from '../assets/hero_banner_1.jpg';
+import heroBanner2 from '../assets/hero_banner_2.jpg';
 
 const Home = () => {
   const { settings, banners, categories } = useSettings();
@@ -44,8 +46,27 @@ const Home = () => {
   }, []);
 
   // Filter hero banners vs promo banners
-  const heroBanners = banners.filter(b => b.type === 'hero');
+  const dbHeroBanners = banners.filter(b => b.type === 'hero');
   const promoBanners = banners.filter(b => b.type === 'promo');
+
+  const defaultHeroBanners = [
+    {
+      _id: 'default-hero-1',
+      image: heroBanner1,
+      title: 'Premium Luxury Modest Wear',
+      subtitle: 'Discover our bespoke collection of handcrafted Nidha Abayas and luxury Hijabs.',
+      link: '/shop',
+    },
+    {
+      _id: 'default-hero-2',
+      image: heroBanner2,
+      title: 'Haute Couture Signature Collection',
+      subtitle: 'Effortless elegance designed for the modern modest woman.',
+      link: '/shop?sort=newest',
+    }
+  ];
+
+  const heroBanners = dbHeroBanners.length > 0 ? dbHeroBanners : defaultHeroBanners;
 
   // Hero carousel auto-play
   useEffect(() => {

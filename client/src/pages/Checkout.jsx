@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { ShoppingBag, CreditCard, Landmark, CheckCircle, AlertCircle, ArrowLeft } from 'lucide-react';
+import { ShoppingBag, CreditCard, Landmark, CheckCircle, AlertCircle, ArrowLeft, Truck } from 'lucide-react';
 import axios from 'axios';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
@@ -21,8 +21,8 @@ const Checkout = () => {
   const [postalCode, setPostalCode] = useState('');
   const [notes, setNotes] = useState('');
 
-  // Payment State
-  const [paymentMethod, setPaymentMethod] = useState('Online');
+  // Payment State (COD is default in Pakistan)
+  const [paymentMethod, setPaymentMethod] = useState('COD');
   const [placingOrder, setPlacingOrder] = useState(false);
 
   // Mock Credit Card States
@@ -230,81 +230,213 @@ const Checkout = () => {
           </div>
 
           {/* Payment Method Section */}
-          <div className="bg-white border border-luxury-gray p-6 rounded space-y-4">
+          <div className="bg-white border border-luxury-gray p-6 rounded space-y-5">
             <h2 className="font-serif text-sm uppercase tracking-widest font-bold text-luxury-gold border-b border-luxury-gray pb-2">
-              Payment Method
+              Select Payment Method *
             </h2>
 
-            <div className="bg-green-50 border border-green-200 text-green-800 p-4 rounded text-[11px] flex items-center space-x-2.5 font-bold uppercase tracking-wider">
-              <CreditCard size={14} className="text-green-600" />
-              <span>Secure Credit/Debit Card Gateway</span>
+            {/* Payment Method Radio Options */}
+            <div className="grid grid-cols-1 gap-3">
+              
+              {/* 1. Cash On Delivery */}
+              <label 
+                className={`flex items-start p-4 border rounded cursor-pointer transition-all ${
+                  paymentMethod === 'COD' 
+                    ? 'border-luxury-gold bg-luxury-cream/30 shadow-sm' 
+                    : 'border-luxury-gray hover:border-gray-300'
+                }`}
+              >
+                <input
+                  type="radio"
+                  name="paymentMethod"
+                  value="COD"
+                  checked={paymentMethod === 'COD'}
+                  onChange={(e) => setPaymentMethod(e.target.value)}
+                  className="mt-1 text-luxury-gold focus:ring-luxury-gold"
+                />
+                <div className="ml-3 flex-1">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-2">
+                      <Truck size={16} className="text-luxury-gold" />
+                      <span className="font-serif font-bold text-xs uppercase tracking-wider text-luxury-dark">
+                        Cash on Delivery (COD)
+                      </span>
+                    </div>
+                    <span className="bg-green-100 text-green-800 text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded">
+                      Most Popular
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-luxury-textGray mt-1 leading-relaxed">
+                    Pay in cash directly to the courier when your order arrives at your doorstep. No advance payment required.
+                  </p>
+                </div>
+              </label>
+
+              {/* 2. Direct Bank Transfer (Faysal Bank) */}
+              <label 
+                className={`flex items-start p-4 border rounded cursor-pointer transition-all ${
+                  paymentMethod === 'Bank Transfer' 
+                    ? 'border-luxury-gold bg-luxury-cream/30 shadow-sm' 
+                    : 'border-luxury-gray hover:border-gray-300'
+                }`}
+              >
+                <input
+                  type="radio"
+                  name="paymentMethod"
+                  value="Bank Transfer"
+                  checked={paymentMethod === 'Bank Transfer'}
+                  onChange={(e) => setPaymentMethod(e.target.value)}
+                  className="mt-1 text-luxury-gold focus:ring-luxury-gold"
+                />
+                <div className="ml-3 flex-1">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-2">
+                      <Landmark size={16} className="text-luxury-gold" />
+                      <span className="font-serif font-bold text-xs uppercase tracking-wider text-luxury-dark">
+                        Faysal Bank Transfer / EasyPaisa
+                      </span>
+                    </div>
+                    <span className="bg-blue-100 text-blue-800 text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded">
+                      Direct Transfer
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-luxury-textGray mt-1 leading-relaxed">
+                    Transfer directly to our official Faysal Bank account via Faysal Digibank App, ATM, Raast, or JazzCash/EasyPaisa.
+                  </p>
+                </div>
+              </label>
+
+              {/* 3. Credit / Debit Card */}
+              <label 
+                className={`flex items-start p-4 border rounded cursor-pointer transition-all ${
+                  paymentMethod === 'Online' 
+                    ? 'border-luxury-gold bg-luxury-cream/30 shadow-sm' 
+                    : 'border-luxury-gray hover:border-gray-300'
+                }`}
+              >
+                <input
+                  type="radio"
+                  name="paymentMethod"
+                  value="Online"
+                  checked={paymentMethod === 'Online'}
+                  onChange={(e) => setPaymentMethod(e.target.value)}
+                  className="mt-1 text-luxury-gold focus:ring-luxury-gold"
+                />
+                <div className="ml-3 flex-1">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-2">
+                      <CreditCard size={16} className="text-luxury-gold" />
+                      <span className="font-serif font-bold text-xs uppercase tracking-wider text-luxury-dark">
+                        Credit / Debit Card
+                      </span>
+                    </div>
+                    <span className="bg-purple-100 text-purple-800 text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded">
+                      Visa / Mastercard
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-luxury-textGray mt-1 leading-relaxed">
+                    Pay securely using any Pakistani or International Visa / Mastercard debit or credit card.
+                  </p>
+                </div>
+              </label>
+
             </div>
 
-            {/* Card Payment Info Box */}
-            <div className="bg-luxury-light border border-luxury-gray p-5 rounded space-y-4 text-xs">
-              <p className="font-bold text-luxury-dark uppercase tracking-wider text-[10px] flex items-center">
-                <CreditCard size={14} className="mr-1.5 text-luxury-gold" />
-                <span>Credit Card Billing Details</span>
-              </p>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                <div className="sm:col-span-3 space-y-1">
-                  <label className="text-[9px] uppercase font-bold tracking-wider text-luxury-textGray block">Cardholder Name *</label>
-                  <input
-                    type="text"
-                    required
-                    value={cardName}
-                    onChange={(e) => setCardName(e.target.value)}
-                    className="w-full text-xs border border-luxury-gray p-2.5 rounded focus:outline-none focus:border-luxury-gold bg-white"
-                    placeholder="Ayesha Fatima"
-                  />
+            {/* Faysal Bank Details Box (Shown when Bank Transfer selected) */}
+            {paymentMethod === 'Bank Transfer' && (
+              <div className="bg-luxury-cream/50 border border-luxury-gold/40 p-5 rounded space-y-3 text-xs animate-fade-in">
+                <div className="flex items-center space-x-2 border-b border-luxury-gold/20 pb-2">
+                  <Landmark size={18} className="text-luxury-goldDark" />
+                  <h4 className="font-serif font-bold text-luxury-dark uppercase tracking-wider text-xs">
+                    Official Faysal Bank Account Details
+                  </h4>
                 </div>
-                <div className="sm:col-span-2 space-y-1">
-                  <label className="text-[9px] uppercase font-bold tracking-wider text-luxury-textGray block">Card Number (16 Digits) *</label>
-                  <input
-                    type="text"
-                    required
-                    maxLength="19"
-                    value={cardNumber}
-                    onChange={(e) => {
-                      const val = e.target.value.replace(/\s/g, '').replace(/(\d{4})/g, '$1 ').trim();
-                      setCardNumber(val);
-                    }}
-                    className="w-full text-xs border border-luxury-gray p-2.5 rounded focus:outline-none focus:border-luxury-gold bg-white font-mono"
-                    placeholder="1234 5678 1234 5678"
-                  />
-                </div>
-                <div className="space-y-1">
-                  <label className="text-[9px] uppercase font-bold tracking-wider text-luxury-textGray block">Expiry Date *</label>
-                  <input
-                    type="text"
-                    required
-                    maxLength="5"
-                    value={cardExpiry}
-                    onChange={(e) => {
-                      let val = e.target.value.replace(/\//g, '');
-                      if (val.length > 2) {
-                        val = val.substring(0, 2) + '/' + val.substring(2);
-                      }
-                      setCardExpiry(val);
-                    }}
-                    className="w-full text-xs border border-luxury-gray p-2.5 rounded focus:outline-none focus:border-luxury-gold bg-white font-mono"
-                    placeholder="MM/YY"
-                  />
-                </div>
-                <div className="space-y-1">
-                  <label className="text-[9px] uppercase font-bold tracking-wider text-luxury-textGray block">CVV (Security Code) *</label>
-                  <input
-                    type="password"
-                    required
-                    maxLength="4"
-                    value={cardCvv}
-                    onChange={(e) => setCardCvv(e.target.value.replace(/\D/g, ''))}
-                    className="w-full text-xs border border-luxury-gray p-2.5 rounded focus:outline-none focus:border-luxury-gold bg-white font-mono"
-                    placeholder="•••"
-                  />
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-[11px]">
+                  <div>
+                    <span className="text-luxury-textGray block text-[9px] uppercase font-bold tracking-wider">Bank Name:</span>
+                    <strong className="text-luxury-dark font-sans text-xs">Faysal Bank Limited (FBL)</strong>
+                  </div>
+                  <div>
+                    <span className="text-luxury-textGray block text-[9px] uppercase font-bold tracking-wider">Account Title:</span>
+                    <strong className="text-luxury-dark font-sans text-xs">UBAID ULLAH</strong>
+                  </div>
+                  <div className="sm:col-span-2 bg-white p-2.5 rounded border border-luxury-gold/30">
+                    <span className="text-luxury-textGray block text-[9px] uppercase font-bold tracking-wider">Instructions:</span>
+                    <p className="text-[11px] text-luxury-dark mt-0.5 leading-relaxed">
+                      Please transfer the exact order amount (<strong className="text-luxury-goldDark font-bold font-sans">PKR {total}</strong>) and share the transaction screenshot on WhatsApp <strong className="text-luxury-dark">03287512751</strong> along with your Order ID for instant dispatch.
+                    </p>
+                  </div>
                 </div>
               </div>
-            </div>
+            )}
+
+            {/* Card Payment Info Box (Shown when Online selected) */}
+            {paymentMethod === 'Online' && (
+              <div className="bg-luxury-light border border-luxury-gray p-5 rounded space-y-4 text-xs animate-fade-in">
+                <p className="font-bold text-luxury-dark uppercase tracking-wider text-[10px] flex items-center">
+                  <CreditCard size={14} className="mr-1.5 text-luxury-gold" />
+                  <span>Card Billing Details</span>
+                </p>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  <div className="sm:col-span-3 space-y-1">
+                    <label className="text-[9px] uppercase font-bold tracking-wider text-luxury-textGray block">Cardholder Name *</label>
+                    <input
+                      type="text"
+                      required={paymentMethod === 'Online'}
+                      value={cardName}
+                      onChange={(e) => setCardName(e.target.value)}
+                      className="w-full text-xs border border-luxury-gray p-2.5 rounded focus:outline-none focus:border-luxury-gold bg-white"
+                      placeholder="Ubaid Ullah"
+                    />
+                  </div>
+                  <div className="sm:col-span-2 space-y-1">
+                    <label className="text-[9px] uppercase font-bold tracking-wider text-luxury-textGray block">Card Number (16 Digits) *</label>
+                    <input
+                      type="text"
+                      required={paymentMethod === 'Online'}
+                      maxLength="19"
+                      value={cardNumber}
+                      onChange={(e) => {
+                        const val = e.target.value.replace(/\s/g, '').replace(/(\d{4})/g, '$1 ').trim();
+                        setCardNumber(val);
+                      }}
+                      className="w-full text-xs border border-luxury-gray p-2.5 rounded focus:outline-none focus:border-luxury-gold bg-white font-mono"
+                      placeholder="5475 •••• •••• ••••"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-[9px] uppercase font-bold tracking-wider text-luxury-textGray block">Expiry Date *</label>
+                    <input
+                      type="text"
+                      required={paymentMethod === 'Online'}
+                      maxLength="5"
+                      value={cardExpiry}
+                      onChange={(e) => {
+                        let val = e.target.value.replace(/\//g, '');
+                        if (val.length > 2) {
+                          val = val.substring(0, 2) + '/' + val.substring(2);
+                        }
+                        setCardExpiry(val);
+                      }}
+                      className="w-full text-xs border border-luxury-gray p-2.5 rounded focus:outline-none focus:border-luxury-gold bg-white font-mono"
+                      placeholder="MM/YY"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-[9px] uppercase font-bold tracking-wider text-luxury-textGray block">CVV (Security Code) *</label>
+                    <input
+                      type="password"
+                      required={paymentMethod === 'Online'}
+                      maxLength="4"
+                      value={cardCvv}
+                      onChange={(e) => setCardCvv(e.target.value.replace(/\D/g, ''))}
+                      className="w-full text-xs border border-luxury-gray p-2.5 rounded focus:outline-none focus:border-luxury-gold bg-white font-mono"
+                      placeholder="•••"
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
 
         </div>

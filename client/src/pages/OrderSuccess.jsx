@@ -84,6 +84,27 @@ Please confirm my order and let me know the status.`;
         </p>
       </div>
 
+      {/* Payment Method Specific Instructions */}
+      {order.paymentMethod === 'Bank Transfer' ? (
+        <div className="bg-amber-50 border border-amber-200 p-5 rounded max-w-2xl mx-auto space-y-2 text-center text-xs animate-fade-in">
+          <p className="font-serif font-bold text-amber-900 uppercase tracking-wider text-sm">
+            Bank Transfer Action Required: PKR {order.total}
+          </p>
+          <p className="text-amber-800 leading-relaxed">
+            Please transfer to our official <strong>Faysal Bank Limited (FBL)</strong> account (Title: <strong>UBAID ULLAH</strong>) and click the WhatsApp button below to share the payment screenshot with Order ID: <strong>{order.orderNumber}</strong>.
+          </p>
+        </div>
+      ) : order.paymentMethod === 'COD' ? (
+        <div className="bg-green-50 border border-green-200 p-4 rounded max-w-2xl mx-auto text-center text-xs text-green-800 animate-fade-in">
+          <p className="font-serif font-bold uppercase tracking-wider text-sm">
+            Cash on Delivery (COD) Confirmed
+          </p>
+          <p className="mt-1 leading-relaxed">
+            Please keep exact cash of <strong>PKR {order.total}</strong> ready for the courier. Our team will contact you shortly to verify your delivery address.
+          </p>
+        </div>
+      ) : null}
+
       {/* Grid: Order details */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
         
