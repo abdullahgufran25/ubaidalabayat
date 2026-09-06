@@ -1,7 +1,9 @@
 {
-  "buildCommand": "npm run build",
-  "outputDirectory": "client/dist",
   "rewrites": [
+    {
+      "source": "/api/:match*",
+      "destination": "https://ubaid-al-abayat-api.vercel.app/api/:match*"
+    },
     {
       "source": "/(.*)",
       "destination": "/index.html"
