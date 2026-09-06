@@ -103,7 +103,11 @@ const Products = () => {
 
   const compressImage = (file) => {
     return new Promise((resolve) => {
-      if (!file.type.startsWith('image/') || file.size <= 1024 * 1024) {
+      if (!file.type || !file.type.startsWith('image/')) {
+        return resolve(file);
+      }
+      // If already very tiny (under 250KB), no need to compress
+      if (file.size <= 250 * 1024) {
         return resolve(file);
       }
       const img = new Image();
@@ -112,7 +116,7 @@ const Products = () => {
         img.onload = () => {
           const canvas = document.createElement('canvas');
           let { width, height } = img;
-          const maxDim = 1600;
+          const maxDim = 1200;
           if (width > maxDim || height > maxDim) {
             if (width > height) {
               height = Math.round((height * maxDim) / width);
@@ -139,7 +143,7 @@ const Products = () => {
               }
             },
             'image/jpeg',
-            0.85
+            0.78
           );
         };
         img.onerror = () => resolve(file);

@@ -241,13 +241,13 @@ exports.createProduct = asyncHandler(async (req, res, next) => {
     return next(new ErrorResponse(`Product with SKU '${sku}' already exists`, 400));
   }
 
-  // Handle uploaded images
+  // Handle uploaded images concurrently in parallel
   let imageUrls = [];
   if (req.files && req.files.length > 0) {
-    for (const file of req.files) {
-      const url = await uploadSingleImage(file);
-      if (url) imageUrls.push(url);
-    }
+    const uploadResults = await Promise.all(
+      req.files.map((file) => uploadSingleImage(file))
+    );
+    imageUrls = uploadResults.filter(Boolean);
   } else if (req.body.images) {
     // If sent as raw array/string list from API
     imageUrls = Array.isArray(req.body.images) ? req.body.images : [req.body.images];
@@ -329,11 +329,11 @@ exports.updateProduct = asyncHandler(async (req, res, next) => {
 
   // If new files uploaded, append or replace them
   if (req.files && req.files.length > 0) {
-    const newUrls = [];
-    for (const file of req.files) {
-      const url = await uploadSingleImage(file);
-      if (url) newUrls.push(url);
-    }
+    const uploadResults = await Promise.all(
+      req.files.map((file) => uploadSingleImage(file))
+    );
+    const newUrls = uploadResults.filter(Boolean);
+
     // If request wants to replace images (e.g. replace=true query or parameter), replace. Else append.
     if (req.body.replaceImages === 'true') {
       // Delete old images from Cloudinary / storage

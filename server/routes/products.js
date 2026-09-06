@@ -18,8 +18,8 @@ router.get('/slug/:slug', getProductBySlug);
 router.get('/:id', getProduct);
 
 // Protected admin routes to modify products
-router.post('/', protect, authorize('admin', 'staff'), upload.array('images', 5), createProduct);
-router.put('/:id', protect, authorize('admin', 'staff'), upload.array('images', 5), updateProduct);
+router.post('/', protect, authorize('admin', 'staff'), upload.array('images', 10), createProduct);
+router.put('/:id', protect, authorize('admin', 'staff'), upload.array('images', 10), updateProduct);
 router.delete('/:id', protect, authorize('admin'), deleteProduct);
 
 module.exports = router;
