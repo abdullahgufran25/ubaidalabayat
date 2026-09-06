@@ -11,25 +11,8 @@ if (!process.env.CLOUDINARY_CLOUD_NAME) {
   require('dotenv').config({ path: path.join(__dirname, '../../.env') });
 }
 
-// Configure storage options using os.tmpdir() to guarantee compatibility on Vercel serverless (read-only filesystem) & local
-const uploadDir = path.join(os.tmpdir(), 'ubaidalabayat_uploads');
-if (!fs.existsSync(uploadDir)) {
-  try {
-    fs.mkdirSync(uploadDir, { recursive: true });
-  } catch (err) {
-    console.warn('Temporary directory creation note:', err.message);
-  }
-}
-
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, uploadDir);
-  },
-  filename: function (req, file, cb) {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-    cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
-  },
-});
+// Configure memory storage for Multer (essential for serverless read-only filesystems like Vercel & fast in-memory handling)
+const storage = multer.memoryStorage();
 
 // File filter for images only
 const fileFilter = (req, file, cb) => {
@@ -84,21 +67,34 @@ const uploadSingleImage = async (file) => {
 
   if (ensureCloudinary()) {
     try {
-      const result = await cloudinary.uploader.upload(file.path, {
+      let uploadSource;
+      if (file.buffer) {
+        const fileFormat = file.mimetype || 'image/jpeg';
+        const base64Data = file.buffer.toString('base64');
+        uploadSource = `data:${fileFormat};base64,${base64Data}`;
+      } else if (file.path) {
+        uploadSource = file.path;
+      } else {
+        return null;
+      }
+
+      const result = await cloudinary.uploader.upload(uploadSource, {
         folder: 'ubaid_al_abayat',
       });
-      // Delete temporary file from local storage
-      if (fs.existsSync(file.path)) {
+      // Delete temporary file from local storage if path exists
+      if (file.path && fs.existsSync(file.path)) {
         fs.unlinkSync(file.path);
       }
       return result.secure_url;
     } catch (error) {
       console.error('Cloudinary upload error:', error);
-      // Fallback: return relative path if Cloudinary fails
-      return `/uploads/${file.filename}`;
+      // Fallback: return relative path if local file exists
+      if (file.filename) return `/uploads/${file.filename}`;
+      throw new Error('Image upload failed: ' + error.message);
     }
   } else {
-    return `/uploads/${file.filename}`;
+    if (file.filename) return `/uploads/${file.filename}`;
+    throw new Error('Cloudinary not configured and file buffer cannot be saved locally on serverless.');
   }
 };
 
