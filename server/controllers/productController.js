@@ -2,7 +2,7 @@ const Product = require('../models/product');
 const Category = require('../models/category');
 const asyncHandler = require('../middleware/async');
 const ErrorResponse = require('../utils/errorResponse');
-const { uploadSingleImage } = require('../services/upload');
+const { uploadSingleImage, deleteImage } = require('../services/upload');
 
 // @desc    Get all products (with advanced filters, search, sorting & pagination)
 // @route   GET /api/products
@@ -336,6 +336,10 @@ exports.updateProduct = asyncHandler(async (req, res, next) => {
     }
     // If request wants to replace images (e.g. replace=true query or parameter), replace. Else append.
     if (req.body.replaceImages === 'true') {
+      // Delete old images from Cloudinary / storage
+      for (const oldImg of product.images) {
+        await deleteImage(oldImg);
+      }
       imageUrls = newUrls;
     } else {
       imageUrls = [...imageUrls, ...newUrls];
@@ -406,6 +410,13 @@ exports.deleteProduct = asyncHandler(async (req, res, next) => {
     return next(new ErrorResponse(`Product not found with id of ${req.params.id}`, 404));
   }
 
+  // Delete product images from Cloudinary / storage
+  if (product.images && product.images.length > 0) {
+    for (const img of product.images) {
+      await deleteImage(img);
+    }
+  }
+
   // Delete inventory transaction records
   const InventoryTransaction = require('../models/inventory');
   await InventoryTransaction.deleteMany({ product: req.params.id });
@@ -418,7 +429,7 @@ exports.deleteProduct = asyncHandler(async (req, res, next) => {
 
   res.status(200).json({
     success: true,
-    message: 'Product deleted successfully',
+    message: 'Product and associated images deleted successfully',
     data: {},
   });
 });

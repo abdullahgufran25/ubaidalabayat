@@ -1,7 +1,7 @@
 const Category = require('../models/category');
 const asyncHandler = require('../middleware/async');
 const ErrorResponse = require('../utils/errorResponse');
-const { uploadSingleImage } = require('../services/upload');
+const { uploadSingleImage, deleteImage } = require('../services/upload');
 
 // @desc    Get all categories
 // @route   GET /api/categories
@@ -78,6 +78,9 @@ exports.updateCategory = asyncHandler(async (req, res, next) => {
 
   // Handle image upload if a new file is uploaded
   if (req.file) {
+    if (category.image) {
+      await deleteImage(category.image);
+    }
     req.body.image = await uploadSingleImage(req.file);
   }
 
@@ -120,11 +123,15 @@ exports.deleteCategory = asyncHandler(async (req, res, next) => {
     );
   }
 
+  if (category.image) {
+    await deleteImage(category.image);
+  }
+
   await category.deleteOne();
 
   res.status(200).json({
     success: true,
-    message: 'Category deleted successfully',
+    message: 'Category and image deleted successfully',
     data: {},
   });
 });

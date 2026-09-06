@@ -1,7 +1,7 @@
 const Banner = require('../models/banner');
 const asyncHandler = require('../middleware/async');
 const ErrorResponse = require('../utils/errorResponse');
-const { uploadSingleImage } = require('../services/upload');
+const { uploadSingleImage, deleteImage } = require('../services/upload');
 
 // @desc    Get all banners
 // @route   GET /api/banners
@@ -59,6 +59,9 @@ exports.updateBanner = asyncHandler(async (req, res, next) => {
   }
 
   if (req.file) {
+    if (banner.image) {
+      await deleteImage(banner.image);
+    }
     req.body.image = await uploadSingleImage(req.file);
   }
 
@@ -88,11 +91,18 @@ exports.deleteBanner = asyncHandler(async (req, res, next) => {
     return next(new ErrorResponse(`Banner not found with id of ${req.params.id}`, 404));
   }
 
+  if (banner.image) {
+    await deleteImage(banner.image);
+  }
+  if (banner.mobileImage) {
+    await deleteImage(banner.mobileImage);
+  }
+
   await banner.deleteOne();
 
   res.status(200).json({
     success: true,
-    message: 'Banner deleted successfully',
+    message: 'Banner and image deleted successfully',
     data: {},
   });
 });

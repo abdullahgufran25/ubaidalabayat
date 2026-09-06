@@ -98,12 +98,60 @@ const uploadSingleImage = async (file) => {
       return `/uploads/${file.filename}`;
     }
   } else {
-    // Return relative URL for local serving
     return `/uploads/${file.filename}`;
   }
+};
+
+/**
+ * Deletes an image from Cloudinary or local storage
+ * @param {String} imageUrl - The URL or path of the image to delete
+ * @returns {Promise<Boolean>}
+ */
+const deleteImage = async (imageUrl) => {
+  if (!imageUrl || typeof imageUrl !== 'string') return false;
+
+  if (imageUrl.includes('res.cloudinary.com')) {
+    if (ensureCloudinary()) {
+      try {
+        const splitUrl = imageUrl.split('/upload/');
+        if (splitUrl.length > 1) {
+          let publicIdWithPath = splitUrl[1];
+          // Remove version prefix (e.g. v1788670204/)
+          publicIdWithPath = publicIdWithPath.replace(/^v\d+\//, '');
+          // Remove extension
+          const lastDotIndex = publicIdWithPath.lastIndexOf('.');
+          const publicId = lastDotIndex !== -1 ? publicIdWithPath.substring(0, lastDotIndex) : publicIdWithPath;
+
+          const res = await cloudinary.uploader.destroy(publicId);
+          console.log(`Deleted Cloudinary asset (${publicId}):`, res);
+          return true;
+        }
+      } catch (error) {
+        console.error('Cloudinary deletion error:', error.message);
+      }
+    }
+  } else if (imageUrl.startsWith('/uploads/')) {
+    try {
+      const filename = path.basename(imageUrl);
+      const localPaths = [
+        path.join(__dirname, '../uploads', filename),
+        path.join(uploadDir, filename),
+      ];
+      for (const p of localPaths) {
+        if (fs.existsSync(p)) {
+          fs.unlinkSync(p);
+        }
+      }
+      return true;
+    } catch (error) {
+      console.error('Local file deletion error:', error.message);
+    }
+  }
+  return false;
 };
 
 module.exports = {
   upload,
   uploadSingleImage,
+  deleteImage,
 };
