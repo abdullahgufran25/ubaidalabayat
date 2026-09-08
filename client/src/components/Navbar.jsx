@@ -62,13 +62,13 @@ const Navbar = ({ onCartOpen, onSearchOpen }) => {
 
   return (
     <header
-      className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 ${
+      className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 bg-white/95 backdrop-blur-md border-b border-luxury-gray/60 ${
         scrolled
-          ? 'bg-luxury-light shadow-md py-4 sm:py-4.5 border-b border-luxury-gray'
-          : 'bg-transparent py-7 sm:py-8'
+          ? 'py-2 sm:py-2.5 lg:py-3 shadow-[0_4px_20px_-2px_rgba(0,0,0,0.08)]'
+          : 'py-2.5 sm:py-3 lg:py-3.5 shadow-[0_2px_14px_-2px_rgba(0,0,0,0.06)]'
       }`}
     >
-      <div className="max-w-[1550px] mx-auto px-2 sm:px-4 lg:px-6">
+      <div className="max-w-[1550px] mx-auto px-3 sm:px-4 lg:px-6">
         <div className="grid grid-cols-3 items-center">
           
           {/* Column 1: Mobile Toggle / Left Navigation Links */}
@@ -77,9 +77,10 @@ const Navbar = ({ onCartOpen, onSearchOpen }) => {
             <div className="md:hidden">
               <button
                 onClick={() => setMobileMenuOpen(true)}
-                className="text-luxury-dark hover:text-luxury-gold p-2 transition-colors"
+                className="text-luxury-dark hover:text-luxury-gold p-1.5 transition-colors"
+                aria-label="Open navigation menu"
               >
-                <Menu size={22} />
+                <Menu size={20} />
               </button>
             </div>
 
@@ -126,17 +127,17 @@ const Navbar = ({ onCartOpen, onSearchOpen }) => {
 
           {/* Column 2: Logo and Name (Centered) */}
           <div className="flex items-center justify-center text-center">
-            <Link to="/" className="flex items-center space-x-2 sm:space-x-3">
+            <Link to="/" className="flex items-center space-x-2 sm:space-x-2.5 lg:space-x-3">
               <img 
                 src={logoImg} 
                 alt="Ubaid Al Abayat Logo" 
-                className="h-9 w-9 sm:h-11 sm:w-11 lg:h-12 lg:w-12 object-contain animate-logo-shimmer" 
+                className="h-7 w-7 sm:h-9 sm:w-9 lg:h-11 lg:w-11 object-contain animate-logo-shimmer" 
               />
               <div className="text-left">
-                <h1 className="font-serif text-sm sm:text-base lg:text-lg font-black tracking-[0.12em] uppercase text-luxury-dark leading-tight hover:text-luxury-gold transition-colors">
+                <h1 className="font-serif text-xs sm:text-sm lg:text-base font-black tracking-[0.1em] sm:tracking-[0.12em] uppercase text-luxury-dark leading-tight hover:text-luxury-gold transition-colors">
                   Ubaid Al Abayat
                 </h1>
-                <p className="text-[7px] sm:text-[8px] lg:text-[9px] tracking-[0.2em] text-luxury-gold font-bold uppercase leading-none mt-0.5 sm:mt-1">
+                <p className="text-[6.5px] sm:text-[7.5px] lg:text-[8.5px] tracking-[0.18em] sm:tracking-[0.2em] text-luxury-gold font-bold uppercase leading-none mt-0.5">
                   Luxury Modest Fashion
                 </p>
               </div>
@@ -144,14 +145,15 @@ const Navbar = ({ onCartOpen, onSearchOpen }) => {
           </div>
 
           {/* Column 3: Icons - Right */}
-          <div className="flex items-center justify-end space-x-2 sm:space-x-3 lg:space-x-4">
+          <div className="flex items-center justify-end space-x-1.5 sm:space-x-3 lg:space-x-4">
             
             {/* Search */}
             <button
               onClick={onSearchOpen}
               className="text-luxury-dark hover:text-luxury-gold p-1.5 transition-colors"
+              aria-label="Search"
             >
-              <Search size={20} />
+              <Search size={19} />
             </button>
 
             {/* Wishlist */}
@@ -159,7 +161,7 @@ const Navbar = ({ onCartOpen, onSearchOpen }) => {
               to="/wishlist"
               className="hidden md:inline-flex text-luxury-dark hover:text-luxury-gold p-1.5 transition-colors relative"
             >
-              <Heart size={20} />
+              <Heart size={19} />
               {wishlistCount > 0 && (
                 <span className="absolute -top-1 -right-1 bg-luxury-gold text-luxury-dark font-sans text-[9px] font-bold h-4 w-4 rounded-full flex items-center justify-center">
                   {wishlistCount}
@@ -171,8 +173,9 @@ const Navbar = ({ onCartOpen, onSearchOpen }) => {
             <button
               onClick={onCartOpen}
               className="text-luxury-dark hover:text-luxury-gold p-1.5 transition-colors relative"
+              aria-label="Cart"
             >
-              <ShoppingBag size={20} />
+              <ShoppingBag size={19} />
               {totalCartCount > 0 && (
                 <span className="absolute -top-1 -right-1 bg-luxury-dark text-white font-sans text-[9px] font-bold h-4 w-4 rounded-full flex items-center justify-center">
                   {totalCartCount}

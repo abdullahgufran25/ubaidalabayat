@@ -37,21 +37,20 @@ export const SettingsProvider = ({ children }) => {
     try {
       setLoading(true);
       
-      // Fetch settings
-      const settingsRes = await axios.get('/api/settings');
-      if (settingsRes.data.success) {
+      // Fetch settings, banners, and categories concurrently in parallel
+      const [settingsRes, bannersRes, categoriesRes] = await Promise.all([
+        axios.get('/api/settings').catch((err) => ({ error: err })),
+        axios.get('/api/banners').catch((err) => ({ error: err })),
+        axios.get('/api/categories').catch((err) => ({ error: err })),
+      ]);
+
+      if (settingsRes?.data?.success) {
         setSettings(settingsRes.data.data);
       }
-
-      // Fetch banners
-      const bannersRes = await axios.get('/api/banners');
-      if (bannersRes.data.success) {
+      if (bannersRes?.data?.success) {
         setBanners(bannersRes.data.data);
       }
-
-      // Fetch categories
-      const categoriesRes = await axios.get('/api/categories');
-      if (categoriesRes.data.success) {
+      if (categoriesRes?.data?.success) {
         setCategories(categoriesRes.data.data);
       }
 

@@ -1,8 +1,14 @@
 const mongoose = require('mongoose');
 
 let mongoServer;
+let cachedConn = null;
 
 const connectDB = async () => {
+  // If already connected, reuse existing database connection
+  if (cachedConn && mongoose.connection.readyState >= 1) {
+    return cachedConn;
+  }
+
   let mongoUri = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/ubaid-al-abayat';
 
   // Try Atlas connection if configured
@@ -12,8 +18,9 @@ const connectDB = async () => {
       const conn = await mongoose.connect(mongoUri, {
         serverSelectionTimeoutMS: 6000, // Wait up to 6 seconds for Atlas
       });
+      cachedConn = conn;
       console.log(`MongoDB Connected (Atlas): ${conn.connection.host}`);
-      return;
+      return conn;
     } catch (err) {
       console.error(`Atlas connection failed: ${err.message}`);
       console.log('Falling back to local or in-memory database...');

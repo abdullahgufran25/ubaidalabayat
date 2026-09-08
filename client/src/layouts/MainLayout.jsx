@@ -30,7 +30,7 @@ const MainLayout = () => {
       />
 
       {/* Main Content Space */}
-      <main className="flex-grow pt-24 sm:pt-28">
+      <main className="flex-grow pt-16 sm:pt-20 md:pt-24">
         <Outlet />
       </main>
 

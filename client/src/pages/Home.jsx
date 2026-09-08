@@ -24,17 +24,16 @@ const Home = () => {
       try {
         setProductsLoading(true);
         
-        // 1. Featured
-        const featuredRes = await axios.get('/api/products?featured=true&limit=4');
-        if (featuredRes.data.success) setFeaturedProducts(featuredRes.data.data);
-        
-        // 2. New Arrivals
-        const newArrivalsRes = await axios.get('/api/products?newArrival=true&limit=4');
-        if (newArrivalsRes.data.success) setNewArrivals(newArrivalsRes.data.data);
+        // Fetch all product sections concurrently in parallel
+        const [featuredRes, newArrivalsRes, bestsellersRes] = await Promise.all([
+          axios.get('/api/products?featured=true&limit=4').catch((err) => ({ error: err })),
+          axios.get('/api/products?newArrival=true&limit=4').catch((err) => ({ error: err })),
+          axios.get('/api/products?bestseller=true&limit=4').catch((err) => ({ error: err })),
+        ]);
 
-        // 3. Bestsellers
-        const bestsellersRes = await axios.get('/api/products?bestseller=true&limit=4');
-        if (bestsellersRes.data.success) setBestsellers(bestsellersRes.data.data);
+        if (featuredRes?.data?.success) setFeaturedProducts(featuredRes.data.data);
+        if (newArrivalsRes?.data?.success) setNewArrivals(newArrivalsRes.data.data);
+        if (bestsellersRes?.data?.success) setBestsellers(bestsellersRes.data.data);
 
       } catch (err) {
         console.error('Error fetching homepage products:', err);
