@@ -48,22 +48,36 @@ const Home = () => {
   const heroBanners = banners.filter((b) => b.type === 'hero' && b.isActive !== false);
   const promoBanners = banners.filter((b) => b.type === 'promo' && b.isActive !== false);
 
-  // Preload primary LCP hero image
+  // Preload primary LCP hero image (Responsive: Desktop for 768px+, Mobile for <768px)
   useEffect(() => {
     if (heroBanners.length > 0) {
       const first = heroBanners[0];
       const desktopImg = first.desktopImage || first.image;
-      if (desktopImg) {
-        const link = document.createElement('link');
-        link.rel = 'preload';
-        link.as = 'image';
-        link.href = desktopImg;
-        link.fetchPriority = 'high';
-        document.head.appendChild(link);
-        return () => {
-          if (document.head.contains(link)) document.head.removeChild(link);
-        };
+      const mobileImg = first.mobileImage || desktopImg;
+
+      const linkDesk = document.createElement('link');
+      linkDesk.rel = 'preload';
+      linkDesk.as = 'image';
+      linkDesk.href = desktopImg;
+      linkDesk.media = '(min-width: 768px)';
+      linkDesk.fetchPriority = 'high';
+      document.head.appendChild(linkDesk);
+
+      let linkMob = null;
+      if (mobileImg && mobileImg !== desktopImg) {
+        linkMob = document.createElement('link');
+        linkMob.rel = 'preload';
+        linkMob.as = 'image';
+        linkMob.href = mobileImg;
+        linkMob.media = '(max-width: 767px)';
+        linkMob.fetchPriority = 'high';
+        document.head.appendChild(linkMob);
       }
+
+      return () => {
+        if (document.head.contains(linkDesk)) document.head.removeChild(linkDesk);
+        if (linkMob && document.head.contains(linkMob)) document.head.removeChild(linkMob);
+      };
     }
   }, [heroBanners.length]);
 

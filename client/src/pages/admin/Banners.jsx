@@ -486,6 +486,19 @@ const Banners = () => {
             {/* Form */}
             <form onSubmit={handleSubmit} className="space-y-6">
               
+              {/* Dual Upload Info Alert */}
+              <div className="bg-amber-50/80 border border-amber-200 p-3.5 rounded-lg flex items-start space-x-3 text-amber-900 text-xs">
+                <Info size={18} className="text-luxury-goldDark flex-shrink-0 mt-0.5" />
+                <div className="space-y-1">
+                  <p className="font-bold uppercase tracking-wider text-[11px] text-luxury-dark">
+                    Dual Device Upload: Desktop (Landscape 2:1) + Mobile (Portrait 3:4)
+                  </p>
+                  <p className="text-[11px] text-luxury-textGray leading-relaxed">
+                    Dono images upload karne se aapki website Desktop aur Mobile dono par 100% full-screen fit load hogi. Laptop par 2:1 wide banner chalega aur Phone par 3:4 vertical banner chalega taake model sar se paon tak bina kisi cropping ke perfect nazar aaye!
+                  </p>
+                </div>
+              </div>
+
               {/* Dual Upload Section: Desktop vs Mobile */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-luxury-light p-5 rounded-lg border border-luxury-gray">
                 
@@ -495,7 +508,7 @@ const Banners = () => {
                     <div className="flex items-center space-x-1.5">
                       <Monitor size={16} className="text-luxury-goldDark" />
                       <label className="text-xs uppercase font-bold tracking-wider text-luxury-dark">
-                        Desktop Banner *
+                        1. Desktop Banner (Landscape) *
                       </label>
                     </div>
                     <span className="text-[10px] font-bold bg-white text-luxury-goldDark border border-luxury-gold/40 px-2 py-0.5 rounded-full font-mono">
@@ -598,7 +611,7 @@ const Banners = () => {
                     <div className="flex items-center space-x-1.5">
                       <Smartphone size={16} className="text-luxury-goldDark" />
                       <label className="text-xs uppercase font-bold tracking-wider text-luxury-dark">
-                        Mobile Banner (Below 768px)
+                        2. Mobile Banner (Portrait)
                       </label>
                     </div>
                     <span className="text-[10px] font-bold bg-white text-luxury-goldDark border border-luxury-gold/40 px-2 py-0.5 rounded-full font-mono">
