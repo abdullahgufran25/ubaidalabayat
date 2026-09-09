@@ -80,37 +80,32 @@ const Home = () => {
     <div className="space-y-16 pb-12">
       
       <div className="max-w-[1550px] mx-auto px-2 sm:px-4 lg:px-6 pt-4">
-        <section className="relative h-[35vh] sm:h-[50vh] md:h-[65vh] lg:h-[75vh] bg-luxury-dark rounded overflow-hidden shadow-sm">
+        <section className="relative w-full h-[58vh] min-h-[420px] sm:h-[65vh] sm:min-h-[480px] md:h-[72vh] md:min-h-[520px] lg:h-[80vh] bg-luxury-dark rounded-lg overflow-hidden shadow-md">
           {heroBanners.length === 0 ? (
             // Fallback static Hero
             <div className="absolute inset-0 overflow-hidden">
-              {/* Blurred background cover */}
-              <div 
-                className="absolute inset-0 bg-cover bg-center blur-md opacity-80 scale-110" 
-                style={{ backgroundImage: "" }}
-              ></div>
-              {/* Contained full-fit image */}
-              <div 
-                className="absolute inset-0 bg-contain bg-no-repeat bg-center" 
-                style={{ backgroundImage: "" }}
-              ></div>
-              <div className="absolute inset-0 banner-overlay"></div>
-              <div className="absolute inset-0 flex items-end sm:items-center pb-8 sm:pb-0 z-10">
-                <div className="max-w-[1550px] mx-auto px-4 sm:px-6 lg:px-8 w-full text-white space-y-4 sm:space-y-6 pb-6 sm:pb-0">
-                  <p className="text-xs sm:text-sm tracking-[0.3em] uppercase text-luxury-gold font-bold">
+              <img
+                src={heroBanner1}
+                alt="Premium Luxury Modest Wear"
+                className="w-full h-full object-cover object-center"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t sm:bg-gradient-to-r from-black/80 via-black/40 to-transparent"></div>
+              <div className="absolute inset-0 flex items-end sm:items-center pb-10 sm:pb-0 z-10">
+                <div className="max-w-[1550px] mx-auto px-5 sm:px-8 lg:px-12 w-full text-white space-y-3 sm:space-y-5">
+                  <p className="text-[10px] sm:text-xs tracking-[0.3em] uppercase text-luxury-gold font-bold">
                     Exclusive Luxury Modesty
                   </p>
                   <h2 className="font-serif text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-bold uppercase tracking-wider max-w-2xl leading-tight">
                     Premium Luxury Modest Wear
                   </h2>
-                  <p className="text-xs sm:text-sm md:text-base text-gray-250 max-w-xs sm:max-w-md font-normal leading-relaxed text-shadow-sm">
-                    Discover our exclusive collection of premium Abayas, Hijabs, and luxury accessories.
+                  <p className="text-xs sm:text-sm md:text-base text-gray-200 max-w-xs sm:max-w-md font-normal leading-relaxed">
+                    Discover our bespoke collection of handcrafted Nidha Abayas and luxury Hijabs.
                   </p>
                   <div className="flex flex-row space-x-3 pt-2 sm:pt-4">
-                    <Link to="/shop" className="luxury-btn-gold px-6 py-3 sm:px-8 sm:py-3.5 text-xs tracking-widest font-bold">
+                    <Link to="/shop" className="luxury-btn-gold px-5 py-2.5 sm:px-8 sm:py-3.5 text-xs tracking-widest font-bold">
                       Shop Now
                     </Link>
-                    <Link to="/shop?sort=newest" className="luxury-btn-outline border-white text-white hover:bg-white hover:text-luxury-dark px-6 py-3 sm:px-8 sm:py-3.5 text-xs tracking-widest font-bold">
+                    <Link to="/shop?sort=newest" className="luxury-btn-outline border-white text-white hover:bg-white hover:text-luxury-dark px-5 py-2.5 sm:px-8 sm:py-3.5 text-xs tracking-widest font-bold">
                       Explore New
                     </Link>
                   </div>
@@ -121,52 +116,82 @@ const Home = () => {
             // Dynamic Banners
             heroBanners.map((banner, index) => (
               <div
-                key={banner._id}
+                key={banner._id || index}
                 className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${
-                  index === currentSlide ? 'opacity-100 z-10' : 'opacity-0 z-0'
+                  index === currentSlide ? 'opacity-100 z-10' : 'opacity-0 z-0 pointer-events-none'
                 }`}
               >
-                {/* Blurred background cover */}
-                <div
-                  className="absolute inset-0 bg-cover bg-center blur-md opacity-80 scale-110 transition-transform duration-[6000ms] ease-out"
-                  style={{
-                    backgroundImage: `url('${banner.image}')`,
-                    transform: index === currentSlide ? 'scale(1.05)' : 'scale(1.1)',
-                  }}
-                ></div>
-                {/* Contained full-fit image */}
-                <div
-                  className="absolute inset-0 bg-contain bg-no-repeat bg-center transition-transform duration-[6000ms] ease-out"
-                  style={{
-                    backgroundImage: `url('${banner.image}')`,
-                    transform: index === currentSlide ? 'scale(1)' : 'scale(1.03)',
-                  }}
-                ></div>
-                <div className="absolute inset-0 banner-overlay"></div>
-                <div className="absolute inset-0 flex items-end sm:items-center pb-8 sm:pb-0 z-20">
-                  <div className="max-w-[1550px] mx-auto px-4 sm:px-6 lg:px-8 w-full text-white space-y-4 sm:space-y-6 pb-6 sm:pb-0">
-                    <p className="text-xs sm:text-sm tracking-[0.3em] uppercase text-luxury-gold font-bold">
-                      Ubaid Al Abayat Signature
-                    </p>
-                    <h2 className="font-serif text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-bold uppercase tracking-wider max-w-2xl leading-tight">
-                      {banner.title}
-                    </h2>
-                    <p className="text-xs sm:text-sm md:text-base text-gray-250 max-w-xs sm:max-w-md font-normal leading-relaxed text-shadow-sm">
-                      {banner.subtitle}
-                    </p>
-                    <div className="flex pt-2 sm:pt-4">
-                      <Link
-                        to={banner.link || '/shop'}
-                        className="luxury-btn-gold px-6 py-3 sm:px-8 sm:py-3.5 text-xs tracking-widest font-bold flex items-center group"
-                      >
-                        Shop Collection
-                        <ArrowRight size={14} className="ml-2 group-hover:translate-x-1 transition-transform" />
-                      </Link>
+                {/* 100% Crisp Full-Cover Image (No Blurred Sides!) */}
+                <picture className="absolute inset-0 w-full h-full block">
+                  {banner.mobileImage && (
+                    <source media="(max-width: 640px)" srcSet={banner.mobileImage} />
+                  )}
+                  <img
+                    src={banner.image}
+                    alt={banner.title || 'Ubaid Al Abayat Banner'}
+                    className="w-full h-full object-cover object-center transition-transform duration-[7000ms] ease-out"
+                    style={{
+                      transform: index === currentSlide ? 'scale(1.03)' : 'scale(1)',
+                    }}
+                    loading={index === 0 ? 'eager' : 'lazy'}
+                  />
+                </picture>
+
+                {/* Gradient overlay only if title/subtitle is present */}
+                {(banner.title || banner.subtitle) ? (
+                  <>
+                    <div className="absolute inset-0 bg-gradient-to-t sm:bg-gradient-to-r from-black/80 via-black/40 sm:via-black/30 to-transparent"></div>
+                    <div className="absolute inset-0 flex items-end sm:items-center pb-12 sm:pb-0 z-20">
+                      <div className="max-w-[1550px] mx-auto px-5 sm:px-8 lg:px-12 w-full text-white space-y-3 sm:space-y-5">
+                        <p className="text-[10px] sm:text-xs tracking-[0.3em] uppercase text-luxury-gold font-bold">
+                          Ubaid Al Abayat Signature
+                        </p>
+                        {banner.title && (
+                          <h2 className="font-serif text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-bold uppercase tracking-wider max-w-2xl leading-tight">
+                            {banner.title}
+                          </h2>
+                        )}
+                        {banner.subtitle && (
+                          <p className="text-xs sm:text-sm md:text-base text-gray-200 max-w-xs sm:max-w-md font-normal leading-relaxed">
+                            {banner.subtitle}
+                          </p>
+                        )}
+                        <div className="flex pt-2 sm:pt-4">
+                          <Link
+                            to={banner.link || '/shop'}
+                            className="luxury-btn-gold px-5 py-2.5 sm:px-8 sm:py-3.5 text-xs tracking-widest font-bold flex items-center group"
+                          >
+                            <span>Shop Collection</span>
+                            <ArrowRight size={14} className="ml-2 group-hover:translate-x-1 transition-transform" />
+                          </Link>
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                </div>
+                  </>
+                ) : (
+                  // If banner has no text overlay, whole banner is clickable
+                  banner.link && (
+                    <Link to={banner.link} className="absolute inset-0 z-20" aria-label="Shop now" />
+                  )
+                )}
               </div>
             ))
+          )}
+
+          {/* Minimal Luxury Slide Indicators */}
+          {heroBanners.length > 1 && (
+            <div className="absolute bottom-4 left-0 right-0 z-30 flex justify-center items-center space-x-2">
+              {heroBanners.map((_, i) => (
+                <button
+                  key={i}
+                  onClick={() => setCurrentSlide(i)}
+                  className={`h-1.5 rounded-full transition-all duration-300 ${
+                    i === currentSlide ? 'w-8 bg-luxury-gold' : 'w-2 bg-white/50 hover:bg-white/80'
+                  }`}
+                  aria-label={`Go to slide ${i + 1}`}
+                />
+              ))}
+            </div>
           )}
         </section>
       </div>
