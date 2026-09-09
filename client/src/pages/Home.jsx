@@ -192,29 +192,29 @@ const Home = () => {
 
                           {banner.title && (
                             index === 0 ? (
-                              <h1 className="font-serif text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-bold uppercase tracking-wider max-w-2xl leading-tight text-white drop-shadow-sm">
+                              <h1 className="font-sans text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold uppercase tracking-[0.12em] sm:tracking-[0.15em] max-w-xl leading-snug text-white drop-shadow-sm">
                                 {banner.title}
                               </h1>
                             ) : (
-                              <h2 className="font-serif text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-bold uppercase tracking-wider max-w-2xl leading-tight text-white drop-shadow-sm">
+                              <h2 className="font-sans text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold uppercase tracking-[0.12em] sm:tracking-[0.15em] max-w-xl leading-snug text-white drop-shadow-sm">
                                 {banner.title}
                               </h2>
                             )
                           )}
 
                           {banner.subtitle && (
-                            <p className="text-xs sm:text-sm md:text-base text-gray-200 max-w-xs sm:max-w-md font-normal leading-relaxed">
+                            <p className="text-[11px] sm:text-xs md:text-sm text-gray-200 max-w-xs sm:max-w-md font-light leading-relaxed">
                               {banner.subtitle}
                             </p>
                           )}
 
-                          <div className="flex pt-2 sm:pt-4">
+                          <div className="flex pt-2 sm:pt-3">
                             <Link
                               to={ctaUrl}
-                              className="luxury-btn-gold px-5 py-2.5 sm:px-8 sm:py-3.5 text-xs tracking-widest font-bold flex items-center group shadow-md"
+                              className="luxury-btn-gold px-4 py-2 sm:px-6 sm:py-2.5 text-[10.5px] sm:text-xs tracking-widest font-semibold flex items-center group shadow-md"
                             >
                               <span>{ctaText}</span>
-                              <ArrowRight size={14} className="ml-2 group-hover:translate-x-1 transition-transform" />
+                              <ArrowRight size={13} className="ml-2 group-hover:translate-x-1 transition-transform" />
                             </Link>
                           </div>
                         </div>
@@ -259,7 +259,7 @@ const Home = () => {
               <p className="text-[10px] sm:text-xs tracking-[0.3em] uppercase text-luxury-gold font-bold">
                 Bespoke Modest Fashion
               </p>
-              <h2 className="font-serif text-2xl sm:text-3xl font-bold uppercase tracking-wider text-white">
+              <h2 className="font-sans text-xl sm:text-2xl font-bold uppercase tracking-widest text-white">
                 Ubaid Al Abayat
               </h2>
               <p className="text-xs text-gray-300 font-light leading-relaxed">
@@ -277,11 +277,11 @@ const Home = () => {
 
       {/* 2. CATEGORIES SECTION */}
       <section className="max-w-[1550px] mx-auto px-2 sm:px-4 lg:px-6">
-        <div className="text-center space-y-2 mb-10">
-          <p className="text-xs sm:text-sm tracking-[0.3em] uppercase text-luxury-goldDark font-bold">
+        <div className="text-center space-y-2 mb-8">
+          <p className="text-[10px] sm:text-xs tracking-[0.25em] uppercase text-luxury-goldDark font-bold">
             Browse By Design
           </p>
-          <h2 className="text-2xl sm:text-3xl font-bold uppercase tracking-wider">
+          <h2 className="text-lg sm:text-xl md:text-2xl font-bold uppercase tracking-wider">
             Premium Categories
           </h2>
           <div className="h-0.5 w-12 bg-luxury-gold mx-auto"></div>
@@ -319,16 +319,16 @@ const Home = () => {
       <section className="max-w-[1550px] mx-auto px-2 sm:px-4 lg:px-6">
         <div className="flex flex-col sm:flex-row justify-between items-center border-b border-luxury-gray pb-4 mb-8">
           <div className="text-center sm:text-left">
-            <h2 className="text-2xl font-serif font-bold uppercase tracking-wider">
+            <h2 className="text-lg sm:text-xl md:text-2xl font-bold uppercase tracking-wider">
               New Arrivals
             </h2>
-            <p className="text-xs sm:text-sm tracking-widest text-luxury-goldDark uppercase mt-1">
+            <p className="text-[10px] sm:text-xs tracking-widest text-luxury-goldDark uppercase mt-0.5">
               Fresh additions to your modest wardrobe
             </p>
           </div>
           <Link
             to="/shop?sort=newest"
-            className="text-xs sm:text-sm tracking-widest uppercase font-bold text-luxury-dark hover:text-luxury-gold flex items-center mt-3 sm:mt-0"
+            className="text-[10px] sm:text-xs tracking-widest uppercase font-semibold text-luxury-dark hover:text-luxury-gold flex items-center mt-3 sm:mt-0"
           >
             View All New Arrivals <ArrowRight size={12} className="ml-1" />
           </Link>
@@ -366,7 +366,7 @@ const Home = () => {
                 className="w-full h-full object-cover opacity-90"
               />
               <div className="absolute inset-0 bg-black bg-opacity-35 flex flex-col justify-center items-center text-center p-6 text-white space-y-4">
-                <h3 className="font-serif text-xl sm:text-3xl font-bold uppercase tracking-wider">
+                <h3 className="font-sans text-lg sm:text-2xl font-bold uppercase tracking-wider">
                   {promoBanners[0].title}
                 </h3>
                 <p className="text-xs sm:text-sm text-gray-200 font-light max-w-md">
@@ -388,16 +388,16 @@ const Home = () => {
       <section className="max-w-[1550px] mx-auto px-2 sm:px-4 lg:px-6">
         <div className="flex flex-col sm:flex-row justify-between items-center border-b border-luxury-gray pb-4 mb-8">
           <div className="text-center sm:text-left">
-            <h2 className="text-2xl font-serif font-bold uppercase tracking-wider">
+            <h2 className="text-lg sm:text-xl md:text-2xl font-bold uppercase tracking-wider">
               Bestsellers
             </h2>
-            <p className="text-[10px] tracking-widest text-luxury-goldDark uppercase mt-1">
+            <p className="text-[10px] sm:text-xs tracking-widest text-luxury-goldDark uppercase mt-0.5">
               Top trending pieces loved by our customers
             </p>
           </div>
           <Link
             to="/shop?sort=bestselling"
-            className="text-[10px] tracking-widest uppercase font-bold text-luxury-dark hover:text-luxury-gold flex items-center mt-3 sm:mt-0"
+            className="text-[10px] sm:text-xs tracking-widest uppercase font-semibold text-luxury-dark hover:text-luxury-gold flex items-center mt-3 sm:mt-0"
           >
             View All Bestsellers <ArrowRight size={12} className="ml-1" />
           </Link>
@@ -428,10 +428,10 @@ const Home = () => {
       <section className="bg-white py-16 border-y border-luxury-gray">
         <div className="max-w-[1550px] mx-auto px-2 sm:px-4 lg:px-6">
           <div className="text-center space-y-2 mb-12">
-            <p className="text-[10px] tracking-[0.3em] uppercase text-luxury-goldDark font-bold">
+            <p className="text-[10px] sm:text-xs tracking-[0.25em] uppercase text-luxury-goldDark font-bold">
               The Boutique Standards
             </p>
-            <h2 className="text-2xl sm:text-3xl font-bold uppercase tracking-wider">
+            <h2 className="text-lg sm:text-xl md:text-2xl font-bold uppercase tracking-wider">
               Why Choose Ubaid Al Abayat?
             </h2>
             <div className="h-0.5 w-12 bg-luxury-gold mx-auto"></div>

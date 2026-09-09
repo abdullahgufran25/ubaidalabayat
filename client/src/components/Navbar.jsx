@@ -104,7 +104,7 @@ const Navbar = ({ onCartOpen, onSearchOpen }) => {
               </div>
 
               {/* Navigation Links - Left (Desktop lg+) */}
-              <nav className="hidden lg:flex space-x-6 xl:space-x-8 text-xs lg:text-sm font-semibold tracking-widest uppercase">
+              <nav className="hidden lg:flex space-x-6 xl:space-x-8 text-[11px] font-medium tracking-[0.16em] uppercase">
                 <Link to="/" className="text-luxury-dark hover:text-luxury-gold transition-colors">
                   Home
                 </Link>
@@ -121,14 +121,14 @@ const Navbar = ({ onCartOpen, onSearchOpen }) => {
                         <Link
                           key={cat._id}
                           to={`/shop?category=${cat.slug}`}
-                          className="block px-4 py-2 text-xs uppercase tracking-wider text-luxury-dark hover:bg-luxury-cream hover:text-luxury-goldDark"
+                          className="block px-4 py-2 text-[11px] uppercase tracking-wider text-luxury-dark hover:bg-luxury-cream hover:text-luxury-goldDark font-medium"
                         >
                           {cat.name}
                         </Link>
                       ))}
                       <Link
                         to="/shop?newArrival=true"
-                        className="block px-4 py-2 text-xs uppercase tracking-wider text-luxury-dark hover:bg-luxury-cream hover:text-luxury-goldDark font-semibold"
+                        className="block px-4 py-2 text-[11px] uppercase tracking-wider text-luxury-dark hover:bg-luxury-cream hover:text-luxury-goldDark font-semibold"
                       >
                         New Arrivals
                       </Link>
@@ -153,10 +153,10 @@ const Navbar = ({ onCartOpen, onSearchOpen }) => {
                   className="h-7 w-7 sm:h-9 sm:w-9 lg:h-11 lg:w-11 object-contain flex-shrink-0 animate-logo-shimmer" 
                 />
                 <div className="text-left whitespace-nowrap">
-                  <h1 className="font-serif text-[12px] min-[360px]:text-[13px] sm:text-sm lg:text-base font-black tracking-[0.08em] sm:tracking-[0.12em] uppercase text-luxury-dark leading-tight group-hover:text-luxury-gold transition-colors whitespace-nowrap">
+                  <h1 className="font-sans text-[11.5px] min-[360px]:text-[12.5px] sm:text-[13.5px] lg:text-[15px] font-bold tracking-[0.1em] sm:tracking-[0.14em] uppercase text-luxury-dark leading-tight group-hover:text-luxury-gold transition-colors whitespace-nowrap">
                     Ubaid Al Abayat
                   </h1>
-                  <p className="text-[6.5px] min-[360px]:text-[7px] sm:text-[7.5px] lg:text-[8.5px] tracking-[0.16em] sm:tracking-[0.2em] text-luxury-gold font-bold uppercase leading-none mt-0.5 whitespace-nowrap">
+                  <p className="text-[6.5px] min-[360px]:text-[7px] sm:text-[7.5px] lg:text-[8px] tracking-[0.18em] sm:tracking-[0.22em] text-luxury-gold font-bold uppercase leading-none mt-0.5 whitespace-nowrap">
                     Luxury Modest Fashion
                   </p>
                 </div>
@@ -302,7 +302,7 @@ const Navbar = ({ onCartOpen, onSearchOpen }) => {
                 <div className="flex items-center space-x-2.5">
                   <img src={logoImg} alt="Ubaid Al Abayat" className="h-8 w-8 object-contain flex-shrink-0" />
                   <div className="text-left whitespace-nowrap">
-                    <span className="font-serif text-sm font-bold uppercase tracking-wider text-luxury-dark block leading-tight">
+                    <span className="font-sans text-[13px] font-bold uppercase tracking-wider text-luxury-dark block leading-tight">
                       Ubaid Al Abayat
                     </span>
                     <span className="text-[7.5px] text-luxury-gold tracking-widest uppercase font-bold block mt-0.5">
