@@ -5,6 +5,7 @@ import axios from 'axios';
 import { useSettings } from '../context/SettingsContext';
 import ProductCard from '../components/ProductCard';
 import logoImg from '../assets/logo.png';
+import { generateSrcSet, DESKTOP_BANNER_WIDTHS, MOBILE_BANNER_WIDTHS } from '../utils/imageOptimizer';
 
 const Home = () => {
   const { settings, banners, categories } = useSettings();
@@ -47,6 +48,25 @@ const Home = () => {
   const heroBanners = banners.filter((b) => b.type === 'hero' && b.isActive !== false);
   const promoBanners = banners.filter((b) => b.type === 'promo' && b.isActive !== false);
 
+  // Preload primary LCP hero image
+  useEffect(() => {
+    if (heroBanners.length > 0) {
+      const first = heroBanners[0];
+      const desktopImg = first.desktopImage || first.image;
+      if (desktopImg) {
+        const link = document.createElement('link');
+        link.rel = 'preload';
+        link.as = 'image';
+        link.href = desktopImg;
+        link.fetchPriority = 'high';
+        document.head.appendChild(link);
+        return () => {
+          if (document.head.contains(link)) document.head.removeChild(link);
+        };
+      }
+    }
+  }, [heroBanners.length]);
+
   // Hero carousel auto-play
   useEffect(() => {
     if (heroBanners.length <= 1) return;
@@ -61,69 +81,126 @@ const Home = () => {
       
       <div className="max-w-[1550px] mx-auto px-2 sm:px-4 lg:px-6 pt-4">
         {heroBanners.length > 0 ? (
-          <section className="relative w-full h-[58vh] min-h-[420px] sm:h-[65vh] sm:min-h-[480px] md:h-[72vh] md:min-h-[520px] lg:h-[80vh] bg-luxury-dark rounded-lg overflow-hidden shadow-md">
-            {heroBanners.map((banner, index) => (
-              <div
-                key={banner._id || index}
-                className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${
-                  index === currentSlide ? 'opacity-100 z-10' : 'opacity-0 z-0 pointer-events-none'
-                }`}
-              >
-                {/* 100% Crisp Full-Cover Image (No Blurred Sides!) */}
-                <picture className="absolute inset-0 w-full h-full block">
-                  {banner.mobileImage && (
-                    <source media="(max-width: 640px)" srcSet={banner.mobileImage} />
-                  )}
-                  <img
-                    src={banner.image}
-                    alt={banner.title || 'Ubaid Al Abayat Banner'}
-                    className="w-full h-full object-cover object-center transition-transform duration-[7000ms] ease-out"
-                    style={{
-                      transform: index === currentSlide ? 'scale(1.03)' : 'scale(1)',
-                    }}
-                    loading={index === 0 ? 'eager' : 'lazy'}
-                  />
-                </picture>
+          <section className="relative w-full h-[clamp(500px,75vh,650px)] sm:h-[clamp(500px,68vh,650px)] lg:h-[clamp(550px,75vh,750px)] max-h-[750px] bg-luxury-dark rounded-lg overflow-hidden shadow-md">
+            {heroBanners.map((banner, index) => {
+              const desktopSrc = banner.desktopImage || banner.image;
+              const mobileSrc = banner.mobileImage || desktopSrc;
+              const altText = banner.altText || banner.title || 'Ubaid Al Abayat Luxury Modest Fashion';
+              const ctaText = banner.ctaText || 'Shop Collection';
+              const ctaUrl = banner.ctaUrl || banner.link || '/shop';
 
-                {/* Gradient overlay only if title/subtitle is present */}
-                {(banner.title || banner.subtitle) ? (
-                  <>
-                    <div className="absolute inset-0 bg-gradient-to-t sm:bg-gradient-to-r from-black/80 via-black/40 sm:via-black/30 to-transparent"></div>
-                    <div className="absolute inset-0 flex items-end sm:items-center pb-12 sm:pb-0 z-20">
-                      <div className="max-w-[1550px] mx-auto px-5 sm:px-8 lg:px-12 w-full text-white space-y-3 sm:space-y-5">
-                        <p className="text-[10px] sm:text-xs tracking-[0.3em] uppercase text-luxury-gold font-bold">
-                          Ubaid Al Abayat Signature
-                        </p>
-                        {banner.title && (
-                          <h2 className="font-serif text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-bold uppercase tracking-wider max-w-2xl leading-tight">
-                            {banner.title}
-                          </h2>
-                        )}
-                        {banner.subtitle && (
-                          <p className="text-xs sm:text-sm md:text-base text-gray-200 max-w-xs sm:max-w-md font-normal leading-relaxed">
-                            {banner.subtitle}
+              return (
+                <div
+                  key={banner._id || index}
+                  className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${
+                    index === currentSlide ? 'opacity-100 z-10' : 'opacity-0 z-0 pointer-events-none'
+                  }`}
+                >
+                  {/* 100% Crisp Responsive Picture Element (No Blurred Sides!) */}
+                  <picture className="absolute inset-0 w-full h-full block">
+                    {/* 1. Mobile Screens (< 768px): 3:4 Portrait Variant */}
+                    <source
+                      media="(max-width: 767px)"
+                      type="image/avif"
+                      srcSet={generateSrcSet(mobileSrc, MOBILE_BANNER_WIDTHS, 'avif')}
+                      sizes="100vw"
+                    />
+                    <source
+                      media="(max-width: 767px)"
+                      type="image/webp"
+                      srcSet={generateSrcSet(mobileSrc, MOBILE_BANNER_WIDTHS, 'webp')}
+                      sizes="100vw"
+                    />
+                    <source
+                      media="(max-width: 767px)"
+                      srcSet={generateSrcSet(mobileSrc, MOBILE_BANNER_WIDTHS, 'auto')}
+                      sizes="100vw"
+                    />
+
+                    {/* 2. Tablet, Laptop & Desktop Screens (>= 768px): 2:1 Wide Variant */}
+                    <source
+                      media="(min-width: 768px)"
+                      type="image/avif"
+                      srcSet={generateSrcSet(desktopSrc, DESKTOP_BANNER_WIDTHS, 'avif')}
+                      sizes="100vw"
+                    />
+                    <source
+                      media="(min-width: 768px)"
+                      type="image/webp"
+                      srcSet={generateSrcSet(desktopSrc, DESKTOP_BANNER_WIDTHS, 'webp')}
+                      sizes="100vw"
+                    />
+                    <source
+                      media="(min-width: 768px)"
+                      srcSet={generateSrcSet(desktopSrc, DESKTOP_BANNER_WIDTHS, 'auto')}
+                      sizes="100vw"
+                    />
+
+                    {/* 3. Base Fallback Image */}
+                    <img
+                      src={desktopSrc}
+                      alt={altText}
+                      className="w-full h-full object-cover [object-position:var(--mob-pos)] md:[object-position:var(--desk-pos)] transition-transform duration-[7000ms] ease-out"
+                      style={{
+                        '--desk-pos': banner.desktopPosition || 'center',
+                        '--mob-pos': banner.mobilePosition || 'center',
+                        transform: index === currentSlide ? 'scale(1.03)' : 'scale(1)',
+                      }}
+                      loading={index === 0 ? 'eager' : 'lazy'}
+                      fetchPriority={index === 0 ? 'high' : 'auto'}
+                      decoding="async"
+                    />
+                  </picture>
+
+                  {/* Gradient overlay only if title/subtitle is present */}
+                  {(banner.title || banner.subtitle) ? (
+                    <>
+                      <div className="absolute inset-0 bg-gradient-to-t sm:bg-gradient-to-r from-black/85 via-black/45 sm:via-black/35 to-transparent"></div>
+                      <div className="absolute inset-0 flex items-end sm:items-center pb-12 sm:pb-0 z-20">
+                        <div className="max-w-[1550px] mx-auto px-5 sm:px-8 lg:px-12 w-full text-white space-y-3 sm:space-y-5">
+                          <p className="text-[10px] sm:text-xs tracking-[0.3em] uppercase text-luxury-gold font-bold">
+                            Ubaid Al Abayat Signature
                           </p>
-                        )}
-                        <div className="flex pt-2 sm:pt-4">
-                          <Link
-                            to={banner.link || '/shop'}
-                            className="luxury-btn-gold px-5 py-2.5 sm:px-8 sm:py-3.5 text-xs tracking-widest font-bold flex items-center group"
-                          >
-                            <span>Shop Collection</span>
-                            <ArrowRight size={14} className="ml-2 group-hover:translate-x-1 transition-transform" />
-                          </Link>
+
+                          {banner.title && (
+                            index === 0 ? (
+                              <h1 className="font-serif text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-bold uppercase tracking-wider max-w-2xl leading-tight text-white drop-shadow-sm">
+                                {banner.title}
+                              </h1>
+                            ) : (
+                              <h2 className="font-serif text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-bold uppercase tracking-wider max-w-2xl leading-tight text-white drop-shadow-sm">
+                                {banner.title}
+                              </h2>
+                            )
+                          )}
+
+                          {banner.subtitle && (
+                            <p className="text-xs sm:text-sm md:text-base text-gray-200 max-w-xs sm:max-w-md font-normal leading-relaxed">
+                              {banner.subtitle}
+                            </p>
+                          )}
+
+                          <div className="flex pt-2 sm:pt-4">
+                            <Link
+                              to={ctaUrl}
+                              className="luxury-btn-gold px-5 py-2.5 sm:px-8 sm:py-3.5 text-xs tracking-widest font-bold flex items-center group shadow-md"
+                            >
+                              <span>{ctaText}</span>
+                              <ArrowRight size={14} className="ml-2 group-hover:translate-x-1 transition-transform" />
+                            </Link>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  </>
-                ) : (
-                  // If banner has no text overlay, whole banner is clickable
-                  banner.link && (
-                    <Link to={banner.link} className="absolute inset-0 z-20" aria-label="Shop now" />
-                  )
-                )}
-              </div>
-            ))}
+                    </>
+                  ) : (
+                    // If banner has no text overlay, whole banner is clickable
+                    ctaUrl && (
+                      <Link to={ctaUrl} className="absolute inset-0 z-20" aria-label={altText} />
+                    )
+                  )}
+                </div>
+              );
+            })}
 
             {/* Minimal Luxury Slide Indicators */}
             {heroBanners.length > 1 && (

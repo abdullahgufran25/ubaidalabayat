@@ -12,7 +12,8 @@ exports.getBanners = asyncHandler(async (req, res, next) => {
   if (!req.user || (req.user.role !== 'admin' && req.user.role !== 'staff')) {
     filter.isActive = true;
   }
-  const banners = await Banner.find(filter).sort({ createdAt: -1 });
+  // Sort by admin-defined sortOrder first (lowest number first), then newest
+  const banners = await Banner.find(filter).sort({ sortOrder: 1, createdAt: -1 });
 
   res.status(200).json({
     success: true,
@@ -24,21 +25,54 @@ exports.getBanners = asyncHandler(async (req, res, next) => {
 // @route   POST /api/banners
 // @access  Private/Admin
 exports.createBanner = asyncHandler(async (req, res, next) => {
-  if (!req.file) {
-    return next(new ErrorResponse('Please upload a banner image', 400));
+  // Extract desktop and mobile files from req.files (upload.fields) or req.file
+  const desktopFile = (req.files && (req.files.desktopImage?.[0] || req.files.image?.[0])) || req.file;
+  const mobileFile = req.files && req.files.mobileImage?.[0];
+
+  if (!desktopFile) {
+    return next(new ErrorResponse('Please upload a desktop banner image (recommended 2560x1280 px)', 400));
   }
 
-  const imageUrl = await uploadSingleImage(req.file);
+  // Upload primary desktop banner
+  const desktopImageUrl = await uploadSingleImage(desktopFile);
 
-  const { title, subtitle, link, type, isActive } = req.body;
+  // Upload mobile banner if provided
+  let mobileImageUrl = '';
+  if (mobileFile) {
+    mobileImageUrl = await uploadSingleImage(mobileFile);
+  }
 
-  const banner = await Banner.create({
+  const {
     title,
     subtitle,
+    ctaText,
+    ctaUrl,
     link,
+    altText,
+    desktopPosition,
+    mobilePosition,
+    sortOrder,
     type,
-    isActive: isActive === 'false' ? false : true,
-    image: imageUrl,
+    isActive,
+  } = req.body;
+
+  const targetLink = ctaUrl || link || '/shop';
+
+  const banner = await Banner.create({
+    title: title || '',
+    subtitle: subtitle || '',
+    image: desktopImageUrl,
+    desktopImage: desktopImageUrl,
+    mobileImage: mobileImageUrl,
+    ctaText: ctaText || 'Shop Collection',
+    ctaUrl: targetLink,
+    link: targetLink,
+    altText: altText || '',
+    desktopPosition: desktopPosition || 'center',
+    mobilePosition: mobilePosition || 'center',
+    sortOrder: sortOrder !== undefined && sortOrder !== '' ? Number(sortOrder) : 0,
+    type: type || 'hero',
+    isActive: isActive === 'false' || isActive === false ? false : true,
   });
 
   res.status(201).json({
@@ -58,15 +92,43 @@ exports.updateBanner = asyncHandler(async (req, res, next) => {
     return next(new ErrorResponse(`Banner not found with id of ${req.params.id}`, 404));
   }
 
-  if (req.file) {
+  const desktopFile = (req.files && (req.files.desktopImage?.[0] || req.files.image?.[0])) || req.file;
+  const mobileFile = req.files && req.files.mobileImage?.[0];
+
+  // If a new desktop image is uploaded, replace the old one
+  if (desktopFile) {
     if (banner.image) {
       await deleteImage(banner.image);
     }
-    req.body.image = await uploadSingleImage(req.file);
+    if (banner.desktopImage && banner.desktopImage !== banner.image) {
+      await deleteImage(banner.desktopImage);
+    }
+    const newDesktopUrl = await uploadSingleImage(desktopFile);
+    req.body.image = newDesktopUrl;
+    req.body.desktopImage = newDesktopUrl;
+  }
+
+  // If a new mobile image is uploaded, replace the old one
+  if (mobileFile) {
+    if (banner.mobileImage) {
+      await deleteImage(banner.mobileImage);
+    }
+    const newMobileUrl = await uploadSingleImage(mobileFile);
+    req.body.mobileImage = newMobileUrl;
   }
 
   if (req.body.isActive !== undefined) {
     req.body.isActive = req.body.isActive === 'true' || req.body.isActive === true;
+  }
+
+  if (req.body.sortOrder !== undefined && req.body.sortOrder !== '') {
+    req.body.sortOrder = Number(req.body.sortOrder);
+  }
+
+  if (req.body.ctaUrl) {
+    req.body.link = req.body.ctaUrl;
+  } else if (req.body.link) {
+    req.body.ctaUrl = req.body.link;
   }
 
   banner = await Banner.findByIdAndUpdate(req.params.id, req.body, {
@@ -91,8 +153,12 @@ exports.deleteBanner = asyncHandler(async (req, res, next) => {
     return next(new ErrorResponse(`Banner not found with id of ${req.params.id}`, 404));
   }
 
+  // Delete all associated assets
   if (banner.image) {
     await deleteImage(banner.image);
+  }
+  if (banner.desktopImage && banner.desktopImage !== banner.image) {
+    await deleteImage(banner.desktopImage);
   }
   if (banner.mobileImage) {
     await deleteImage(banner.mobileImage);
@@ -102,7 +168,7 @@ exports.deleteBanner = asyncHandler(async (req, res, next) => {
 
   res.status(200).json({
     success: true,
-    message: 'Banner and image deleted successfully',
+    message: 'Banner and associated assets deleted successfully',
     data: {},
   });
 });
