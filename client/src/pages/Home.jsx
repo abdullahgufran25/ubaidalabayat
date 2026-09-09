@@ -81,7 +81,7 @@ const Home = () => {
       
       <div className="max-w-[1550px] mx-auto px-2 sm:px-4 lg:px-6 pt-4">
         {heroBanners.length > 0 ? (
-          <section className="relative w-full h-[clamp(500px,75vh,650px)] sm:h-[clamp(500px,68vh,650px)] lg:h-[clamp(550px,75vh,750px)] max-h-[750px] bg-luxury-dark rounded-lg overflow-hidden shadow-md">
+          <section className="relative w-full h-[clamp(540px,78vh,700px)] sm:h-[clamp(580px,78vh,740px)] lg:h-[clamp(640px,80vh,820px)] max-h-[840px] bg-luxury-dark rounded-lg overflow-hidden shadow-md">
             {heroBanners.map((banner, index) => {
               const desktopSrc = banner.desktopImage || banner.image;
               const mobileSrc = banner.mobileImage || desktopSrc;
@@ -142,9 +142,9 @@ const Home = () => {
                       alt={altText}
                       className="w-full h-full object-cover [object-position:var(--mob-pos)] md:[object-position:var(--desk-pos)] transition-transform duration-[7000ms] ease-out"
                       style={{
-                        '--desk-pos': banner.desktopPosition || 'center',
-                        '--mob-pos': banner.mobilePosition || 'center',
-                        transform: index === currentSlide ? 'scale(1.03)' : 'scale(1)',
+                        '--desk-pos': banner.desktopPosition || 'center 20%',
+                        '--mob-pos': banner.mobilePosition || 'center 15%',
+                        transform: index === currentSlide ? 'scale(1.02)' : 'scale(1)',
                       }}
                       loading={index === 0 ? 'eager' : 'lazy'}
                       fetchPriority={index === 0 ? 'high' : 'auto'}
@@ -157,10 +157,24 @@ const Home = () => {
                     <>
                       <div className="absolute inset-0 bg-gradient-to-t sm:bg-gradient-to-r from-black/85 via-black/45 sm:via-black/35 to-transparent"></div>
                       <div className="absolute inset-0 flex items-end sm:items-center pb-12 sm:pb-0 z-20">
-                        <div className="max-w-[1550px] mx-auto px-5 sm:px-8 lg:px-12 w-full text-white space-y-3 sm:space-y-5">
-                          <p className="text-[10px] sm:text-xs tracking-[0.3em] uppercase text-luxury-gold font-bold">
-                            Ubaid Al Abayat Signature
-                          </p>
+                        <div className="max-w-[1550px] mx-auto px-5 sm:px-8 lg:px-12 w-full text-white space-y-3 sm:space-y-4">
+                          
+                          {/* Official Registered Brand Logo & Tagline */}
+                          <div className="flex items-center space-x-2.5 sm:space-x-3.5 mb-1">
+                            <img
+                              src={logoImg}
+                              alt="Ubaid Al Abayat Official Registered Logo"
+                              className="h-10 w-10 sm:h-12 sm:w-12 lg:h-14 lg:w-14 object-contain animate-logo-shimmer drop-shadow-[0_0_12px_rgba(197,168,128,0.8)] flex-shrink-0"
+                            />
+                            <div>
+                              <p className="text-[10px] sm:text-xs tracking-[0.25em] sm:tracking-[0.3em] uppercase text-luxury-gold font-bold leading-tight">
+                                Ubaid Al Abayat
+                              </p>
+                              <p className="text-[7.5px] sm:text-[8.5px] tracking-[0.2em] text-gray-300 uppercase font-medium mt-0.5">
+                                Luxury Modest Fashion
+                              </p>
+                            </div>
+                          </div>
 
                           {banner.title && (
                             index === 0 ? (
