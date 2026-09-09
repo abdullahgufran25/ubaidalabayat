@@ -36,12 +36,22 @@ const Footer = () => {
           
           {/* Brand Info */}
           <div>
-            <div className="flex items-center space-x-3 mb-4">
-              <img src={logoImg} alt="Ubaid Al Abayat" className="w-8 h-8 object-contain filter invert animate-logo-shimmer" />
-              <h2 className="font-sans text-xl font-bold tracking-widest uppercase text-white">
+            <Link
+              to="/"
+              onClick={() => {
+                window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
+              }}
+              className="inline-flex items-center space-x-3 mb-4 group cursor-pointer"
+            >
+              <img
+                src={logoImg}
+                alt="Ubaid Al Abayat"
+                className="w-8 h-8 object-contain filter invert animate-logo-shimmer group-hover:scale-105 transition-transform"
+              />
+              <h2 className="font-sans text-xl font-bold tracking-widest uppercase text-white group-hover:text-luxury-gold transition-colors">
                 Ubaid Al Abayat
               </h2>
-            </div>
+            </Link>
             <p className="text-gray-400 text-xs leading-relaxed mb-6">
               {settings.aboutUsText || 
                 'Tailoring premium Saudi Nidha Abayas, Hijabs, and modest wear. Rooted in luxury Pakstani fashion values, redefining elegance.'}
@@ -89,6 +99,17 @@ const Footer = () => {
               Quick Links
             </h3>
             <ul className="space-y-3 text-xs text-gray-400">
+              <li>
+                <Link
+                  to="/"
+                  onClick={() => {
+                    window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
+                  }}
+                  className="hover:text-white transition-colors"
+                >
+                  Home
+                </Link>
+              </li>
               <li>
                 <Link to="/shop" className="hover:text-white transition-colors">Shop Collection</Link>
               </li>

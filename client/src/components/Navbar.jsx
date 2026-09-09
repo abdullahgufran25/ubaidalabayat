@@ -105,7 +105,13 @@ const Navbar = ({ onCartOpen, onSearchOpen }) => {
 
               {/* Navigation Links - Left (Desktop lg+) */}
               <nav className="hidden lg:flex space-x-6 xl:space-x-8 text-[11px] font-medium tracking-[0.16em] uppercase">
-                <Link to="/" className="text-luxury-dark hover:text-luxury-gold transition-colors">
+                <Link
+                  to="/"
+                  onClick={() => {
+                    window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
+                  }}
+                  className="text-luxury-dark hover:text-luxury-gold transition-colors"
+                >
                   Home
                 </Link>
                 <Link to="/shop" className="text-luxury-dark hover:text-luxury-gold transition-colors">
@@ -146,7 +152,13 @@ const Navbar = ({ onCartOpen, onSearchOpen }) => {
 
             {/* Column 2: Logo and Brand Name (Centered across all screen sizes) */}
             <div className="flex items-center justify-center text-center px-1">
-              <Link to="/" className="inline-flex items-center space-x-2 sm:space-x-2.5 lg:space-x-3 max-w-full group">
+              <Link
+                to="/"
+                onClick={() => {
+                  window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
+                }}
+                className="inline-flex items-center space-x-2 sm:space-x-2.5 lg:space-x-3 max-w-full group cursor-pointer"
+              >
                 <img 
                   src={logoImg} 
                   alt="Ubaid Al Abayat Logo" 
@@ -299,17 +311,24 @@ const Navbar = ({ onCartOpen, onSearchOpen }) => {
             <div>
               {/* Drawer Brand Header with Official Logo */}
               <div className="flex justify-between items-center pb-5 border-b border-luxury-gray">
-                <div className="flex items-center space-x-2.5">
+                <Link
+                  to="/"
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
+                  }}
+                  className="flex items-center space-x-2.5 group cursor-pointer"
+                >
                   <img src={logoImg} alt="Ubaid Al Abayat" className="h-8 w-8 object-contain flex-shrink-0" />
                   <div className="text-left whitespace-nowrap">
-                    <span className="font-sans text-[13px] font-bold uppercase tracking-wider text-luxury-dark block leading-tight">
+                    <span className="font-sans text-[13px] font-bold uppercase tracking-wider text-luxury-dark block leading-tight group-hover:text-luxury-gold transition-colors">
                       Ubaid Al Abayat
                     </span>
                     <span className="text-[7.5px] text-luxury-gold tracking-widest uppercase font-bold block mt-0.5">
                       Luxury Modest Fashion
                     </span>
                   </div>
-                </div>
+                </Link>
                 <button
                   onClick={() => setMobileMenuOpen(false)}
                   className="p-1.5 rounded-full hover:bg-luxury-cream text-luxury-dark hover:text-luxury-gold transition-colors focus:outline-none"
@@ -323,7 +342,10 @@ const Navbar = ({ onCartOpen, onSearchOpen }) => {
               <div className="mt-6 flex flex-col space-y-4 text-xs font-semibold uppercase tracking-widest">
                 <Link 
                   to="/" 
-                  onClick={() => setMobileMenuOpen(false)} 
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
+                  }} 
                   className="py-1 text-luxury-dark hover:text-luxury-gold transition-colors"
                 >
                   Home
