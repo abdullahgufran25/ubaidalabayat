@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Outlet, Link, useNavigate, useLocation } from 'react-router-dom';
 import {
   LayoutDashboard,
@@ -25,6 +25,14 @@ const AdminLayout = () => {
   const location = useLocation();
   const { user, logout } = useAuth();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const mainRef = useRef(null);
+
+  // Smoothly scroll admin main content to top on tab change
+  useEffect(() => {
+    if (mainRef.current) {
+      mainRef.current.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }, [location.pathname]);
 
   const handleLogout = () => {
     logout();
@@ -145,7 +153,7 @@ const AdminLayout = () => {
         </header>
 
         {/* Content View Workspace */}
-        <main className="flex-grow p-6 sm:p-8 overflow-y-auto max-w-7xl w-full mx-auto">
+        <main ref={mainRef} className="flex-grow p-6 sm:p-8 overflow-y-auto max-w-7xl w-full mx-auto">
           <Outlet />
         </main>
 

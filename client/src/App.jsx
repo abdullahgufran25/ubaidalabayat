@@ -9,6 +9,9 @@ import { ToastProvider } from './context/ToastContext';
 import MainLayout from './layouts/MainLayout';
 import AdminLayout from './layouts/AdminLayout';
 
+// Navigation Helpers
+import ScrollToTop from './components/ScrollToTop';
+
 // Public Pages
 import Home from './pages/Home';
 import Shop from './pages/Shop';
@@ -56,6 +59,7 @@ const AdminRoute = ({ children }) => {
 function App() {
   return (
     <Router>
+      <ScrollToTop />
       <ToastProvider>
         <AuthProvider>
           <SettingsProvider>

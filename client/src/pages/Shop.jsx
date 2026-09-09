@@ -65,8 +65,8 @@ const Shop = () => {
       }
     };
     fetchFilteredProducts();
-    // Scroll window to top on page change
-    window.scrollTo(0, 0);
+    // Scroll window smoothly to top on page or filter change
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }, [searchParams]);
 
   // Update query params helper

@@ -3,6 +3,9 @@
 @tailwind utilities;
 
 @layer base {
+  html {
+    scroll-behavior: smooth;
+  }
   *, ::before, ::after {
     font-family: 'Montserrat', sans-serif;
   }

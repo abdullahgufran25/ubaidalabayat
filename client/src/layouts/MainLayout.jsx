@@ -4,6 +4,7 @@ import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import CartDrawer from '../components/CartDrawer';
 import SearchModal from '../components/SearchModal';
+import BackToTop from '../components/BackToTop';
 import { useSettings } from '../context/SettingsContext';
 
 const MainLayout = () => {
@@ -49,6 +50,9 @@ const MainLayout = () => {
 
       {/* Footer */}
       <Footer />
+
+      {/* Floating Luxury Back to Top Button */}
+      <BackToTop />
     </div>
   );
 };
