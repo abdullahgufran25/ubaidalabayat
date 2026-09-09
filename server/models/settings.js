@@ -93,6 +93,23 @@ const storeSettingsSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    // Top Announcement Bar / Promotional Slider
+    announcementBar: {
+      enabled: {
+        type: Boolean,
+        default: true,
+      },
+      speed: {
+        type: Number,
+        default: 4000,
+      },
+      messages: [
+        {
+          text: { type: String, required: true },
+          link: { type: String, default: '' },
+        },
+      ],
+    },
   },
   {
     timestamps: true,

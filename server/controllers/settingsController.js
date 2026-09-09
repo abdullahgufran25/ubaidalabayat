@@ -18,8 +18,28 @@ exports.getSettings = asyncHandler(async (req, res, next) => {
         { platform: 'Facebook', url: 'https://facebook.com/ubaidalabayat' },
         { platform: 'Instagram', url: 'https://instagram.com/ubaidalabayat' },
         { platform: 'Pinterest', url: 'https://pinterest.com/ubaidalabayat' }
-      ]
+      ],
+      announcementBar: {
+        enabled: true,
+        speed: 4000,
+        messages: [
+          { text: '10% OFF ON CARD & ONLINE PAYMENTS | USE CODE: LUXURY10', link: '/shop' },
+          { text: 'FREE SHIPPING ON ALL ORDERS ABOVE RS. 10,000 NATIONWIDE', link: '/shop' },
+          { text: 'BESPOKE SAUDI NIDHA FABRIC ABAYAS | HANDCRAFTED ELEGANCE', link: '/shop' },
+        ],
+      },
     });
+  } else if (!settings.announcementBar || !settings.announcementBar.messages || settings.announcementBar.messages.length === 0) {
+    settings.announcementBar = {
+      enabled: true,
+      speed: 4000,
+      messages: [
+        { text: '10% OFF ON CARD & ONLINE PAYMENTS | USE CODE: LUXURY10', link: '/shop' },
+        { text: 'FREE SHIPPING ON ALL ORDERS ABOVE RS. 10,000 NATIONWIDE', link: '/shop' },
+        { text: 'BESPOKE SAUDI NIDHA FABRIC ABAYAS | HANDCRAFTED ELEGANCE', link: '/shop' },
+      ],
+    };
+    await settings.save();
   }
 
   res.status(200).json({

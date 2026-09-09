@@ -27,6 +27,15 @@ export const SettingsProvider = ({ children }) => {
     bankTransferEnabled: true,
     codEnabled: true,
     cardPaymentEnabled: false,
+    announcementBar: {
+      enabled: true,
+      speed: 4000,
+      messages: [
+        { text: '10% OFF ON CARD & ONLINE PAYMENTS | USE CODE: LUXURY10', link: '/shop' },
+        { text: 'FREE SHIPPING ON ALL ORDERS ABOVE RS. 10,000 NATIONWIDE', link: '/shop' },
+        { text: 'BESPOKE SAUDI NIDHA FABRIC ABAYAS | HANDCRAFTED ELEGANCE', link: '/shop' },
+      ],
+    },
   });
   
   const [banners, setBanners] = useState([]);

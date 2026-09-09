@@ -4,10 +4,17 @@ import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import CartDrawer from '../components/CartDrawer';
 import SearchModal from '../components/SearchModal';
+import { useSettings } from '../context/SettingsContext';
 
 const MainLayout = () => {
   const [cartOpen, setCartOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
+  const { settings } = useSettings();
+
+  const hasAnnouncement =
+    settings?.announcementBar?.enabled !== false &&
+    settings?.announcementBar?.messages &&
+    settings?.announcementBar?.messages.length > 0;
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -30,7 +37,13 @@ const MainLayout = () => {
       />
 
       {/* Main Content Space */}
-      <main className="flex-grow pt-16 sm:pt-20 md:pt-24">
+      <main
+        className={`flex-grow transition-all duration-300 ${
+          hasAnnouncement
+            ? 'pt-24 sm:pt-28 md:pt-32'
+            : 'pt-16 sm:pt-20 md:pt-24'
+        }`}
+      >
         <Outlet />
       </main>
 

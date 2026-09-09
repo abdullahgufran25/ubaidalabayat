@@ -5,6 +5,7 @@ import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
 import { useSettings } from '../context/SettingsContext';
 import logoImg from '../assets/logo.png';
+import AnnouncementBar from './AnnouncementBar';
 
 const Navbar = ({ onCartOpen, onSearchOpen }) => {
   const navigate = useNavigate();
@@ -74,14 +75,19 @@ const Navbar = ({ onCartOpen, onSearchOpen }) => {
 
   return (
     <>
-      <header
-        className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 bg-white/95 backdrop-blur-md border-b border-luxury-gray/60 ${
-          scrolled
-            ? 'py-2 sm:py-2.5 lg:py-3 shadow-[0_4px_20px_-2px_rgba(0,0,0,0.08)]'
-            : 'py-2.5 sm:py-3 lg:py-3.5 shadow-[0_2px_14px_-2px_rgba(0,0,0,0.06)]'
-        }`}
-      >
-        <div className="max-w-[1550px] mx-auto px-2.5 sm:px-4 lg:px-6">
+      <header className="fixed top-0 left-0 w-full z-50">
+        {/* Top Promotional Announcement Slider (CMS Configurable) */}
+        <AnnouncementBar />
+
+        {/* Main Navbar Bar */}
+        <div
+          className={`w-full transition-all duration-300 bg-white/95 backdrop-blur-md border-b border-luxury-gray/60 ${
+            scrolled
+              ? 'py-2 sm:py-2.5 lg:py-3 shadow-[0_4px_20px_-2px_rgba(0,0,0,0.08)]'
+              : 'py-2.5 sm:py-3 lg:py-3.5 shadow-[0_2px_14px_-2px_rgba(0,0,0,0.06)]'
+          }`}
+        >
+          <div className="max-w-[1550px] mx-auto px-2.5 sm:px-4 lg:px-6">
           <div className="grid grid-cols-[auto_1fr_auto] lg:grid-cols-3 items-center gap-2 lg:gap-4">
             
             {/* Column 1: Mobile & Tablet Toggle (< 1024px) / Desktop Nav Links (>= 1024px) */}
@@ -272,7 +278,8 @@ const Navbar = ({ onCartOpen, onSearchOpen }) => {
 
           </div>
         </div>
-      </header>
+      </div>
+    </header>
 
       {/* Mobile & Tablet Drawer Menu (< 1024px) - Positioned OUTSIDE <header> to avoid backdrop-filter trapping */}
       {mobileMenuOpen && (
