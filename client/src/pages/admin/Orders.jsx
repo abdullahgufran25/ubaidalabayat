@@ -98,7 +98,7 @@ const Orders = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-luxury-gray pb-4 gap-4">
         <div>
-          <h1 className="text-3xl font-serif font-bold uppercase tracking-wider">Orders Manager</h1>
+          <h1 className="text-3xl font-sans font-bold uppercase tracking-wider">Orders Manager</h1>
           <p className="text-xs text-luxury-textGray uppercase tracking-widest mt-1">
             Track confirmations, shipments, returns, and update delivery statuses
           </p>
@@ -148,7 +148,7 @@ const Orders = () => {
               <tbody className="divide-y divide-luxury-gray">
                 {orders.map((order) => (
                   <tr key={order._id} className="hover:bg-gray-55 transition-colors">
-                    <td className="p-4 font-serif font-bold text-luxury-dark text-sm">{order.orderNumber}</td>
+                    <td className="p-4 font-sans font-bold text-luxury-dark text-sm">{order.orderNumber}</td>
                     <td className="p-4 font-mono">{new Date(order.createdAt).toLocaleDateString()}</td>
                     <td className="p-4">
                       <div>
@@ -202,7 +202,7 @@ const Orders = () => {
             
             {/* Modal Header */}
             <div className="flex justify-between items-center border-b border-luxury-gray pb-3">
-              <h3 className="font-serif text-lg font-bold uppercase tracking-wider flex items-center">
+              <h3 className="font-sans text-lg font-bold uppercase tracking-wider flex items-center">
                 <span>Order details</span>
                 <span className="bg-luxury-cream text-luxury-goldDark px-2 py-0.5 text-xs font-bold font-sans rounded ml-3">
                   {selectedOrder.orderNumber}
@@ -221,7 +221,7 @@ const Orders = () => {
                 
                 {/* Billing Address Details */}
                 <div className="bg-white border border-luxury-gray p-5 rounded space-y-3">
-                  <h4 className="font-serif text-xs font-bold uppercase tracking-widest text-luxury-gold border-b border-luxury-gray pb-1.5 flex items-center">
+                  <h4 className="font-sans text-xs font-bold uppercase tracking-widest text-luxury-gold border-b border-luxury-gray pb-1.5 flex items-center">
                     <MapPin size={14} className="mr-1.5" />
                     <span>Shipping Address</span>
                   </h4>
@@ -236,14 +236,14 @@ const Orders = () => {
 
                 {/* Line Items List */}
                 <div className="bg-white border border-luxury-gray p-5 rounded space-y-4">
-                  <h4 className="font-serif text-xs font-bold uppercase tracking-widest text-luxury-dark border-b border-luxury-gray pb-1.5">
+                  <h4 className="font-sans text-xs font-bold uppercase tracking-widest text-luxury-dark border-b border-luxury-gray pb-1.5">
                     Order Items
                   </h4>
                   <div className="divide-y divide-luxury-gray">
                     {selectedOrder.items.map((item, i) => (
                       <div key={i} className="py-3 first:pt-0 last:pb-0 flex justify-between items-center text-xs">
                         <div>
-                          <p className="font-serif font-bold text-luxury-dark">{item.name}</p>
+                          <p className="font-sans font-bold text-luxury-dark">{item.name}</p>
                           <p className="text-[9px] text-luxury-textGray uppercase tracking-wider mt-0.5">
                             Size: {item.size} | Color: {item.color} | Qty: {item.quantity}
                           </p>
@@ -261,7 +261,7 @@ const Orders = () => {
                 
                 {/* Summary Calculations */}
                 <div className="bg-white border border-luxury-gray p-5 rounded space-y-3">
-                  <h4 className="font-serif text-xs font-bold uppercase tracking-widest text-luxury-gold border-b border-luxury-gray pb-1.5">
+                  <h4 className="font-sans text-xs font-bold uppercase tracking-widest text-luxury-gold border-b border-luxury-gray pb-1.5">
                     Price Details
                   </h4>
                   <div className="space-y-2 text-[10px] uppercase tracking-wider font-semibold text-luxury-textGray">
@@ -288,7 +288,7 @@ const Orders = () => {
 
                 {/* Status Update Trigger Form */}
                 <div className="bg-white border border-luxury-gray p-5 rounded space-y-4">
-                  <h4 className="font-serif text-xs font-bold uppercase tracking-widest text-luxury-dark border-b border-luxury-gray pb-1.5">
+                  <h4 className="font-sans text-xs font-bold uppercase tracking-widest text-luxury-dark border-b border-luxury-gray pb-1.5">
                     Order Operations
                   </h4>
                   
@@ -318,7 +318,7 @@ const Orders = () => {
 
                 {/* Tracking input Form */}
                 <div className="bg-white border border-luxury-gray p-5 rounded space-y-4">
-                  <h4 className="font-serif text-xs font-bold uppercase tracking-widest text-luxury-dark border-b border-luxury-gray pb-1.5 flex items-center">
+                  <h4 className="font-sans text-xs font-bold uppercase tracking-widest text-luxury-dark border-b border-luxury-gray pb-1.5 flex items-center">
                     <Truck size={14} className="mr-1.5" />
                     <span>Courier Tracking Code</span>
                   </h4>

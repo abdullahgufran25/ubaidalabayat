@@ -141,7 +141,7 @@ const ProductCard = ({ product }) => {
 
           {/* Title */}
           <Link to={`/product/${product.slug}`}>
-            <h3 className="font-serif text-sm sm:text-base font-semibold text-luxury-dark hover:text-luxury-gold transition-colors line-clamp-1">
+            <h3 className="font-sans text-sm sm:text-base font-semibold text-luxury-dark hover:text-luxury-gold transition-colors line-clamp-1">
               {product.name}
             </h3>
           </Link>

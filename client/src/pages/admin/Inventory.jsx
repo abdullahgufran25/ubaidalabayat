@@ -85,7 +85,7 @@ const Inventory = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-luxury-gray pb-4 gap-4">
         <div>
-          <h1 className="text-3xl font-serif font-bold uppercase tracking-wider">Inventory Hub</h1>
+          <h1 className="text-3xl font-sans font-bold uppercase tracking-wider">Inventory Hub</h1>
           <p className="text-xs text-luxury-textGray uppercase tracking-widest mt-1">
             Real-time stock audits, transaction ledgers, and manual adjustments
           </p>
@@ -162,7 +162,7 @@ const Inventory = () => {
                   <tr key={prod._id} className="hover:bg-gray-55 transition-colors">
                     <td className="p-4 flex items-center space-x-3">
                       <img src={prod.image} alt="" className="w-8 h-10 object-cover border border-luxury-gray" />
-                      <span className="font-serif font-bold text-luxury-dark leading-snug line-clamp-1">{prod.name}</span>
+                      <span className="font-sans font-bold text-luxury-dark leading-snug line-clamp-1">{prod.name}</span>
                     </td>
                     <td className="p-4 font-mono font-bold uppercase">{prod.sku}</td>
                     <td className="p-4 text-center font-bold font-sans text-sm">{prod.stock}</td>
@@ -267,7 +267,7 @@ const Inventory = () => {
             
             {/* Modal Header */}
             <div className="flex justify-between items-center border-b border-luxury-gray pb-3">
-              <h3 className="font-serif text-lg font-bold uppercase tracking-wider flex items-center">
+              <h3 className="font-sans text-lg font-bold uppercase tracking-wider flex items-center">
                 <ArrowRightLeft size={16} className="mr-2 text-luxury-gold" />
                 <span>Adjust Stock Levels</span>
               </h3>

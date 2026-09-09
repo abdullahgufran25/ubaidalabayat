@@ -55,7 +55,7 @@ const Register = () => {
       
       {/* Title */}
       <div className="text-center space-y-1">
-        <h1 className="font-serif text-2xl font-bold uppercase tracking-wider">Register</h1>
+        <h1 className="font-sans text-2xl font-bold uppercase tracking-wider">Register</h1>
         <p className="text-[10px] tracking-widest uppercase text-luxury-gold font-bold">
           Create your modest fashion profile
         </p>

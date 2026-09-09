@@ -65,7 +65,7 @@ const Messages = () => {
       
       {/* Header */}
       <div className="border-b border-luxury-gray pb-4">
-        <h1 className="text-3xl font-serif font-bold uppercase tracking-wider">Contact Inquiries</h1>
+        <h1 className="text-3xl font-sans font-bold uppercase tracking-wider">Contact Inquiries</h1>
         <p className="text-xs text-luxury-textGray uppercase tracking-widest mt-1">
           Review and manage support tickets, feed-backs, and custom design inquiries submitted via contact forms
         </p>
@@ -80,7 +80,7 @@ const Messages = () => {
             </div>
             <div>
               <p className="text-[10px] uppercase tracking-wider text-luxury-textGray font-semibold">Unread Messages</p>
-              <h3 className="text-xl font-serif font-bold text-luxury-dark">
+              <h3 className="text-xl font-sans font-bold text-luxury-dark">
                 {messages.filter(m => m.status === 'Unread').length}
               </h3>
             </div>
@@ -92,7 +92,7 @@ const Messages = () => {
             </div>
             <div>
               <p className="text-[10px] uppercase tracking-wider text-luxury-textGray font-semibold">Read/Processed</p>
-              <h3 className="text-xl font-serif font-bold text-luxury-dark">
+              <h3 className="text-xl font-sans font-bold text-luxury-dark">
                 {messages.filter(m => m.status === 'Read').length}
               </h3>
             </div>
@@ -132,7 +132,7 @@ const Messages = () => {
                     }`}>
                       {msg.status}
                     </span>
-                    <h3 className={`text-sm uppercase font-serif tracking-wider ${msg.status === 'Unread' ? 'font-bold text-luxury-dark' : 'text-luxury-dark'}`}>
+                    <h3 className={`text-sm uppercase font-sans tracking-wider ${msg.status === 'Unread' ? 'font-bold text-luxury-dark' : 'text-luxury-dark'}`}>
                       Inquiry from {msg.name}
                     </h3>
                   </div>

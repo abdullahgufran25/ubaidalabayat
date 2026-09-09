@@ -50,7 +50,7 @@ const Login = () => {
       
       {/* Title */}
       <div className="text-center space-y-1">
-        <h1 className="font-serif text-2xl font-bold uppercase tracking-wider">Log In</h1>
+        <h1 className="font-sans text-2xl font-bold uppercase tracking-wider">Log In</h1>
         <p className="text-[10px] tracking-widest uppercase text-luxury-gold font-bold">
           Access your modest collection account
         </p>

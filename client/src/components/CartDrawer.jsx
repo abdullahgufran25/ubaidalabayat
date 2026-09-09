@@ -57,7 +57,7 @@ const CartDrawer = ({ isOpen, onClose }) => {
         {/* Header */}
         <div className="p-5 border-b border-luxury-gray flex items-center justify-between">
           <div className="flex items-center space-x-2">
-            <h2 className="font-serif text-lg font-bold uppercase tracking-wider">Your Cart</h2>
+            <h2 className="font-sans text-lg font-bold uppercase tracking-wider">Your Cart</h2>
             <span className="bg-luxury-dark text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
               {cartItems.reduce((acc, item) => acc + item.quantity, 0)}
             </span>
@@ -120,7 +120,7 @@ const CartDrawer = ({ isOpen, onClose }) => {
                       <div>
                         <h3
                           onClick={() => { onClose(); navigate(`/product/${item.slug}`); }}
-                          className="font-serif text-xs font-semibold hover:text-luxury-gold cursor-pointer leading-tight"
+                          className="font-sans text-xs font-semibold hover:text-luxury-gold cursor-pointer leading-tight"
                         >
                           {item.name}
                         </h3>
@@ -229,7 +229,7 @@ const CartDrawer = ({ isOpen, onClose }) => {
             </div>
 
             {/* Total */}
-            <div className="flex justify-between items-center text-sm font-bold uppercase font-serif">
+            <div className="flex justify-between items-center text-sm font-bold uppercase font-sans">
               <span>Total Amount</span>
               <span className="font-sans text-base">PKR {total}</span>
             </div>

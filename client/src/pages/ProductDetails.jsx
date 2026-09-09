@@ -109,7 +109,7 @@ const ProductDetails = () => {
       <div className="min-h-screen flex items-center justify-center bg-luxury-light text-center px-4">
         <div>
           <AlertCircle size={48} className="text-red-500 mx-auto mb-4" />
-          <h2 className="font-serif text-lg font-bold uppercase tracking-wider mb-2">Product Not Found</h2>
+          <h2 className="font-sans text-lg font-bold uppercase tracking-wider mb-2">Product Not Found</h2>
           <p className="text-xs text-luxury-textGray mb-6">The product you are looking for does not exist or has been removed.</p>
           <Link to="/shop" className="luxury-btn text-[10px]">Return to Shop</Link>
         </div>
@@ -261,7 +261,7 @@ Link: ${window.location.href}`;
             <p className="text-[10px] uppercase tracking-[0.2em] font-bold text-luxury-goldDark">
               {product.category?.name} Collection
             </p>
-            <h1 className="font-serif text-2xl sm:text-3xl font-bold tracking-wide text-luxury-dark">
+            <h1 className="font-sans text-2xl sm:text-3xl font-bold tracking-wide text-luxury-dark">
               {product.name}
             </h1>
             
@@ -478,7 +478,7 @@ Link: ${window.location.href}`;
 
       {/* Reviews Section */}
       <section className="border-t border-luxury-gray pt-10">
-        <h2 className="font-serif text-xl sm:text-2xl font-bold uppercase tracking-wider mb-6 text-center">
+        <h2 className="font-sans text-xl sm:text-2xl font-bold uppercase tracking-wider mb-6 text-center">
           Reviews ({reviews.length})
         </h2>
 
@@ -536,7 +536,7 @@ Link: ${window.location.href}`;
             {/* Write a review (Verified buyers only) */}
             {isEligibleForReview && (
               <div className="bg-white p-5 border border-luxury-gray rounded mt-6 space-y-4">
-                <h4 className="font-serif text-sm font-bold uppercase tracking-wider border-b border-luxury-gray pb-2">
+                <h4 className="font-sans text-sm font-bold uppercase tracking-wider border-b border-luxury-gray pb-2">
                   Share Your Experience
                 </h4>
                 <form onSubmit={handleReviewSubmit} className="space-y-4">
@@ -601,7 +601,7 @@ Link: ${window.location.href}`;
       {/* Related Products Grid */}
       {relatedProducts.length > 0 && (
         <section className="border-t border-luxury-gray pt-10">
-          <h2 className="font-serif text-xl sm:text-2xl font-bold uppercase tracking-wider text-center mb-8">
+          <h2 className="font-sans text-xl sm:text-2xl font-bold uppercase tracking-wider text-center mb-8">
             You May Also Like
           </h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">

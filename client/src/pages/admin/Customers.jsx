@@ -76,7 +76,7 @@ const Customers = () => {
       
       {/* Header */}
       <div className="border-b border-luxury-gray pb-4">
-        <h1 className="text-3xl font-serif font-bold uppercase tracking-wider">Customer & User Accounts</h1>
+        <h1 className="text-3xl font-sans font-bold uppercase tracking-wider">Customer & User Accounts</h1>
         <p className="text-xs text-luxury-textGray uppercase tracking-widest mt-1">
           Manage registered customer profiles, view system staff, and configure administrative roles
         </p>
@@ -91,7 +91,7 @@ const Customers = () => {
             </div>
             <div>
               <p className="text-[10px] uppercase tracking-wider text-luxury-textGray font-semibold">Total Customers</p>
-              <h3 className="text-xl font-serif font-bold text-luxury-dark">
+              <h3 className="text-xl font-sans font-bold text-luxury-dark">
                 {users.filter(u => u.role === 'customer').length}
               </h3>
             </div>
@@ -103,7 +103,7 @@ const Customers = () => {
             </div>
             <div>
               <p className="text-[10px] uppercase tracking-wider text-luxury-textGray font-semibold">Staff Members</p>
-              <h3 className="text-xl font-serif font-bold text-luxury-dark">
+              <h3 className="text-xl font-sans font-bold text-luxury-dark">
                 {users.filter(u => u.role === 'staff').length}
               </h3>
             </div>
@@ -115,7 +115,7 @@ const Customers = () => {
             </div>
             <div>
               <p className="text-[10px] uppercase tracking-wider text-luxury-textGray font-semibold">Administrators</p>
-              <h3 className="text-xl font-serif font-bold text-luxury-dark">
+              <h3 className="text-xl font-sans font-bold text-luxury-dark">
                 {users.filter(u => u.role === 'admin').length}
               </h3>
             </div>

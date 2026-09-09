@@ -38,7 +38,7 @@ const Footer = () => {
           <div>
             <div className="flex items-center space-x-3 mb-4">
               <img src={logoImg} alt="Ubaid Al Abayat" className="w-8 h-8 object-contain filter invert animate-logo-shimmer" />
-              <h2 className="font-serif text-xl font-bold tracking-widest uppercase text-white">
+              <h2 className="font-sans text-xl font-bold tracking-widest uppercase text-white">
                 Ubaid Al Abayat
               </h2>
             </div>

@@ -280,7 +280,7 @@ const Banners = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-luxury-gray pb-4 gap-4">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-serif font-bold uppercase tracking-wider text-luxury-dark">
+          <h1 className="text-2xl sm:text-3xl font-sans font-bold uppercase tracking-wider text-luxury-dark">
             Hero & Promo Banners (CMS)
           </h1>
           <p className="text-xs text-luxury-textGray uppercase tracking-widest mt-1">
@@ -383,7 +383,7 @@ const Banners = () => {
                     {/* Headline and SEO metadata */}
                     <td className="p-4">
                       <div className="space-y-0.5">
-                        <h4 className="font-serif font-bold text-luxury-dark text-xs uppercase tracking-wider">
+                        <h4 className="font-sans font-bold text-luxury-dark text-xs uppercase tracking-wider">
                           {banner.title || '(No Headline)'}
                         </h4>
                         {banner.subtitle && (
@@ -468,7 +468,7 @@ const Banners = () => {
             {/* Modal Header */}
             <div className="flex justify-between items-center border-b border-luxury-gray pb-4">
               <div>
-                <h3 className="font-serif text-lg sm:text-xl font-bold uppercase tracking-wider text-luxury-dark">
+                <h3 className="font-sans text-lg sm:text-xl font-bold uppercase tracking-wider text-luxury-dark">
                   {editingId ? 'Edit Responsive Hero Banner' : 'Create Responsive Hero Banner'}
                 </h3>
                 <p className="text-[11px] text-luxury-textGray uppercase tracking-widest mt-0.5">
@@ -723,7 +723,7 @@ const Banners = () => {
                       type="text"
                       value={title}
                       onChange={(e) => setTitle(e.target.value)}
-                      className="w-full text-sm border-2 border-luxury-gray p-2.5 px-3 rounded focus:outline-none focus:border-luxury-gold text-luxury-dark font-serif font-bold placeholder-gray-400 bg-white"
+                      className="w-full text-sm border-2 border-luxury-gray p-2.5 px-3 rounded focus:outline-none focus:border-luxury-gold text-luxury-dark font-sans font-bold placeholder-gray-400 bg-white"
                       placeholder="e.g. Haute Couture Signature Collection"
                     />
                   </div>

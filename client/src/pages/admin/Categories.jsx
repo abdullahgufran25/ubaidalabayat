@@ -116,7 +116,7 @@ const Categories = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-luxury-gray pb-4 gap-4">
         <div>
-          <h1 className="text-3xl font-serif font-bold uppercase tracking-wider">Categories Manager</h1>
+          <h1 className="text-3xl font-sans font-bold uppercase tracking-wider">Categories Manager</h1>
           <p className="text-xs text-luxury-textGray uppercase tracking-widest mt-1">
             Create, Edit and organize product listing categories
           </p>
@@ -167,7 +167,7 @@ const Categories = () => {
                     </td>
 
                     {/* Name */}
-                    <td className="p-4 font-serif font-bold text-luxury-dark text-sm uppercase tracking-wider">{cat.name}</td>
+                    <td className="p-4 font-sans font-bold text-luxury-dark text-sm uppercase tracking-wider">{cat.name}</td>
 
                     {/* Slug */}
                     <td className="p-4 text-luxury-textGray font-mono">{cat.slug}</td>
@@ -213,7 +213,7 @@ const Categories = () => {
             
             {/* Modal Header */}
             <div className="flex justify-between items-center border-b border-luxury-gray pb-3">
-              <h3 className="font-serif text-lg font-bold uppercase tracking-wider text-luxury-dark">
+              <h3 className="font-sans text-lg font-bold uppercase tracking-wider text-luxury-dark">
                 {editingId ? 'Edit Category' : 'Create Category'}
               </h3>
               <button onClick={() => setModalOpen(false)} className="p-1 text-luxury-dark hover:text-luxury-gold transition-colors">

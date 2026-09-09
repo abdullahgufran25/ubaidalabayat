@@ -68,7 +68,7 @@ Please confirm my order and let me know the status.`;
       <div className="min-h-screen flex items-center justify-center bg-luxury-light text-center px-4">
         <div>
           <CheckCircle size={48} className="text-green-600 mx-auto mb-4" />
-          <h2 className="font-serif text-lg font-bold uppercase tracking-wider mb-2">Order Confirmed!</h2>
+          <h2 className="font-sans text-lg font-bold uppercase tracking-wider mb-2">Order Confirmed!</h2>
           <p className="text-xs text-luxury-textGray max-w-sm mb-6">
             Your order has been recorded successfully. Please write down your order number: <strong className="text-luxury-dark">{orderNumber}</strong>.
           </p>
@@ -84,7 +84,7 @@ Please confirm my order and let me know the status.`;
       {/* Visual Indicator Success */}
       <div className="text-center space-y-3">
         <CheckCircle size={56} className="text-green-600 mx-auto" />
-        <h1 className="font-serif text-2xl sm:text-4xl font-bold uppercase tracking-wider text-luxury-dark">
+        <h1 className="font-sans text-2xl sm:text-4xl font-bold uppercase tracking-wider text-luxury-dark">
           Thank you for your order!
         </h1>
         <p className="text-xs text-luxury-textGray max-w-md mx-auto">
@@ -98,7 +98,7 @@ Please confirm my order and let me know the status.`;
           <div className="flex items-center justify-between border-b border-luxury-gold/30 pb-2 text-center sm:text-left">
             <div className="flex items-center space-x-2">
               <Landmark size={18} className="text-luxury-goldDark" />
-              <p className="font-serif font-bold text-luxury-dark uppercase tracking-wider text-sm">
+              <p className="font-sans font-bold text-luxury-dark uppercase tracking-wider text-sm">
                 Bank Transfer Required: PKR {order.total}
               </p>
             </div>
@@ -176,7 +176,7 @@ Please confirm my order and let me know the status.`;
         </div>
       ) : order.paymentMethod === 'COD' ? (
         <div className="bg-green-50 border border-green-200 p-4 rounded max-w-2xl mx-auto text-center text-xs text-green-800 animate-fade-in">
-          <p className="font-serif font-bold uppercase tracking-wider text-sm">
+          <p className="font-sans font-bold uppercase tracking-wider text-sm">
             Cash on Delivery (COD) Confirmed
           </p>
           <p className="mt-1 leading-relaxed">
@@ -192,7 +192,7 @@ Please confirm my order and let me know the status.`;
         <div className="space-y-6">
           {/* Summary Box */}
           <div className="bg-white border border-luxury-gray p-6 rounded space-y-4">
-            <h2 className="font-serif text-sm uppercase tracking-widest font-bold text-luxury-gold border-b border-luxury-gray pb-2 flex items-center justify-between">
+            <h2 className="font-sans text-sm uppercase tracking-widest font-bold text-luxury-gold border-b border-luxury-gray pb-2 flex items-center justify-between">
               <span>Order Summary</span>
               <span className="font-sans font-bold text-luxury-dark bg-luxury-cream px-2 py-0.5 text-[10px] rounded">
                 {order.orderNumber}
@@ -225,7 +225,7 @@ Please confirm my order and let me know the status.`;
 
           {/* Delivery & Tracking Box */}
           <div className="bg-white border border-luxury-gray p-6 rounded space-y-4">
-            <h2 className="font-serif text-sm uppercase tracking-widest font-bold text-luxury-gold border-b border-luxury-gray pb-2 flex items-center">
+            <h2 className="font-sans text-sm uppercase tracking-widest font-bold text-luxury-gold border-b border-luxury-gray pb-2 flex items-center">
               <Truck size={16} className="mr-2 text-luxury-goldDark" />
               <span>Courier Tracking</span>
             </h2>
@@ -255,7 +255,7 @@ Please confirm my order and let me know the status.`;
 
         {/* Items Column */}
         <div className="bg-white border border-luxury-gray p-6 rounded space-y-6">
-          <h2 className="font-serif text-sm uppercase tracking-widest font-bold border-b border-luxury-gray pb-2">
+          <h2 className="font-sans text-sm uppercase tracking-widest font-bold border-b border-luxury-gray pb-2">
             Items Ordered
           </h2>
 
@@ -263,7 +263,7 @@ Please confirm my order and let me know the status.`;
             {order.items.map((item, i) => (
               <div key={i} className="py-3 flex space-x-3 text-xs items-center">
                 <div className="flex-1">
-                  <h3 className="font-serif font-bold text-luxury-dark">{item.name}</h3>
+                  <h3 className="font-sans font-bold text-luxury-dark">{item.name}</h3>
                   <p className="text-[9px] text-luxury-textGray uppercase tracking-wider mt-0.5">
                     Size: {item.size} | Color: {item.color} | Qty: {item.quantity}
                   </p>
@@ -289,7 +289,7 @@ Please confirm my order and let me know the status.`;
                 <span className="font-sans font-medium">- PKR {order.discountAmount}</span>
               </div>
             )}
-            <div className="flex justify-between items-center text-sm font-bold text-luxury-dark font-serif border-t border-luxury-gray pt-4">
+            <div className="flex justify-between items-center text-sm font-bold text-luxury-dark font-sans border-t border-luxury-gray pt-4">
               <span>Total Paid ({order.paymentMethod})</span>
               <span className="font-sans text-base">PKR {order.total}</span>
             </div>

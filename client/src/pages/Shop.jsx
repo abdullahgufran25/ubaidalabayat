@@ -117,7 +117,7 @@ const Shop = () => {
       {/* Search Header Info */}
       <div className="flex flex-col md:flex-row md:items-center justify-between border-b border-luxury-gray pb-6 mb-8 gap-4">
         <div>
-          <h1 className="text-3xl font-serif font-bold uppercase tracking-wider">
+          <h1 className="text-3xl font-sans font-bold uppercase tracking-wider">
             {currentCategory ? `${currentCategory} Collection` : 'Shop All Modesty'}
           </h1>
           {currentSearch && (
@@ -304,7 +304,7 @@ const Shop = () => {
           ) : products.length === 0 ? (
             <div className="text-center py-20 bg-white border border-luxury-gray">
               <Grid3X3 size={32} className="mx-auto text-luxury-gold mb-3" />
-              <h3 className="font-serif text-sm font-semibold uppercase tracking-wider mb-2">No Products Found</h3>
+              <h3 className="font-sans text-sm font-semibold uppercase tracking-wider mb-2">No Products Found</h3>
               <p className="text-xs text-luxury-textGray max-w-xs mx-auto">
                 We couldn't find any products matching your select filter criteria. Try expanding your selections or clearing filters.
               </p>

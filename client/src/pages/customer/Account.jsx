@@ -66,7 +66,7 @@ const Account = () => {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8 animate-fade-in">
       <div className="border-b border-luxury-gray pb-4">
-        <h1 className="text-3xl font-serif font-bold uppercase tracking-wider">My Profile</h1>
+        <h1 className="text-3xl font-sans font-bold uppercase tracking-wider">My Profile</h1>
         <p className="text-xs text-luxury-textGray uppercase tracking-widest mt-1">
           Manage your account details and delivery address
         </p>
@@ -76,7 +76,7 @@ const Account = () => {
         
         {/* Profile Details Form */}
         <div className="lg:col-span-2 bg-white border border-luxury-gray p-6 sm:p-8 rounded space-y-6">
-          <h2 className="font-serif text-base font-bold uppercase tracking-wider text-luxury-gold border-b border-luxury-gray pb-2 flex items-center">
+          <h2 className="font-sans text-base font-bold uppercase tracking-wider text-luxury-gold border-b border-luxury-gray pb-2 flex items-center">
             <User size={16} className="mr-2" />
             <span>Profile Details</span>
           </h2>
@@ -160,7 +160,7 @@ const Account = () => {
 
         {/* Password Update Form */}
         <div className="bg-white border border-luxury-gray p-6 rounded space-y-6">
-          <h2 className="font-serif text-base font-bold uppercase tracking-wider text-luxury-gold border-b border-luxury-gray pb-2 flex items-center">
+          <h2 className="font-sans text-base font-bold uppercase tracking-wider text-luxury-gold border-b border-luxury-gray pb-2 flex items-center">
             <Key size={16} className="mr-2" />
             <span>Update Password</span>
           </h2>

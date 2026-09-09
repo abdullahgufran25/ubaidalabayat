@@ -127,7 +127,7 @@ const Dashboard = () => {
       
       {/* Page header */}
       <div className="border-b border-luxury-gray pb-4">
-        <h1 className="text-3xl font-serif font-bold uppercase tracking-wider">Dashboard Overview</h1>
+        <h1 className="text-3xl font-sans font-bold uppercase tracking-wider">Dashboard Overview</h1>
         <p className="text-xs text-luxury-textGray uppercase tracking-widest mt-1">
           Store sales metrics and stock alerts audit
         </p>
@@ -158,7 +158,7 @@ const Dashboard = () => {
         {/* Recent orders */}
         <div className="lg:col-span-2 bg-white border border-luxury-gray p-6 rounded space-y-4 shadow-sm">
           <div className="flex justify-between items-center border-b border-luxury-gray pb-3">
-            <h2 className="font-serif text-sm font-bold uppercase tracking-wider">Recent Orders</h2>
+            <h2 className="font-sans text-sm font-bold uppercase tracking-wider">Recent Orders</h2>
             <Link
               to="/admin/orders"
               className="text-[10px] text-luxury-goldDark uppercase tracking-widest font-bold flex items-center hover:underline"
@@ -211,7 +211,7 @@ const Dashboard = () => {
         <div className="bg-white border border-luxury-gray p-6 rounded space-y-4 shadow-sm">
           <div className="flex items-center text-red-600 border-b border-luxury-gray pb-3">
             <AlertTriangle size={18} className="mr-2" />
-            <h2 className="font-serif text-sm font-bold uppercase tracking-wider">Inventory Alerts</h2>
+            <h2 className="font-sans text-sm font-bold uppercase tracking-wider">Inventory Alerts</h2>
           </div>
 
           {lowStockProducts.length === 0 ? (

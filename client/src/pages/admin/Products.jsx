@@ -246,7 +246,7 @@ const Products = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-luxury-gray pb-4 gap-4">
         <div>
-          <h1 className="text-3xl font-serif font-bold uppercase tracking-wider">Products Catalog</h1>
+          <h1 className="text-3xl font-sans font-bold uppercase tracking-wider">Products Catalog</h1>
           <p className="text-xs text-luxury-textGray uppercase tracking-widest mt-1">
             Create, Edit and Manage product catalog parameters
           </p>
@@ -293,7 +293,7 @@ const Products = () => {
                     <td className="p-4 flex items-center space-x-3">
                       <img src={prod.images[0]} alt="" className="w-10 h-12 object-cover border border-luxury-gray" />
                       <div>
-                        <h4 className="font-serif font-bold text-luxury-dark leading-tight line-clamp-1">{prod.name}</h4>
+                        <h4 className="font-sans font-bold text-luxury-dark leading-tight line-clamp-1">{prod.name}</h4>
                         <div className="flex space-x-2 mt-1">
                           {prod.featured && <span className="bg-purple-100 text-purple-700 text-[8px] font-bold uppercase tracking-wider px-1">Featured</span>}
                           {prod.bestseller && <span className="bg-blue-100 text-blue-700 text-[8px] font-bold uppercase tracking-wider px-1">Best</span>}
@@ -368,7 +368,7 @@ const Products = () => {
             
             {/* Modal Header */}
             <div className="flex justify-between items-center border-b border-luxury-gray pb-3">
-              <h3 className="font-serif text-lg font-bold uppercase tracking-wider">
+              <h3 className="font-sans text-lg font-bold uppercase tracking-wider">
                 {editingId ? 'Edit Product Article' : 'Create New Product'}
               </h3>
               <button onClick={() => setModalOpen(false)} className="p-1 hover:text-luxury-gold">

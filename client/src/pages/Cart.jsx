@@ -46,7 +46,7 @@ const Cart = () => {
           <div className="inline-block p-6 bg-white border border-luxury-gray rounded-full text-luxury-gold shadow-sm">
             <ShoppingBag size={48} />
           </div>
-          <h2 className="font-serif text-2xl font-bold uppercase tracking-wider">Your Cart is Empty</h2>
+          <h2 className="font-sans text-2xl font-bold uppercase tracking-wider">Your Cart is Empty</h2>
           <p className="text-xs text-luxury-textGray">
             You don't have any items in your shopping cart. Explore our latest luxury Abayas and Hijabs to find your perfect fit!
           </p>
@@ -60,7 +60,7 @@ const Cart = () => {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8 animate-fade-in">
-      <h1 className="text-3xl font-serif font-bold uppercase tracking-wider border-b border-luxury-gray pb-4">
+      <h1 className="text-3xl font-sans font-bold uppercase tracking-wider border-b border-luxury-gray pb-4">
         Shopping Cart
       </h1>
 
@@ -114,7 +114,7 @@ const Cart = () => {
                   <div className="space-y-1">
                     <Link
                       to={`/product/${item.slug}`}
-                      className="font-serif text-xs sm:text-sm font-semibold text-luxury-dark hover:text-luxury-gold transition-colors leading-snug line-clamp-2"
+                      className="font-sans text-xs sm:text-sm font-semibold text-luxury-dark hover:text-luxury-gold transition-colors leading-snug line-clamp-2"
                     >
                       {item.name}
                     </Link>
@@ -189,7 +189,7 @@ const Cart = () => {
         <div className="space-y-6">
           <div className="bg-white border border-luxury-gray p-6 rounded space-y-6">
             
-            <h2 className="font-serif text-sm uppercase tracking-widest font-bold border-b border-luxury-gray pb-3">
+            <h2 className="font-sans text-sm uppercase tracking-widest font-bold border-b border-luxury-gray pb-3">
               Order Summary
             </h2>
 
@@ -252,7 +252,7 @@ const Cart = () => {
             </div>
 
             {/* Total */}
-            <div className="flex justify-between items-center text-sm font-bold uppercase font-serif">
+            <div className="flex justify-between items-center text-sm font-bold uppercase font-sans">
               <span>Total Amount</span>
               <span className="font-sans text-base">PKR {total}</span>
             </div>

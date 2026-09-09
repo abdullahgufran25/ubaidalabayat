@@ -3,11 +3,19 @@
 @tailwind utilities;
 
 @layer base {
+  *, ::before, ::after {
+    font-family: 'Montserrat', sans-serif;
+  }
   body {
-    @apply font-sans bg-luxury-light text-luxury-dark;
+    @apply bg-luxury-light text-luxury-dark;
+    font-family: 'Montserrat', sans-serif;
   }
   h1, h2, h3, h4, h5, h6 {
-    @apply font-sans tracking-wide;
+    font-family: 'Montserrat', sans-serif;
+    @apply tracking-wider;
+  }
+  input, button, select, textarea {
+    font-family: 'Montserrat', sans-serif;
   }
 }
 

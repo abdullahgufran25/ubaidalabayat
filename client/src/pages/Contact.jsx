@@ -59,7 +59,7 @@ const Contact = () => {
       
       {/* Title */}
       <div className="text-center space-y-2">
-        <h1 className="text-3xl font-serif font-bold uppercase tracking-wider">Contact Us</h1>
+        <h1 className="text-3xl font-sans font-bold uppercase tracking-wider">Contact Us</h1>
         <p className="text-xs text-luxury-goldDark uppercase tracking-widest font-bold">
           Align with our fashion stylists and support team
         </p>
@@ -70,7 +70,7 @@ const Contact = () => {
         
         {/* Contact Info Card */}
         <div className="bg-white border border-luxury-gray p-8 rounded space-y-6">
-          <h2 className="font-serif text-lg font-bold uppercase tracking-wider text-luxury-gold border-b border-luxury-gray pb-3">
+          <h2 className="font-sans text-lg font-bold uppercase tracking-wider text-luxury-gold border-b border-luxury-gray pb-3">
             Get In Touch
           </h2>
           <p className="text-xs text-luxury-textGray leading-relaxed">
@@ -116,7 +116,7 @@ const Contact = () => {
 
         {/* Contact Form Submission */}
         <div className="bg-white border border-luxury-gray p-8 rounded space-y-6">
-          <h2 className="font-serif text-lg font-bold uppercase tracking-wider text-luxury-dark border-b border-luxury-gray pb-3">
+          <h2 className="font-sans text-lg font-bold uppercase tracking-wider text-luxury-dark border-b border-luxury-gray pb-3">
             Send Inquiry Message
           </h2>
 

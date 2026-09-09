@@ -24,7 +24,7 @@ const BrandSplash = ({ fading = false }) => {
 
         {/* Brand Typography in Montserrat & Playfair */}
         <div className="space-y-2">
-          <h1 className="font-serif text-lg sm:text-2xl tracking-[0.22em] sm:tracking-[0.28em] font-black uppercase text-white">
+          <h1 className="font-sans text-lg sm:text-2xl tracking-[0.22em] sm:tracking-[0.28em] font-black uppercase text-white">
             Ubaid Al Abayat
           </h1>
           <p className="font-sans text-[9px] sm:text-[11px] tracking-[0.3em] sm:tracking-[0.35em] text-[#C5A880] font-semibold uppercase">

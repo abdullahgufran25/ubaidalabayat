@@ -158,7 +158,7 @@ const Checkout = () => {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8 animate-fade-in">
       
       {/* Header */}
-      <h1 className="text-3xl font-serif font-bold uppercase tracking-wider border-b border-luxury-gray pb-4">
+      <h1 className="text-3xl font-sans font-bold uppercase tracking-wider border-b border-luxury-gray pb-4">
         Checkout
       </h1>
 
@@ -169,7 +169,7 @@ const Checkout = () => {
           
           {/* Shipping Address Section */}
           <div className="bg-white border border-luxury-gray p-6 rounded space-y-4">
-            <h2 className="font-serif text-sm uppercase tracking-widest font-bold text-luxury-gold border-b border-luxury-gray pb-2">
+            <h2 className="font-sans text-sm uppercase tracking-widest font-bold text-luxury-gold border-b border-luxury-gray pb-2">
               Shipping Information
             </h2>
 
@@ -261,7 +261,7 @@ const Checkout = () => {
 
           {/* Payment Method Section */}
           <div className="bg-white border border-luxury-gray p-6 rounded space-y-5">
-            <h2 className="font-serif text-sm uppercase tracking-widest font-bold text-luxury-gold border-b border-luxury-gray pb-2">
+            <h2 className="font-sans text-sm uppercase tracking-widest font-bold text-luxury-gold border-b border-luxury-gray pb-2">
               Select Payment Method *
             </h2>
 
@@ -289,7 +289,7 @@ const Checkout = () => {
                     <div className="flex items-center justify-between">
                       <div className="flex items-center space-x-2">
                         <Truck size={16} className="text-luxury-gold" />
-                        <span className="font-serif font-bold text-xs uppercase tracking-wider text-luxury-dark">
+                        <span className="font-sans font-bold text-xs uppercase tracking-wider text-luxury-dark">
                           Cash on Delivery (COD)
                         </span>
                       </div>
@@ -325,7 +325,7 @@ const Checkout = () => {
                     <div className="flex items-center justify-between">
                       <div className="flex items-center space-x-2">
                         <Landmark size={16} className="text-luxury-gold" />
-                        <span className="font-serif font-bold text-xs uppercase tracking-wider text-luxury-dark">
+                        <span className="font-sans font-bold text-xs uppercase tracking-wider text-luxury-dark">
                           Direct Bank Transfer / EasyPaisa / Raast
                         </span>
                       </div>
@@ -361,7 +361,7 @@ const Checkout = () => {
                     <div className="flex items-center justify-between">
                       <div className="flex items-center space-x-2">
                         <CreditCard size={16} className="text-luxury-gold" />
-                        <span className="font-serif font-bold text-xs uppercase tracking-wider text-luxury-dark">
+                        <span className="font-sans font-bold text-xs uppercase tracking-wider text-luxury-dark">
                           Credit / Debit Card
                         </span>
                       </div>
@@ -384,7 +384,7 @@ const Checkout = () => {
                 <div className="flex items-center justify-between border-b border-luxury-gold/20 pb-2">
                   <div className="flex items-center space-x-2">
                     <Landmark size={18} className="text-luxury-goldDark" />
-                    <h4 className="font-serif font-bold text-luxury-dark uppercase tracking-wider text-xs">
+                    <h4 className="font-sans font-bold text-luxury-dark uppercase tracking-wider text-xs">
                       Official Bank Coordinates
                     </h4>
                   </div>
@@ -533,7 +533,7 @@ const Checkout = () => {
         <div className="space-y-6">
           <div className="bg-white border border-luxury-gray p-6 rounded space-y-6">
             
-            <h2 className="font-serif text-sm uppercase tracking-widest font-bold border-b border-luxury-gray pb-3">
+            <h2 className="font-sans text-sm uppercase tracking-widest font-bold border-b border-luxury-gray pb-3">
               Checkout Summary
             </h2>
 
@@ -547,7 +547,7 @@ const Checkout = () => {
                     className="w-10 h-12 object-cover border border-luxury-gray flex-shrink-0"
                   />
                   <div className="flex-1">
-                    <h4 className="font-serif font-semibold line-clamp-1">{item.name}</h4>
+                    <h4 className="font-sans font-semibold line-clamp-1">{item.name}</h4>
                     <p className="text-[9px] text-luxury-textGray uppercase tracking-wider mt-0.5">
                       Size: {item.size} | Color: {item.color} | Qty: {item.quantity}
                     </p>
@@ -575,7 +575,7 @@ const Checkout = () => {
               )}
             </div>
 
-            <div className="flex justify-between items-center text-sm font-bold uppercase font-serif border-t border-luxury-gray pt-4">
+            <div className="flex justify-between items-center text-sm font-bold uppercase font-sans border-t border-luxury-gray pt-4">
               <span>Total Amount</span>
               <span className="font-sans text-base">PKR {total}</span>
             </div>

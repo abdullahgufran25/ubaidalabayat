@@ -52,7 +52,7 @@ const MyOrders = () => {
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8 animate-fade-in">
       <div className="border-b border-luxury-gray pb-4">
-        <h1 className="text-3xl font-serif font-bold uppercase tracking-wider">My Orders</h1>
+        <h1 className="text-3xl font-sans font-bold uppercase tracking-wider">My Orders</h1>
         <p className="text-xs text-luxury-textGray uppercase tracking-widest mt-1">
           Review details and track current shipment progress
         </p>
@@ -63,7 +63,7 @@ const MyOrders = () => {
           <div className="inline-block p-6 bg-luxury-light text-luxury-gold rounded-full border border-luxury-gray">
             <Package size={42} />
           </div>
-          <h2 className="font-serif text-xl font-bold uppercase tracking-wider">No Orders Found</h2>
+          <h2 className="font-sans text-xl font-bold uppercase tracking-wider">No Orders Found</h2>
           <p className="text-xs text-luxury-textGray max-w-sm mx-auto">
             You haven't placed any orders yet. Visit our shop and pick your favorite modesty wear to see your order history records.
           </p>
@@ -89,7 +89,7 @@ const MyOrders = () => {
                 >
                   <div className="space-y-1">
                     <div className="flex items-center space-x-3">
-                      <span className="font-serif text-sm font-bold uppercase tracking-wider text-luxury-dark">
+                      <span className="font-sans text-sm font-bold uppercase tracking-wider text-luxury-dark">
                         Order #{order.orderNumber}
                       </span>
                       <span className={`px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider ${
@@ -187,7 +187,7 @@ const MyOrders = () => {
                         {order.items.map((item, i) => (
                           <div key={i} className="py-3 first:pt-0 last:pb-0 flex justify-between items-center text-xs">
                             <div>
-                              <p className="font-serif font-semibold text-luxury-dark">{item.name}</p>
+                              <p className="font-sans font-semibold text-luxury-dark">{item.name}</p>
                               <p className="text-[9px] text-luxury-textGray uppercase tracking-wider mt-0.5">
                                 Size: {item.size} | Color: {item.color} | Quantity: {item.quantity}
                               </p>

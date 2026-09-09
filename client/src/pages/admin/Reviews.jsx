@@ -65,7 +65,7 @@ const Reviews = () => {
       
       {/* Header */}
       <div className="border-b border-luxury-gray pb-4">
-        <h1 className="text-3xl font-serif font-bold uppercase tracking-wider">Reviews Moderation</h1>
+        <h1 className="text-3xl font-sans font-bold uppercase tracking-wider">Reviews Moderation</h1>
         <p className="text-xs text-luxury-textGray uppercase tracking-widest mt-1">
           Moderate, Approve, or delete product reviews submitted by customer verified purchases
         </p>

@@ -222,7 +222,7 @@ const Settings = () => {
       
       {/* Header */}
       <div className="border-b border-luxury-gray pb-4">
-        <h1 className="text-3xl font-serif font-bold uppercase tracking-wider">Store Settings</h1>
+        <h1 className="text-3xl font-sans font-bold uppercase tracking-wider">Store Settings</h1>
         <p className="text-xs text-luxury-textGray uppercase tracking-widest mt-1">
           Customize contact details, social media URLs, shipping fees, and footer texts
         </p>
@@ -238,7 +238,7 @@ const Settings = () => {
           <div className="bg-white border border-luxury-gray p-6 sm:p-8 rounded space-y-6">
             <div className="border-b border-luxury-gray pb-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
               <div>
-                <h2 className="font-serif text-base font-bold uppercase tracking-wider text-luxury-gold flex items-center">
+                <h2 className="font-sans text-base font-bold uppercase tracking-wider text-luxury-gold flex items-center">
                   <Megaphone size={18} className="mr-2" />
                   <span>Top Announcement Bar & Promotions Slider</span>
                 </h2>
@@ -397,7 +397,7 @@ const Settings = () => {
 
             {/* Add New Announcement Form Panel */}
             <div className="border-t border-luxury-gray pt-4 space-y-4">
-              <h3 className="text-xs font-serif font-bold uppercase tracking-wider text-luxury-dark flex items-center">
+              <h3 className="text-xs font-sans font-bold uppercase tracking-wider text-luxury-dark flex items-center">
                 <Plus size={14} className="mr-1.5 text-luxury-gold" />
                 <span>Add New Promotional Message</span>
               </h3>
@@ -478,7 +478,7 @@ const Settings = () => {
 
           {/* General Metadata */}
           <div className="bg-white border border-luxury-gray p-6 sm:p-8 rounded space-y-6">
-            <h2 className="font-serif text-base font-bold uppercase tracking-wider text-luxury-gold border-b border-luxury-gray pb-2 flex items-center">
+            <h2 className="font-sans text-base font-bold uppercase tracking-wider text-luxury-gold border-b border-luxury-gray pb-2 flex items-center">
               <SettingsIcon size={16} className="mr-2" />
               <span>General Store Configs</span>
             </h2>
@@ -536,7 +536,7 @@ const Settings = () => {
 
           {/* Contact coordinates */}
           <div className="bg-white border border-luxury-gray p-6 sm:p-8 rounded space-y-6">
-            <h2 className="font-serif text-base font-bold uppercase tracking-wider text-luxury-gold border-b border-luxury-gray pb-2 flex items-center">
+            <h2 className="font-sans text-base font-bold uppercase tracking-wider text-luxury-gold border-b border-luxury-gray pb-2 flex items-center">
               <Mail size={16} className="mr-2" />
               <span>Contact Coordinates</span>
             </h2>
@@ -583,7 +583,7 @@ const Settings = () => {
           {/* Payment Methods & Direct Bank Transfer CMS */}
           <div className="bg-white border border-luxury-gray p-6 sm:p-8 rounded space-y-6">
             <div className="border-b border-luxury-gray pb-3">
-              <h2 className="font-serif text-base font-bold uppercase tracking-wider text-luxury-gold flex items-center">
+              <h2 className="font-sans text-base font-bold uppercase tracking-wider text-luxury-gold flex items-center">
                 <Landmark size={18} className="mr-2" />
                 <span>Payment Methods & Direct Bank Account (CMS)</span>
               </h2>
@@ -661,7 +661,7 @@ const Settings = () => {
 
             {/* Bank Account Details Grid */}
             <div className="border-t border-luxury-gray pt-4 space-y-4">
-              <h3 className="text-xs font-serif font-bold uppercase tracking-wider text-luxury-dark flex items-center">
+              <h3 className="text-xs font-sans font-bold uppercase tracking-wider text-luxury-dark flex items-center">
                 <span>Official Bank Coordinates (Shown to Customers)</span>
               </h3>
 
@@ -751,7 +751,7 @@ const Settings = () => {
 
           {/* About us text */}
           <div className="bg-white border border-luxury-gray p-6 sm:p-8 rounded space-y-6">
-            <h2 className="font-serif text-base font-bold uppercase tracking-wider text-luxury-dark border-b border-luxury-gray pb-2">
+            <h2 className="font-sans text-base font-bold uppercase tracking-wider text-luxury-dark border-b border-luxury-gray pb-2">
               Website Texts
             </h2>
 
@@ -784,7 +784,7 @@ const Settings = () => {
         {/* Right column: socials */}
         <div className="space-y-6">
           <div className="bg-white border border-luxury-gray p-6 rounded space-y-6">
-            <h2 className="font-serif text-base font-bold uppercase tracking-wider text-luxury-gold border-b border-luxury-gray pb-2 flex items-center">
+            <h2 className="font-sans text-base font-bold uppercase tracking-wider text-luxury-gold border-b border-luxury-gray pb-2 flex items-center">
               <Landmark size={16} className="mr-2" />
               <span>Social Links CMS</span>
             </h2>

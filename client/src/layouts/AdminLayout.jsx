@@ -51,7 +51,7 @@ const AdminLayout = () => {
         {/* Brand Header */}
         <div className="border-b border-gray-800 pb-5">
           <Link to="/" className="block text-center">
-            <h1 className="font-serif text-lg font-bold tracking-widest uppercase">
+            <h1 className="font-sans text-lg font-bold tracking-widest uppercase">
               Ubaid Al Abayat
             </h1>
             <span className="text-[9px] text-luxury-gold uppercase tracking-[0.2em] font-semibold">
@@ -135,7 +135,7 @@ const AdminLayout = () => {
           </button>
           
           <Link to="/admin" className="text-center select-none">
-            <h1 className="font-serif text-sm font-bold uppercase tracking-wider">Ubaid Al Abayat</h1>
+            <h1 className="font-sans text-sm font-bold uppercase tracking-wider">Ubaid Al Abayat</h1>
             <p className="text-[7px] text-luxury-gold tracking-widest uppercase -mt-0.5">Control Panel</p>
           </Link>
 

@@ -132,7 +132,7 @@ const Coupons = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-luxury-gray pb-4 gap-4">
         <div>
-          <h1 className="text-3xl font-serif font-bold uppercase tracking-wider">Coupons Manager</h1>
+          <h1 className="text-3xl font-sans font-bold uppercase tracking-wider">Coupons Manager</h1>
           <p className="text-xs text-luxury-textGray uppercase tracking-widest mt-1">
             Create, Edit and activate percentage or fixed discount coupons
           </p>
@@ -233,7 +233,7 @@ const Coupons = () => {
             
             {/* Modal Header */}
             <div className="flex justify-between items-center border-b border-luxury-gray pb-3">
-              <h3 className="font-serif text-lg font-bold uppercase tracking-wider">
+              <h3 className="font-sans text-lg font-bold uppercase tracking-wider">
                 {editingId ? 'Edit Coupon' : 'Create Coupon'}
               </h3>
               <button onClick={() => setModalOpen(false)} className="p-1 hover:text-luxury-gold">

@@ -302,7 +302,7 @@ const Home = () => {
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent flex items-end p-4 sm:p-6">
                 <div className="text-white">
-                  <h3 className="font-serif text-sm sm:text-base font-bold uppercase tracking-wider">
+                  <h3 className="font-sans text-sm sm:text-base font-bold uppercase tracking-wider">
                     {cat.name}
                   </h3>
                   <span className="text-[11px] sm:text-xs tracking-widest text-luxury-gold uppercase font-bold group-hover:underline flex items-center mt-1">
@@ -442,7 +442,7 @@ const Home = () => {
               <div className="inline-block p-4 bg-luxury-light text-luxury-gold rounded-full border border-luxury-gray">
                 <ShieldCheck size={28} />
               </div>
-              <h3 className="font-serif text-sm font-semibold uppercase tracking-wider">
+              <h3 className="font-sans text-sm font-semibold uppercase tracking-wider">
                 Premium Saudi Nidha
               </h3>
               <p className="text-xs text-luxury-textGray leading-relaxed">
@@ -454,7 +454,7 @@ const Home = () => {
               <div className="inline-block p-4 bg-luxury-light text-luxury-gold rounded-full border border-luxury-gray">
                 <Truck size={28} />
               </div>
-              <h3 className="font-serif text-sm font-semibold uppercase tracking-wider">
+              <h3 className="font-sans text-sm font-semibold uppercase tracking-wider">
                 Reliable COD Countrywide
               </h3>
               <p className="text-xs text-luxury-textGray leading-relaxed">
@@ -466,7 +466,7 @@ const Home = () => {
               <div className="inline-block p-4 bg-luxury-light text-luxury-gold rounded-full border border-luxury-gray">
                 <RotateCcw size={28} />
               </div>
-              <h3 className="font-serif text-sm font-semibold uppercase tracking-wider">
+              <h3 className="font-sans text-sm font-semibold uppercase tracking-wider">
                 Hassle-Free Returns
               </h3>
               <p className="text-xs text-luxury-textGray leading-relaxed">
@@ -478,7 +478,7 @@ const Home = () => {
               <div className="inline-block p-4 bg-luxury-light text-luxury-gold rounded-full border border-luxury-gray">
                 <MessageSquare size={28} />
               </div>
-              <h3 className="font-serif text-sm font-semibold uppercase tracking-wider">
+              <h3 className="font-sans text-sm font-semibold uppercase tracking-wider">
                 WhatsApp Quick Support
               </h3>
               <p className="text-xs text-luxury-textGray leading-relaxed">
@@ -495,7 +495,7 @@ const Home = () => {
           <p className="text-[10px] tracking-[0.3em] uppercase text-luxury-goldDark font-bold">
             Customer Love
           </p>
-          <h2 className="text-2xl font-serif font-bold uppercase tracking-wider">
+          <h2 className="text-2xl font-sans font-bold uppercase tracking-wider">
             Testimonials
           </h2>
           <div className="h-0.5 w-12 bg-luxury-gold mx-auto"></div>

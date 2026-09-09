@@ -8,7 +8,7 @@ const About = () => {
       
       {/* 1. HERO TITLE */}
       <div className="text-center space-y-3">
-        <h1 className="text-3xl sm:text-4xl font-serif font-bold uppercase tracking-wider text-luxury-dark">Our Story</h1>
+        <h1 className="text-3xl sm:text-4xl font-sans font-bold uppercase tracking-wider text-luxury-dark">Our Story</h1>
         <p className="text-xs sm:text-sm text-luxury-goldDark uppercase tracking-widest font-bold">
           Ubaid Al Abayat — Where Modesty Meets Elegance
         </p>
@@ -38,7 +38,7 @@ const About = () => {
         <div className="md:col-span-7 space-y-6">
           <div className="space-y-2">
             <span className="text-[10px] uppercase font-bold tracking-[0.2em] text-luxury-goldDark">The Journey</span>
-            <h2 className="font-serif text-2xl sm:text-3xl font-bold uppercase tracking-wide text-luxury-dark leading-tight">
+            <h2 className="font-sans text-2xl sm:text-3xl font-bold uppercase tracking-wide text-luxury-dark leading-tight">
               Elegance in Modesty. <br />Confidence in Every Step.
             </h2>
           </div>
@@ -57,7 +57,7 @@ const About = () => {
 
           {/* Golden Quote Block */}
           <div className="bg-luxury-cream/40 border-l-4 border-luxury-gold p-4 sm:p-5 rounded">
-            <p className="text-xs font-serif italic text-luxury-dark leading-relaxed">
+            <p className="text-xs font-sans italic text-luxury-dark leading-relaxed">
               "Every woman deserves to feel confident, comfortable, and beautiful while staying true to her values."
             </p>
           </div>
@@ -72,7 +72,7 @@ const About = () => {
       <div className="bg-luxury-dark text-white rounded p-8 sm:p-12 shadow-md relative overflow-hidden border border-luxury-gold/25">
         <div className="absolute right-0 top-0 w-64 h-64 bg-luxury-gold opacity-5 rounded-full blur-3xl -z-10"></div>
         <div className="max-w-3xl mx-auto text-center space-y-6">
-          <h2 className="font-serif text-2xl sm:text-3xl font-bold uppercase tracking-wider text-luxury-gold">
+          <h2 className="font-sans text-2xl sm:text-3xl font-bold uppercase tracking-wider text-luxury-gold">
             Brand Description
           </h2>
           <div className="h-0.5 w-12 bg-luxury-gold mx-auto"></div>
@@ -99,7 +99,7 @@ const About = () => {
             <div className="bg-luxury-cream p-3 rounded-full text-luxury-goldDark">
               <Target size={24} />
             </div>
-            <h3 className="font-serif text-xl font-bold uppercase tracking-wider text-luxury-dark">Our Mission</h3>
+            <h3 className="font-sans text-xl font-bold uppercase tracking-wider text-luxury-dark">Our Mission</h3>
           </div>
           <div className="space-y-3 text-sm text-luxury-textGray leading-relaxed font-normal">
             <p>
@@ -117,7 +117,7 @@ const About = () => {
             <div className="bg-luxury-cream p-3 rounded-full text-luxury-goldDark">
               <Eye size={24} />
             </div>
-            <h3 className="font-serif text-xl font-bold uppercase tracking-wider text-luxury-dark">Our Vision</h3>
+            <h3 className="font-sans text-xl font-bold uppercase tracking-wider text-luxury-dark">Our Vision</h3>
           </div>
           <div className="space-y-3 text-sm text-luxury-textGray leading-relaxed font-normal">
             <p>
@@ -133,7 +133,7 @@ const About = () => {
 
       {/* 5. BRAND VALUES BANNER */}
       <div className="border-t border-b border-luxury-gray py-8 text-center">
-        <p className="font-serif text-lg sm:text-xl text-luxury-goldDark font-bold uppercase tracking-widest italic">
+        <p className="font-sans text-lg sm:text-xl text-luxury-goldDark font-bold uppercase tracking-widest italic">
           "Ubaid Al Abayat — Inspiring Confidence Through Modesty."
         </p>
       </div>

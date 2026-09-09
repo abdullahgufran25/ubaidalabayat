@@ -18,9 +18,9 @@ export default {
         }
       },
       fontFamily: {
-        sans: ['Montserrat', 'Inter', 'sans-serif'],
+        sans: ['Montserrat', 'sans-serif'],
         montserrat: ['Montserrat', 'sans-serif'],
-        serif: ['Playfair Display', 'serif'],
+        serif: ['Montserrat', 'sans-serif'],
       },
       spacing: {
         '18': '4.5rem',

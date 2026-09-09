@@ -65,7 +65,7 @@ const SearchModal = ({ isOpen, onClose }) => {
         
         {/* Header Close */}
         <div className="flex justify-between items-center mb-4">
-          <span className="font-serif text-sm uppercase tracking-widest font-bold text-luxury-gold">
+          <span className="font-sans text-sm uppercase tracking-widest font-bold text-luxury-gold">
             Search Our Collection
           </span>
           <button onClick={onClose} className="p-1 hover:text-luxury-gold transition-colors">
