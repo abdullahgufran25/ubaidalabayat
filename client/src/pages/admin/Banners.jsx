@@ -712,32 +712,33 @@ const Banners = () => {
 
               {/* Text & Content Fields */}
               <div className="space-y-4">
-                {/* Title & Subtitle */}
+                {/* Title & Subtitle (Completely Optional) */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-1">
                     <label className="text-xs uppercase font-bold tracking-wider text-luxury-dark flex items-center justify-between">
-                      <span>Hero Headline (H1 on Slide 1)</span>
-                      <span className="text-[10px] text-luxury-goldDark font-semibold">SEO Optimized</span>
+                      <span>Hero Headline (Optional)</span>
+                      <span className="text-[10px] text-green-700 bg-green-50 border border-green-200 px-1.5 py-0.5 rounded font-semibold">Optional</span>
                     </label>
                     <input
                       type="text"
                       value={title}
                       onChange={(e) => setTitle(e.target.value)}
                       className="w-full text-sm border-2 border-luxury-gray p-2.5 px-3 rounded focus:outline-none focus:border-luxury-gold text-luxury-dark font-sans font-bold placeholder-gray-400 bg-white"
-                      placeholder="e.g. Haute Couture Signature Collection"
+                      placeholder="Optional (Khali chhor sakte hain)"
                     />
                   </div>
 
                   <div className="space-y-1">
-                    <label className="text-xs uppercase font-bold tracking-wider text-luxury-dark">
-                      Hero Subtitle / Description
+                    <label className="text-xs uppercase font-bold tracking-wider text-luxury-dark flex items-center justify-between">
+                      <span>Hero Subtitle (Optional)</span>
+                      <span className="text-[10px] text-green-700 bg-green-50 border border-green-200 px-1.5 py-0.5 rounded font-semibold">Optional</span>
                     </label>
                     <input
                       type="text"
                       value={subtitle}
                       onChange={(e) => setSubtitle(e.target.value)}
                       className="w-full text-sm border-2 border-luxury-gray p-2.5 px-3 rounded focus:outline-none focus:border-luxury-gold text-luxury-dark font-medium placeholder-gray-400 bg-white"
-                      placeholder="e.g. Effortless elegance designed for the modern modest woman."
+                      placeholder="Optional (Khali chhor sakte hain)"
                     />
                   </div>
                 </div>
@@ -745,15 +746,16 @@ const Banners = () => {
                 {/* CTA Button Text & Destination URL */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-1">
-                    <label className="text-xs uppercase font-bold tracking-wider text-luxury-dark">
-                      CTA Button Text
+                    <label className="text-xs uppercase font-bold tracking-wider text-luxury-dark flex items-center justify-between">
+                      <span>CTA Button Text</span>
+                      <span className="text-[10px] text-luxury-goldDark font-semibold">Shows on Banner</span>
                     </label>
                     <input
                       type="text"
                       value={ctaText}
                       onChange={(e) => setCtaText(e.target.value)}
                       className="w-full text-sm border-2 border-luxury-gray p-2.5 px-3 rounded focus:outline-none focus:border-luxury-gold text-luxury-dark font-medium placeholder-gray-400 bg-white"
-                      placeholder="e.g. Shop Collection"
+                      placeholder="e.g. Shop Collection (Khali chhorne par button chup jayega)"
                     />
                   </div>
 

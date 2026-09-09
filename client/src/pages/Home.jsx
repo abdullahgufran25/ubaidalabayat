@@ -166,29 +166,46 @@ const Home = () => {
                     />
                   </picture>
 
-                  {/* Gradient overlay only if title/subtitle is present */}
-                  {(banner.title || banner.subtitle) ? (
+                  {/* Clickable base link over the whole slide if URL exists */}
+                  {ctaUrl && (
+                    <Link to={ctaUrl} className="absolute inset-0 z-10" aria-label={altText} />
+                  )}
+
+                  {/* Text & CTA Button Overlay (Title and Subtitle are completely optional!) */}
+                  {(banner.title || banner.subtitle || ctaText) && (
                     <>
-                      <div className="absolute inset-0 bg-gradient-to-t sm:bg-gradient-to-r from-black/85 via-black/45 sm:via-black/35 to-transparent"></div>
-                      <div className="absolute inset-0 flex items-end sm:items-center pb-12 sm:pb-0 z-20">
-                        <div className="max-w-[1550px] mx-auto px-5 sm:px-8 lg:px-12 w-full text-white space-y-3 sm:space-y-4">
+                      {/* Gradient overlay: fuller gradient if title/subtitle present, or subtle bottom vignette if only CTA button */}
+                      <div className={`absolute inset-0 pointer-events-none transition-opacity duration-700 ${
+                        (banner.title || banner.subtitle)
+                          ? 'bg-gradient-to-t sm:bg-gradient-to-r from-black/85 via-black/45 sm:via-black/35 to-transparent'
+                          : 'bg-gradient-to-t from-black/55 via-black/15 to-transparent'
+                      }`} />
+
+                      <div className={`absolute inset-0 flex z-20 pointer-events-none ${
+                        (banner.title || banner.subtitle)
+                          ? 'items-end sm:items-center pb-10 sm:pb-0'
+                          : 'items-end pb-8 sm:pb-12'
+                      }`}>
+                        <div className="max-w-[1550px] mx-auto px-5 sm:px-8 lg:px-12 w-full text-white space-y-2.5 sm:space-y-3.5">
                           
-                          {/* Official Registered Brand Logo & Tagline */}
-                          <div className="flex items-center space-x-2.5 sm:space-x-3.5 mb-1">
-                            <img
-                              src={logoImg}
-                              alt="Ubaid Al Abayat Official Registered Logo"
-                              className="h-10 w-10 sm:h-12 sm:w-12 lg:h-14 lg:w-14 object-contain animate-logo-shimmer drop-shadow-[0_0_12px_rgba(197,168,128,0.8)] flex-shrink-0"
-                            />
-                            <div>
-                              <p className="text-[10px] sm:text-xs tracking-[0.25em] sm:tracking-[0.3em] uppercase text-luxury-gold font-bold leading-tight">
-                                Ubaid Al Abayat
-                              </p>
-                              <p className="text-[7.5px] sm:text-[8.5px] tracking-[0.2em] text-gray-300 uppercase font-medium mt-0.5">
-                                Luxury Modest Fashion
-                              </p>
+                          {/* Official Registered Brand Logo & Tagline (only if title or subtitle is configured) */}
+                          {(banner.title || banner.subtitle) && (
+                            <div className="flex items-center space-x-2.5 sm:space-x-3.5 mb-1">
+                              <img
+                                src={logoImg}
+                                alt="Ubaid Al Abayat Official Registered Logo"
+                                className="h-9 w-9 sm:h-11 sm:w-11 lg:h-12 lg:w-12 object-contain animate-logo-shimmer drop-shadow-[0_0_12px_rgba(197,168,128,0.8)] flex-shrink-0"
+                              />
+                              <div>
+                                <p className="text-[10px] sm:text-xs tracking-[0.25em] sm:tracking-[0.3em] uppercase text-luxury-gold font-bold leading-tight">
+                                  Ubaid Al Abayat
+                                </p>
+                                <p className="text-[7.5px] sm:text-[8.5px] tracking-[0.2em] text-gray-300 uppercase font-medium mt-0.5">
+                                  Luxury Modest Fashion
+                                </p>
+                              </div>
                             </div>
-                          </div>
+                          )}
 
                           {banner.title && (
                             index === 0 ? (
@@ -208,23 +225,22 @@ const Home = () => {
                             </p>
                           )}
 
-                          <div className="flex pt-2 sm:pt-3">
-                            <Link
-                              to={ctaUrl}
-                              className="luxury-btn-gold px-4 py-2 sm:px-6 sm:py-2.5 text-[10.5px] sm:text-xs tracking-widest font-semibold flex items-center group shadow-md"
-                            >
-                              <span>{ctaText}</span>
-                              <ArrowRight size={13} className="ml-2 group-hover:translate-x-1 transition-transform" />
-                            </Link>
-                          </div>
+                          {/* CTA Button: Always shown if ctaText is provided, even without title/subtitle */}
+                          {ctaText && (
+                            <div className="flex pt-1.5 sm:pt-2 pointer-events-auto">
+                              <Link
+                                to={ctaUrl}
+                                className="luxury-btn-gold px-5 py-2.5 sm:px-7 sm:py-3 text-[10.5px] sm:text-xs tracking-widest font-semibold flex items-center group shadow-md"
+                              >
+                                <span>{ctaText}</span>
+                                <ArrowRight size={13} className="ml-2 group-hover:translate-x-1 transition-transform" />
+                              </Link>
+                            </div>
+                          )}
+
                         </div>
                       </div>
                     </>
-                  ) : (
-                    // If banner has no text overlay, whole banner is clickable
-                    ctaUrl && (
-                      <Link to={ctaUrl} className="absolute inset-0 z-20" aria-label={altText} />
-                    )
                   )}
                 </div>
               );
