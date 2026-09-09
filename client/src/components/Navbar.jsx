@@ -68,8 +68,8 @@ const Navbar = ({ onCartOpen, onSearchOpen }) => {
           : 'py-2.5 sm:py-3 lg:py-3.5 shadow-[0_2px_14px_-2px_rgba(0,0,0,0.06)]'
       }`}
     >
-      <div className="max-w-[1550px] mx-auto px-3 sm:px-4 lg:px-6">
-        <div className="grid grid-cols-3 items-center">
+      <div className="max-w-[1550px] mx-auto px-2.5 sm:px-4 lg:px-6">
+        <div className="grid grid-cols-[auto_1fr_auto] md:grid-cols-3 items-center gap-1 sm:gap-2 lg:gap-4">
           
           {/* Column 1: Mobile Toggle / Left Navigation Links */}
           <div className="flex items-center justify-start">
@@ -126,18 +126,18 @@ const Navbar = ({ onCartOpen, onSearchOpen }) => {
           </div>
 
           {/* Column 2: Logo and Name (Centered) */}
-          <div className="flex items-center justify-center text-center">
-            <Link to="/" className="flex items-center space-x-2 sm:space-x-2.5 lg:space-x-3">
+          <div className="flex items-center justify-center text-center px-1">
+            <Link to="/" className="inline-flex items-center space-x-2 sm:space-x-2.5 lg:space-x-3 max-w-full">
               <img 
                 src={logoImg} 
                 alt="Ubaid Al Abayat Logo" 
-                className="h-7 w-7 sm:h-9 sm:w-9 lg:h-11 lg:w-11 object-contain animate-logo-shimmer" 
+                className="h-7 w-7 sm:h-9 sm:w-9 lg:h-11 lg:w-11 object-contain flex-shrink-0 animate-logo-shimmer" 
               />
-              <div className="text-left">
-                <h1 className="font-serif text-xs sm:text-sm lg:text-base font-black tracking-[0.1em] sm:tracking-[0.12em] uppercase text-luxury-dark leading-tight hover:text-luxury-gold transition-colors">
+              <div className="text-left whitespace-nowrap">
+                <h1 className="font-serif text-[12px] min-[360px]:text-[13px] sm:text-sm lg:text-base font-black tracking-[0.08em] sm:tracking-[0.12em] uppercase text-luxury-dark leading-tight hover:text-luxury-gold transition-colors whitespace-nowrap">
                   Ubaid Al Abayat
                 </h1>
-                <p className="text-[6.5px] sm:text-[7.5px] lg:text-[8.5px] tracking-[0.18em] sm:tracking-[0.2em] text-luxury-gold font-bold uppercase leading-none mt-0.5">
+                <p className="text-[6.5px] min-[360px]:text-[7px] sm:text-[7.5px] lg:text-[8.5px] tracking-[0.16em] sm:tracking-[0.2em] text-luxury-gold font-bold uppercase leading-none mt-0.5 whitespace-nowrap">
                   Luxury Modest Fashion
                 </p>
               </div>
