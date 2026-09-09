@@ -1,5 +1,6 @@
 import React, { createContext, useState, useEffect, useContext } from 'react';
 import axios from 'axios';
+import BrandSplash from '../components/BrandSplash';
 
 const SettingsContext = createContext();
 
@@ -31,13 +32,14 @@ export const SettingsProvider = ({ children }) => {
   const [banners, setBanners] = useState([]);
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [showSplash, setShowSplash] = useState(true);
+  const [splashFading, setSplashFading] = useState(false);
 
-  // Fetch all site configurations
+  // Fetch all site configurations from database
   const fetchAllData = async () => {
+    const startTime = Date.now();
     try {
-      setLoading(true);
-      
-      // Fetch settings, banners, and categories concurrently in parallel
+      // Fetch settings, banners, and categories concurrently from DB
       const [settingsRes, bannersRes, categoriesRes] = await Promise.all([
         axios.get('/api/settings').catch((err) => ({ error: err })),
         axios.get('/api/banners').catch((err) => ({ error: err })),
@@ -54,10 +56,21 @@ export const SettingsProvider = ({ children }) => {
         setCategories(categoriesRes.data.data);
       }
 
+      // Keep aesthetic splash screen visible for at least 700ms so it doesn't jarringly flicker
+      const elapsed = Date.now() - startTime;
+      const minDisplayTime = 700;
+      if (elapsed < minDisplayTime) {
+        await new Promise((resolve) => setTimeout(resolve, minDisplayTime - elapsed));
+      }
     } catch (err) {
       console.error('Error fetching global configurations:', err.message);
     } finally {
-      setLoading(false);
+      // Smooth fade out transition
+      setSplashFading(true);
+      setTimeout(() => {
+        setShowSplash(false);
+        setLoading(false);
+      }, 500);
     }
   };
 
@@ -115,6 +128,7 @@ export const SettingsProvider = ({ children }) => {
         reloadAll: fetchAllData,
       }}
     >
+      {showSplash && <BrandSplash fading={splashFading} />}
       {children}
     </SettingsContext.Provider>
   );

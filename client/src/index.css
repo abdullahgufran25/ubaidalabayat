@@ -79,3 +79,15 @@
   transform: scale(1.08) !important;
   animation-play-state: paused;
 }
+
+/* Splash screen progress animation */
+@keyframes splash-progress {
+  0% { transform: translateX(-100%); }
+  50% { transform: translateX(0%); }
+  100% { transform: translateX(100%); }
+}
+
+.animate-splash-progress {
+  animation: splash-progress 1.6s infinite ease-in-out;
+}
+

@@ -4,8 +4,7 @@ import { ArrowRight, ShieldCheck, Truck, RotateCcw, MessageSquare } from 'lucide
 import axios from 'axios';
 import { useSettings } from '../context/SettingsContext';
 import ProductCard from '../components/ProductCard';
-import heroBanner1 from '../assets/hero_banner_1.jpg';
-import heroBanner2 from '../assets/hero_banner_2.jpg';
+import logoImg from '../assets/logo.png';
 
 const Home = () => {
   const { settings, banners, categories } = useSettings();
@@ -44,28 +43,9 @@ const Home = () => {
     fetchHomeProducts();
   }, []);
 
-  // Filter hero banners vs promo banners
-  const dbHeroBanners = banners.filter(b => b.type === 'hero');
-  const promoBanners = banners.filter(b => b.type === 'promo');
-
-  const defaultHeroBanners = [
-    {
-      _id: 'default-hero-1',
-      image: heroBanner1,
-      title: 'Premium Luxury Modest Wear',
-      subtitle: 'Discover our bespoke collection of handcrafted Nidha Abayas and luxury Hijabs.',
-      link: '/shop',
-    },
-    {
-      _id: 'default-hero-2',
-      image: heroBanner2,
-      title: 'Haute Couture Signature Collection',
-      subtitle: 'Effortless elegance designed for the modern modest woman.',
-      link: '/shop?sort=newest',
-    }
-  ];
-
-  const heroBanners = dbHeroBanners.length > 0 ? dbHeroBanners : defaultHeroBanners;
+  // Filter hero banners vs promo banners directly from database
+  const heroBanners = banners.filter((b) => b.type === 'hero' && b.isActive !== false);
+  const promoBanners = banners.filter((b) => b.type === 'promo' && b.isActive !== false);
 
   // Hero carousel auto-play
   useEffect(() => {
@@ -80,41 +60,9 @@ const Home = () => {
     <div className="space-y-16 pb-12">
       
       <div className="max-w-[1550px] mx-auto px-2 sm:px-4 lg:px-6 pt-4">
-        <section className="relative w-full h-[58vh] min-h-[420px] sm:h-[65vh] sm:min-h-[480px] md:h-[72vh] md:min-h-[520px] lg:h-[80vh] bg-luxury-dark rounded-lg overflow-hidden shadow-md">
-          {heroBanners.length === 0 ? (
-            // Fallback static Hero
-            <div className="absolute inset-0 overflow-hidden">
-              <img
-                src={heroBanner1}
-                alt="Premium Luxury Modest Wear"
-                className="w-full h-full object-cover object-center"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t sm:bg-gradient-to-r from-black/80 via-black/40 to-transparent"></div>
-              <div className="absolute inset-0 flex items-end sm:items-center pb-10 sm:pb-0 z-10">
-                <div className="max-w-[1550px] mx-auto px-5 sm:px-8 lg:px-12 w-full text-white space-y-3 sm:space-y-5">
-                  <p className="text-[10px] sm:text-xs tracking-[0.3em] uppercase text-luxury-gold font-bold">
-                    Exclusive Luxury Modesty
-                  </p>
-                  <h2 className="font-serif text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-bold uppercase tracking-wider max-w-2xl leading-tight">
-                    Premium Luxury Modest Wear
-                  </h2>
-                  <p className="text-xs sm:text-sm md:text-base text-gray-200 max-w-xs sm:max-w-md font-normal leading-relaxed">
-                    Discover our bespoke collection of handcrafted Nidha Abayas and luxury Hijabs.
-                  </p>
-                  <div className="flex flex-row space-x-3 pt-2 sm:pt-4">
-                    <Link to="/shop" className="luxury-btn-gold px-5 py-2.5 sm:px-8 sm:py-3.5 text-xs tracking-widest font-bold">
-                      Shop Now
-                    </Link>
-                    <Link to="/shop?sort=newest" className="luxury-btn-outline border-white text-white hover:bg-white hover:text-luxury-dark px-5 py-2.5 sm:px-8 sm:py-3.5 text-xs tracking-widest font-bold">
-                      Explore New
-                    </Link>
-                  </div>
-                </div>
-              </div>
-            </div>
-          ) : (
-            // Dynamic Banners
-            heroBanners.map((banner, index) => (
+        {heroBanners.length > 0 ? (
+          <section className="relative w-full h-[58vh] min-h-[420px] sm:h-[65vh] sm:min-h-[480px] md:h-[72vh] md:min-h-[520px] lg:h-[80vh] bg-luxury-dark rounded-lg overflow-hidden shadow-md">
+            {heroBanners.map((banner, index) => (
               <div
                 key={banner._id || index}
                 className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${
@@ -175,25 +123,51 @@ const Home = () => {
                   )
                 )}
               </div>
-            ))
-          )}
+            ))}
 
-          {/* Minimal Luxury Slide Indicators */}
-          {heroBanners.length > 1 && (
-            <div className="absolute bottom-4 left-0 right-0 z-30 flex justify-center items-center space-x-2">
-              {heroBanners.map((_, i) => (
-                <button
-                  key={i}
-                  onClick={() => setCurrentSlide(i)}
-                  className={`h-1.5 rounded-full transition-all duration-300 ${
-                    i === currentSlide ? 'w-8 bg-luxury-gold' : 'w-2 bg-white/50 hover:bg-white/80'
-                  }`}
-                  aria-label={`Go to slide ${i + 1}`}
-                />
-              ))}
+            {/* Minimal Luxury Slide Indicators */}
+            {heroBanners.length > 1 && (
+              <div className="absolute bottom-4 left-0 right-0 z-30 flex justify-center items-center space-x-2">
+                {heroBanners.map((_, i) => (
+                  <button
+                    key={i}
+                    onClick={() => setCurrentSlide(i)}
+                    className={`h-1.5 rounded-full transition-all duration-300 ${
+                      i === currentSlide ? 'w-8 bg-luxury-gold' : 'w-2 bg-white/50 hover:bg-white/80'
+                    }`}
+                    aria-label={`Go to slide ${i + 1}`}
+                  />
+                ))}
+              </div>
+            )}
+          </section>
+        ) : (
+          /* Aesthetic Brand Card with Official Registered Logo (Shown ONLY when DB has 0 banners) */
+          <section className="relative w-full h-[320px] sm:h-[400px] bg-gradient-to-b from-[#161616] to-[#0d0d0d] rounded-lg overflow-hidden shadow-md border border-luxury-gray/20 flex items-center justify-center text-center p-6">
+            <div className="absolute w-[280px] h-[280px] bg-gradient-to-tr from-[#C5A880]/15 to-transparent rounded-full blur-3xl pointer-events-none"></div>
+            <div className="relative z-10 max-w-md space-y-4">
+              <img
+                src={logoImg}
+                alt="Ubaid Al Abayat Official Registered Logo"
+                className="h-16 w-16 mx-auto object-contain animate-logo-shimmer drop-shadow-[0_0_14px_rgba(197,168,128,0.5)]"
+              />
+              <p className="text-[10px] sm:text-xs tracking-[0.3em] uppercase text-luxury-gold font-bold">
+                Bespoke Modest Fashion
+              </p>
+              <h2 className="font-serif text-2xl sm:text-3xl font-bold uppercase tracking-wider text-white">
+                Ubaid Al Abayat
+              </h2>
+              <p className="text-xs text-gray-300 font-light leading-relaxed">
+                Handcrafted luxury abayas, hijabs, and timeless modest apparel designed for ultimate elegance.
+              </p>
+              <div className="pt-2">
+                <Link to="/shop" className="luxury-btn-gold px-6 py-2.5 text-xs tracking-widest font-bold inline-block">
+                  Explore Collection
+                </Link>
+              </div>
             </div>
-          )}
-        </section>
+          </section>
+        )}
       </div>
 
       {/* 2. CATEGORIES SECTION */}
