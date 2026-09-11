@@ -433,3 +433,30 @@ exports.deleteProduct = asyncHandler(async (req, res, next) => {
     data: {},
   });
 });
+
+// @desc    Get dynamic product filter options (distinct sizes and colors)
+// @route   GET /api/products/filters
+// @access  Public
+exports.getProductFilters = asyncHandler(async (req, res, next) => {
+  const StoreSettings = require('../models/settings');
+  const [productSizes, productColors, settings] = await Promise.all([
+    Product.distinct('sizes', { isActive: true }),
+    Product.distinct('colors', { isActive: true }),
+    StoreSettings.findOne().select('availableSizes availableColors'),
+  ]);
+
+  // Combine product sizes with CMS settings while preserving uniqueness
+  const rawSizes = [...(productSizes || []), ...(settings?.availableSizes || [])];
+  const uniqueSizes = Array.from(new Set(rawSizes.map(s => s.trim()))).filter(Boolean);
+
+  const rawColors = [...(productColors || []), ...(settings?.availableColors || [])];
+  const uniqueColors = Array.from(new Set(rawColors.map(c => c.trim()))).filter(Boolean);
+
+  res.status(200).json({
+    success: true,
+    data: {
+      sizes: uniqueSizes,
+      colors: uniqueColors,
+    },
+  });
+});

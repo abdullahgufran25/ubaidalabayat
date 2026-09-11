@@ -113,6 +113,15 @@ const storeSettingsSchema = new mongoose.Schema(
       type: Boolean,
       default: true,
     },
+    // Global Filter Options (Sizes & Colors CMS)
+    availableSizes: {
+      type: [String],
+      default: ['50', '52', '54', '56', '58', '60', 'XS', 'S', 'M', 'L', 'XL', '2XL', 'Standard', 'Free Size', 'Custom'],
+    },
+    availableColors: {
+      type: [String],
+      default: ['Black', 'Beige', 'Emerald Green', 'Navy Blue', 'Deep Plum', 'Mocha', 'Sand Beige', 'Dusty Rose', 'Maroon', 'White', 'Olive Green', 'Brown', 'Grey', 'Lilac', 'Burgundy', 'Teal'],
+    },
     // Top Announcement Bar / Promotional Slider
     announcementBar: {
       enabled: {

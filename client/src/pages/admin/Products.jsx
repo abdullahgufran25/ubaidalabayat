@@ -24,6 +24,80 @@ const Products = () => {
   const [colors, setColors] = useState('');
   const [description, setDescription] = useState('');
   
+  // Custom Size & Color State
+  const [customSizeInput, setCustomSizeInput] = useState('');
+  const [customColorInput, setCustomColorInput] = useState('');
+  const [sizeTab, setSizeTab] = useState('numeric'); // 'numeric' | 'alpha' | 'universal'
+
+  // Presets
+  const NUMERIC_SIZES = ['50', '52', '54', '56', '58', '60'];
+  const ALPHA_SIZES = ['XS', 'S', 'M', 'L', 'XL', '2XL', '3XL'];
+  const UNIVERSAL_SIZES = ['Standard', 'Free Size', 'Custom'];
+  const POPULAR_COLORS = [
+    { name: 'Black', hex: '#111827' },
+    { name: 'Beige', hex: '#D2B48C' },
+    { name: 'Emerald Green', hex: '#065F46' },
+    { name: 'Navy Blue', hex: '#1E3A8A' },
+    { name: 'Deep Plum', hex: '#581C87' },
+    { name: 'Mocha', hex: '#78350F' },
+    { name: 'Sand Beige', hex: '#E6D7B9' },
+    { name: 'Dusty Rose', hex: '#BE185D' },
+    { name: 'Maroon', hex: '#831843' },
+    { name: 'White', hex: '#FFFFFF' },
+    { name: 'Olive Green', hex: '#3F6212' },
+    { name: 'Brown', hex: '#713F12' },
+    { name: 'Grey', hex: '#6B7280' },
+    { name: 'Lilac', hex: '#C084FC' },
+    { name: 'Burgundy', hex: '#881337' },
+    { name: 'Teal', hex: '#0F766E' },
+  ];
+
+  const selectedSizesList = sizes
+    ? sizes.split(',').map((s) => s.trim()).filter(Boolean)
+    : [];
+
+  const handleToggleSize = (sizeVal) => {
+    if (selectedSizesList.includes(sizeVal)) {
+      const next = selectedSizesList.filter((s) => s !== sizeVal);
+      setSizes(next.join(', '));
+    } else {
+      setSizes([...selectedSizesList, sizeVal].join(', '));
+    }
+  };
+
+  const handleAddCustomSize = (e) => {
+    if (e) e.preventDefault();
+    const val = customSizeInput.trim();
+    if (!val) return;
+    if (!selectedSizesList.includes(val)) {
+      setSizes([...selectedSizesList, val].join(', '));
+    }
+    setCustomSizeInput('');
+  };
+
+  const selectedColorsList = colors
+    ? colors.split(',').map((c) => c.trim()).filter(Boolean)
+    : [];
+
+  const handleToggleColor = (colorVal) => {
+    if (selectedColorsList.includes(colorVal)) {
+      const next = selectedColorsList.filter((c) => c !== colorVal);
+      setColors(next.join(', '));
+    } else {
+      setColors([...selectedColorsList, colorVal].join(', '));
+    }
+  };
+
+  const handleAddCustomColor = (e) => {
+    if (e) e.preventDefault();
+    const val = customColorInput.trim();
+    if (!val) return;
+    if (!selectedColorsList.includes(val)) {
+      setColors([...selectedColorsList, val].join(', '));
+    }
+    setCustomColorInput('');
+  };
+
   // Toggles
   const [featured, setFeatured] = useState(false);
   const [bestseller, setBestseller] = useState(false);
@@ -462,28 +536,211 @@ const Products = () => {
                   </select>
                 </div>
 
-                {/* Sizes comma list */}
-                <div className="space-y-1">
-                  <label className="text-xs uppercase font-bold tracking-wider text-luxury-dark">Available Sizes (Comma List)</label>
-                  <input
-                    type="text"
-                    value={sizes}
-                    onChange={(e) => setSizes(e.target.value)}
-                    className="w-full text-sm border-2 border-luxury-gray p-2 px-3 rounded focus:outline-none focus:border-luxury-gold text-black font-medium placeholder-gray-400 bg-white"
-                    placeholder="52, 54, 56, 58"
-                  />
+                {/* Dynamic Size Manager */}
+                <div className="sm:col-span-3 bg-gray-50/80 border border-luxury-gray p-4 rounded space-y-3">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-gray-200 pb-2">
+                    <div>
+                      <label className="text-xs uppercase font-bold tracking-wider text-luxury-dark block">
+                        Product Sizes (Presets + Custom)
+                      </label>
+                      <p className="text-[10px] text-luxury-textGray">
+                        Click quick presets (Abaya 50-60 or Alpha S/M/L) or type your own custom sizes.
+                      </p>
+                    </div>
+
+                    {/* Size category selector tabs */}
+                    <div className="flex items-center space-x-1 bg-white p-1 border border-gray-200 rounded text-[10px] font-bold uppercase tracking-wider">
+                      <button
+                        type="button"
+                        onClick={() => setSizeTab('numeric')}
+                        className={`px-2 py-1 rounded transition-colors ${sizeTab === 'numeric' ? 'bg-luxury-dark text-white' : 'text-gray-600 hover:text-black'}`}
+                      >
+                        Abaya (50-60)
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setSizeTab('alpha')}
+                        className={`px-2 py-1 rounded transition-colors ${sizeTab === 'alpha' ? 'bg-luxury-dark text-white' : 'text-gray-600 hover:text-black'}`}
+                      >
+                        Alpha (S, M, L)
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setSizeTab('universal')}
+                        className={`px-2 py-1 rounded transition-colors ${sizeTab === 'universal' ? 'bg-luxury-dark text-white' : 'text-gray-600 hover:text-black'}`}
+                      >
+                        Standard / Free
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Preset chips for active tab */}
+                  <div className="flex flex-wrap gap-1.5 items-center">
+                    <span className="text-[10px] uppercase font-bold text-gray-500 mr-1">Quick Presets:</span>
+                    {(sizeTab === 'numeric' ? NUMERIC_SIZES : sizeTab === 'alpha' ? ALPHA_SIZES : UNIVERSAL_SIZES).map((sz) => {
+                      const isSelected = selectedSizesList.includes(sz);
+                      return (
+                        <button
+                          key={sz}
+                          type="button"
+                          onClick={() => handleToggleSize(sz)}
+                          className={`text-xs px-2.5 py-1 rounded font-bold uppercase tracking-wider border transition-all ${
+                            isSelected
+                              ? 'bg-luxury-gold text-luxury-dark border-luxury-goldDark shadow-sm'
+                              : 'bg-white text-gray-700 border-gray-300 hover:border-luxury-gold hover:bg-luxury-cream/30'
+                          }`}
+                        >
+                          {isSelected ? `✓ ${sz}` : `+ ${sz}`}
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  {/* Custom Size input row */}
+                  <div className="flex items-center space-x-2 pt-1">
+                    <input
+                      type="text"
+                      value={customSizeInput}
+                      onChange={(e) => setCustomSizeInput(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault();
+                          handleAddCustomSize();
+                        }
+                      }}
+                      placeholder="Type custom size (e.g. Small, Medium, Large, 48, Semi-Stitched)..."
+                      className="flex-1 text-xs border border-gray-300 p-2 rounded bg-white font-medium focus:outline-none focus:border-luxury-gold"
+                    />
+                    <button
+                      type="button"
+                      onClick={handleAddCustomSize}
+                      disabled={!customSizeInput.trim()}
+                      className="bg-luxury-dark text-white px-3 py-2 text-xs font-bold uppercase tracking-wider rounded hover:bg-luxury-gold hover:text-luxury-dark disabled:opacity-50 transition-colors"
+                    >
+                      + Add Size
+                    </button>
+                  </div>
+
+                  {/* Active Selected Sizes display */}
+                  <div className="pt-2 border-t border-gray-200">
+                    <span className="text-[10px] uppercase font-bold tracking-wider text-gray-600 block mb-1.5">
+                      Selected Sizes for this Product ({selectedSizesList.length}):
+                    </span>
+                    {selectedSizesList.length === 0 ? (
+                      <p className="text-[11px] text-amber-700 italic">No sizes selected yet. Click presets above or type a size.</p>
+                    ) : (
+                      <div className="flex flex-wrap gap-1.5">
+                        {selectedSizesList.map((sz) => (
+                          <span
+                            key={sz}
+                            className="inline-flex items-center space-x-1.5 bg-luxury-dark text-white text-xs px-2.5 py-1 rounded font-bold tracking-wider shadow-sm"
+                          >
+                            <span>{sz}</span>
+                            <button
+                              type="button"
+                              onClick={() => handleToggleSize(sz)}
+                              className="text-gray-300 hover:text-red-400 font-bold ml-1"
+                              title={`Remove size ${sz}`}
+                            >
+                              ✕
+                            </button>
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                 </div>
 
-                {/* Colors comma list */}
-                <div className="space-y-1">
-                  <label className="text-xs uppercase font-bold tracking-wider text-luxury-dark">Available Colors (Comma List)</label>
-                  <input
-                    type="text"
-                    value={colors}
-                    onChange={(e) => setColors(e.target.value)}
-                    className="w-full text-sm border-2 border-luxury-gray p-2 px-3 rounded focus:outline-none focus:border-luxury-gold text-black font-medium placeholder-gray-400 bg-white"
-                    placeholder="Black, Blue, Beige"
-                  />
+                {/* Dynamic Color Manager */}
+                <div className="sm:col-span-3 bg-gray-50/80 border border-luxury-gray p-4 rounded space-y-3">
+                  <div className="border-b border-gray-200 pb-2">
+                    <label className="text-xs uppercase font-bold tracking-wider text-luxury-dark block">
+                      Product Colors (Presets + Custom)
+                    </label>
+                    <p className="text-[10px] text-luxury-textGray">
+                      Select popular abaya colors or type any custom color shades.
+                    </p>
+                  </div>
+
+                  {/* Popular Color presets */}
+                  <div className="flex flex-wrap gap-1.5 items-center">
+                    <span className="text-[10px] uppercase font-bold text-gray-500 mr-1">Popular:</span>
+                    {POPULAR_COLORS.map((col) => {
+                      const isSelected = selectedColorsList.includes(col.name);
+                      return (
+                        <button
+                          key={col.name}
+                          type="button"
+                          onClick={() => handleToggleColor(col.name)}
+                          className={`text-xs px-2.5 py-1 rounded font-semibold uppercase tracking-wider border transition-all inline-flex items-center space-x-1.5 ${
+                            isSelected
+                              ? 'bg-luxury-gold text-luxury-dark border-luxury-goldDark shadow-sm font-bold'
+                              : 'bg-white text-gray-700 border-gray-300 hover:border-luxury-gold hover:bg-luxury-cream/30'
+                          }`}
+                        >
+                          <span
+                            className="w-2.5 h-2.5 rounded-full border border-gray-400 flex-shrink-0"
+                            style={{ backgroundColor: col.hex }}
+                          />
+                          <span>{isSelected ? `✓ ${col.name}` : col.name}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  {/* Custom Color input row */}
+                  <div className="flex items-center space-x-2 pt-1">
+                    <input
+                      type="text"
+                      value={customColorInput}
+                      onChange={(e) => setCustomColorInput(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault();
+                          handleAddCustomColor();
+                        }
+                      }}
+                      placeholder="Type custom color (e.g. Lavender, Rose Gold, Champagne, Charcoal)..."
+                      className="flex-1 text-xs border border-gray-300 p-2 rounded bg-white font-medium focus:outline-none focus:border-luxury-gold"
+                    />
+                    <button
+                      type="button"
+                      onClick={handleAddCustomColor}
+                      disabled={!customColorInput.trim()}
+                      className="bg-luxury-dark text-white px-3 py-2 text-xs font-bold uppercase tracking-wider rounded hover:bg-luxury-gold hover:text-luxury-dark disabled:opacity-50 transition-colors"
+                    >
+                      + Add Color
+                    </button>
+                  </div>
+
+                  {/* Active Selected Colors display */}
+                  <div className="pt-2 border-t border-gray-200">
+                    <span className="text-[10px] uppercase font-bold tracking-wider text-gray-600 block mb-1.5">
+                      Selected Colors for this Product ({selectedColorsList.length}):
+                    </span>
+                    {selectedColorsList.length === 0 ? (
+                      <p className="text-[11px] text-amber-700 italic">No colors selected yet. Click popular colors above or type a color.</p>
+                    ) : (
+                      <div className="flex flex-wrap gap-1.5">
+                        {selectedColorsList.map((col) => (
+                          <span
+                            key={col}
+                            className="inline-flex items-center space-x-1.5 bg-luxury-dark text-white text-xs px-2.5 py-1 rounded font-bold tracking-wider shadow-sm"
+                          >
+                            <span>{col}</span>
+                            <button
+                              type="button"
+                              onClick={() => handleToggleColor(col)}
+                              className="text-gray-300 hover:text-red-400 font-bold ml-1"
+                              title={`Remove color ${col}`}
+                            >
+                              ✕
+                            </button>
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                 </div>
 
                 {/* Description */}

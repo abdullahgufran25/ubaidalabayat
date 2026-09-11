@@ -7,7 +7,7 @@ import ProductCard from '../components/ProductCard';
 
 const Shop = () => {
   const navigate = useNavigate();
-  const { categories } = useSettings();
+  const { categories, settings } = useSettings();
   const [searchParams, setSearchParams] = useSearchParams();
 
   const [products, setProducts] = useState([]);
@@ -15,9 +15,44 @@ const Shop = () => {
   const [loading, setLoading] = useState(true);
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
 
-  // Available Filter Constants
-  const availableSizes = ['52', '54', '56', '58', 'Standard', 'Free Size'];
-  const availableColors = ['Black', 'Beige', 'Emerald Green', 'Navy Blue', 'Deep Plum', 'Mocha', 'Sand Beige', 'Dusty Rose'];
+  // Dynamic filter options loaded from active products
+  const [dynamicSizes, setDynamicSizes] = useState([]);
+  const [dynamicColors, setDynamicColors] = useState([]);
+
+  useEffect(() => {
+    const fetchFilters = async () => {
+      try {
+        const res = await axios.get('/api/products/filters');
+        if (res.data.success) {
+          if (Array.isArray(res.data.data?.sizes) && res.data.data.sizes.length > 0) {
+            setDynamicSizes(res.data.data.sizes);
+          }
+          if (Array.isArray(res.data.data?.colors) && res.data.data.colors.length > 0) {
+            setDynamicColors(res.data.data.colors);
+          }
+        }
+      } catch (err) {
+        // Fallback gracefully
+      }
+    };
+    fetchFilters();
+  }, []);
+
+  const defaultSizes = ['50', '52', '54', '56', '58', '60', 'XS', 'S', 'M', 'L', 'XL', '2XL', 'Standard', 'Free Size'];
+  const defaultColors = ['Black', 'Beige', 'Emerald Green', 'Navy Blue', 'Deep Plum', 'Mocha', 'Sand Beige', 'Dusty Rose', 'Maroon', 'White', 'Olive Green'];
+
+  // Dynamically merge options from DB products + CMS Store Settings
+  const rawSizes = [
+    ...(dynamicSizes.length > 0 ? dynamicSizes : []),
+    ...(settings?.availableSizes || defaultSizes),
+  ];
+  const availableSizes = Array.from(new Set(rawSizes.map((s) => String(s).trim()))).filter(Boolean);
+
+  const rawColors = [
+    ...(dynamicColors.length > 0 ? dynamicColors : []),
+    ...(settings?.availableColors || defaultColors),
+  ];
+  const availableColors = Array.from(new Set(rawColors.map((c) => String(c).trim()))).filter(Boolean);
 
   // Parse filters from URL query parameters
   const currentCategory = searchParams.get('category') || '';
@@ -199,16 +234,16 @@ const Shop = () => {
           {/* Sizes Filter */}
           <div className="space-y-3">
             <h3 className="text-xs uppercase tracking-widest font-bold text-luxury-gold">Select Size</h3>
-            <div className="grid grid-cols-3 gap-2">
+            <div className="flex flex-wrap gap-2">
               {availableSizes.map((size) => {
                 const active = currentSizes.includes(size);
                 return (
                   <button
                     key={size}
                     onClick={() => toggleArrayFilter('sizes', size)}
-                    className={`border text-[10px] py-1.5 text-center font-semibold rounded uppercase tracking-wider transition-all ${
+                    className={`border text-[10px] min-w-[42px] px-2.5 py-1.5 text-center font-semibold rounded uppercase tracking-wider transition-all inline-flex items-center justify-center ${
                       active
-                        ? 'border-luxury-dark bg-luxury-dark text-white'
+                        ? 'border-luxury-dark bg-luxury-dark text-white shadow-sm'
                         : 'border-luxury-gray bg-white text-luxury-dark hover:border-luxury-gold'
                     }`}
                   >
@@ -401,14 +436,14 @@ const Shop = () => {
               {/* Sizes */}
               <div className="space-y-3">
                 <h3 className="text-xs uppercase tracking-widest font-bold text-luxury-gold">Select Size</h3>
-                <div className="grid grid-cols-3 gap-2">
+                <div className="flex flex-wrap gap-2">
                   {availableSizes.map((size) => {
                     const active = currentSizes.includes(size);
                     return (
                       <button
                         key={size}
                         onClick={() => toggleArrayFilter('sizes', size)}
-                        className={`border text-[10px] py-1.5 text-center font-semibold rounded uppercase tracking-wider ${
+                        className={`border text-[10px] min-w-[42px] px-2.5 py-1.5 text-center font-semibold rounded uppercase tracking-wider inline-flex items-center justify-center ${
                           active ? 'border-luxury-dark bg-luxury-dark text-white' : 'border-luxury-gray bg-white'
                         }`}
                       >

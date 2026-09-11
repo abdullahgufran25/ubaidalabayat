@@ -31,6 +31,8 @@ export const SettingsProvider = ({ children }) => {
     cardPaymentEnabled: false,
     cardDiscountPercentage: 10,
     cardDiscountEnabled: true,
+    availableSizes: ['50', '52', '54', '56', '58', '60', 'XS', 'S', 'M', 'L', 'XL', '2XL', 'Standard', 'Free Size', 'Custom'],
+    availableColors: ['Black', 'Beige', 'Emerald Green', 'Navy Blue', 'Deep Plum', 'Mocha', 'Sand Beige', 'Dusty Rose', 'Maroon', 'White', 'Olive Green', 'Brown', 'Grey', 'Lilac', 'Burgundy', 'Teal'],
     announcementBar: {
       enabled: true,
       speed: 4000,

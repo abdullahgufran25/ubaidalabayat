@@ -2,6 +2,7 @@ const express = require('express');
 const {
   getProducts,
   getProductBySlug,
+  getProductFilters,
   getProduct,
   createProduct,
   updateProduct,
@@ -14,6 +15,7 @@ const { upload } = require('../services/upload');
 
 // Public routes (with optional auth mapping to show active vs inactive products)
 router.get('/', checkAuthOptional, getProducts);
+router.get('/filters', getProductFilters);
 router.get('/slug/:slug', getProductBySlug);
 router.get('/:id', getProduct);
 

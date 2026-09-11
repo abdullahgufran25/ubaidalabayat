@@ -55,6 +55,12 @@ const Settings = () => {
   const [cardDiscountPercentage, setCardDiscountPercentage] = useState(10);
   const [cardDiscountEnabled, setCardDiscountEnabled] = useState(true);
 
+  // Store Catalog Attributes (Sizes & Colors CMS)
+  const [availableSizes, setAvailableSizes] = useState(['50', '52', '54', '56', '58', '60', 'XS', 'S', 'M', 'L', 'XL', '2XL', 'Standard', 'Free Size', 'Custom']);
+  const [newSizeInput, setNewSizeInput] = useState('');
+  const [availableColors, setAvailableColors] = useState(['Black', 'Beige', 'Emerald Green', 'Navy Blue', 'Deep Plum', 'Mocha', 'Sand Beige', 'Dusty Rose', 'Maroon', 'White', 'Olive Green', 'Brown', 'Grey', 'Lilac', 'Burgundy', 'Teal']);
+  const [newColorInput, setNewColorInput] = useState('');
+
   // Dynamic Social Links State
   const [socialLinks, setSocialLinks] = useState([]);
   const [newPlatform, setNewPlatform] = useState('Facebook');
@@ -103,6 +109,13 @@ const Settings = () => {
       setCardPaymentEnabled(settings.cardPaymentEnabled === true);
       setCardDiscountPercentage(settings.cardDiscountPercentage !== undefined ? settings.cardDiscountPercentage : 10);
       setCardDiscountEnabled(settings.cardDiscountEnabled !== false);
+      // Catalog Sizes and Colors CMS sync
+      if (Array.isArray(settings.availableSizes) && settings.availableSizes.length > 0) {
+        setAvailableSizes(settings.availableSizes);
+      }
+      if (Array.isArray(settings.availableColors) && settings.availableColors.length > 0) {
+        setAvailableColors(settings.availableColors);
+      }
       // Top Announcement Bar CMS sync
       if (settings.announcementBar) {
         setAnnouncementEnabled(settings.announcementBar.enabled !== false);
@@ -181,6 +194,47 @@ const Settings = () => {
     setSocialLinks(socialLinks.filter((link) => link.platform !== platformName));
   };
 
+  // Catalog Sizes and Colors CMS Handlers
+  const handleAddSize = (e) => {
+    if (e) e.preventDefault();
+    const val = newSizeInput.trim();
+    if (!val) return;
+    if (!availableSizes.includes(val)) {
+      setAvailableSizes([...availableSizes, val]);
+    }
+    setNewSizeInput('');
+  };
+
+  const handleRemoveSize = (sizeToRemove) => {
+    setAvailableSizes(availableSizes.filter((s) => s !== sizeToRemove));
+  };
+
+  const handleResetSizes = (e) => {
+    if (e) e.preventDefault();
+    setAvailableSizes(['50', '52', '54', '56', '58', '60', 'XS', 'S', 'M', 'L', 'XL', '2XL', 'Standard', 'Free Size', 'Custom']);
+    addToast('Sizes reset to default abaya & clothing options', 'info');
+  };
+
+  const handleAddColor = (e) => {
+    if (e) e.preventDefault();
+    const val = newColorInput.trim();
+    if (!val) return;
+    if (!availableColors.includes(val)) {
+      setAvailableColors([...availableColors, val]);
+    }
+    setNewColorInput('');
+  };
+
+  const handleRemoveColor = (colorToRemove) => {
+    setAvailableColors(availableColors.filter((c) => c !== colorToRemove));
+  };
+
+  const handleResetColors = (e) => {
+    if (e) e.preventDefault();
+    setAvailableColors(['Black', 'Beige', 'Emerald Green', 'Navy Blue', 'Deep Plum', 'Mocha', 'Sand Beige', 'Dusty Rose', 'Maroon', 'White', 'Olive Green', 'Brown', 'Grey', 'Lilac', 'Burgundy', 'Teal']);
+    addToast('Colors reset to popular abaya palette', 'info');
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSubmitLoading(true);
@@ -196,6 +250,9 @@ const Settings = () => {
       socialLinks,
       aboutUsText,
       footerText,
+      // Store Catalog Attributes (Sizes & Colors CMS)
+      availableSizes,
+      availableColors,
       // Payment & Bank Transfer CMS
       bankName,
       accountTitle,
@@ -590,6 +647,153 @@ const Settings = () => {
                   className="w-full text-xs border border-luxury-gray p-2.5 rounded focus:outline-none"
                   placeholder="Street 10, DHA Karachi"
                 />
+              </div>
+            </div>
+          </div>
+
+          {/* Catalog Filter Attributes (Sizes & Colors CMS) */}
+          <div className="bg-white border border-luxury-gray p-6 sm:p-8 rounded space-y-6">
+            <div className="border-b border-luxury-gray pb-3">
+              <h2 className="font-sans text-base font-bold uppercase tracking-wider text-luxury-gold flex items-center">
+                <Sliders size={18} className="mr-2" />
+                <span>Store Catalog Attributes (Sizes & Colors CMS)</span>
+              </h2>
+              <p className="text-[11px] text-luxury-textGray mt-1">
+                Manage the global available sizes and colors shown in product filters on the Shop page and product editor.
+              </p>
+            </div>
+
+            {/* Sizes CMS */}
+            <div className="bg-gray-50/80 border border-luxury-gray p-4 rounded space-y-3">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-gray-200 pb-2">
+                <div>
+                  <h4 className="text-xs font-bold uppercase tracking-wider text-luxury-dark">
+                    Global Store Sizes ({availableSizes.length})
+                  </h4>
+                  <p className="text-[10px] text-luxury-textGray mt-0.5">
+                    Add or remove sizes (e.g. Abaya lengths 50-60, Alpha S/M/L, or Standard/Free Size).
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={handleResetSizes}
+                  className="text-[10px] uppercase font-bold text-luxury-goldDark hover:underline"
+                >
+                  Reset Defaults
+                </button>
+              </div>
+
+              {/* Add Size Input */}
+              <div className="flex items-center space-x-2">
+                <input
+                  type="text"
+                  value={newSizeInput}
+                  onChange={(e) => setNewSizeInput(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      handleAddSize();
+                    }
+                  }}
+                  placeholder="Add new size (e.g. Small, Medium, Large, 48, 62, Custom)..."
+                  className="flex-1 text-xs border border-gray-300 p-2 rounded bg-white font-medium focus:outline-none focus:border-luxury-gold"
+                />
+                <button
+                  type="button"
+                  onClick={handleAddSize}
+                  disabled={!newSizeInput.trim()}
+                  className="bg-luxury-dark text-white px-4 py-2 text-xs font-bold uppercase tracking-wider rounded hover:bg-luxury-gold hover:text-luxury-dark disabled:opacity-50 transition-colors flex items-center space-x-1"
+                >
+                  <Plus size={14} />
+                  <span>Add</span>
+                </button>
+              </div>
+
+              {/* Size Pills */}
+              <div className="flex flex-wrap gap-1.5 pt-1">
+                {availableSizes.map((sz) => (
+                  <span
+                    key={sz}
+                    className="inline-flex items-center space-x-1.5 bg-white border border-gray-300 text-luxury-dark text-xs px-2.5 py-1 rounded font-bold uppercase tracking-wider shadow-sm"
+                  >
+                    <span>{sz}</span>
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveSize(sz)}
+                      className="text-gray-400 hover:text-red-500 font-bold ml-1"
+                      title={`Remove ${sz}`}
+                    >
+                      ✕
+                    </button>
+                  </span>
+                ))}
+              </div>
+            </div>
+
+            {/* Colors CMS */}
+            <div className="bg-gray-50/80 border border-luxury-gray p-4 rounded space-y-3">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-gray-200 pb-2">
+                <div>
+                  <h4 className="text-xs font-bold uppercase tracking-wider text-luxury-dark">
+                    Global Store Colors ({availableColors.length})
+                  </h4>
+                  <p className="text-[10px] text-luxury-textGray mt-0.5">
+                    Add or remove colors displayed in the Shop filters and product options.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={handleResetColors}
+                  className="text-[10px] uppercase font-bold text-luxury-goldDark hover:underline"
+                >
+                  Reset Defaults
+                </button>
+              </div>
+
+              {/* Add Color Input */}
+              <div className="flex items-center space-x-2">
+                <input
+                  type="text"
+                  value={newColorInput}
+                  onChange={(e) => setNewColorInput(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      handleAddColor();
+                    }
+                  }}
+                  placeholder="Add new color (e.g. Lavender, Rose Gold, Champagne, Terracotta)..."
+                  className="flex-1 text-xs border border-gray-300 p-2 rounded bg-white font-medium focus:outline-none focus:border-luxury-gold"
+                />
+                <button
+                  type="button"
+                  onClick={handleAddColor}
+                  disabled={!newColorInput.trim()}
+                  className="bg-luxury-dark text-white px-4 py-2 text-xs font-bold uppercase tracking-wider rounded hover:bg-luxury-gold hover:text-luxury-dark disabled:opacity-50 transition-colors flex items-center space-x-1"
+                >
+                  <Plus size={14} />
+                  <span>Add</span>
+                </button>
+              </div>
+
+              {/* Color Pills */}
+              <div className="flex flex-wrap gap-1.5 pt-1">
+                {availableColors.map((col) => (
+                  <span
+                    key={col}
+                    className="inline-flex items-center space-x-1.5 bg-white border border-gray-300 text-luxury-dark text-xs px-2.5 py-1 rounded font-semibold uppercase tracking-wider shadow-sm"
+                  >
+                    <span>{col}</span>
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveColor(col)}
+                      className="text-gray-400 hover:text-red-500 font-bold ml-1"
+                      title={`Remove ${col}`}
+                    >
+                      ✕
+                    </button>
+                  </span>
+                ))}
               </div>
             </div>
           </div>

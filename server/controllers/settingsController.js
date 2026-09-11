@@ -48,6 +48,12 @@ exports.getSettings = asyncHandler(async (req, res, next) => {
     await settings.save();
   }
 
+  if (!settings.availableSizes || settings.availableSizes.length === 0) {
+    settings.availableSizes = ['50', '52', '54', '56', '58', '60', 'XS', 'S', 'M', 'L', 'XL', '2XL', 'Standard', 'Free Size', 'Custom'];
+    settings.availableColors = ['Black', 'Beige', 'Emerald Green', 'Navy Blue', 'Deep Plum', 'Mocha', 'Sand Beige', 'Dusty Rose', 'Maroon', 'White', 'Olive Green', 'Brown', 'Grey', 'Lilac', 'Burgundy', 'Teal'];
+    await settings.save();
+  }
+
   res.status(200).json({
     success: true,
     data: settings,
