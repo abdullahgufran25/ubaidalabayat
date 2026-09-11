@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Mail, Phone, MapPin, Instagram, Facebook, Youtube, Twitter, Linkedin, Link2, ArrowRight } from 'lucide-react';
+import { Mail, Phone, MapPin, ArrowRight } from 'lucide-react';
 import { useSettings } from '../context/SettingsContext';
 import logoImg from '../assets/logo.png';
+import SocialIcon from './SocialIcon';
 
 const Footer = () => {
   const { settings } = useSettings();
@@ -15,16 +16,6 @@ const Footer = () => {
       setSubscribed(true);
       setEmail('');
     }
-  };
-
-  const renderSocialIcon = (platform) => {
-    const norm = platform.toLowerCase();
-    if (norm.includes('facebook')) return <Facebook size={14} />;
-    if (norm.includes('instagram')) return <Instagram size={14} />;
-    if (norm.includes('youtube')) return <Youtube size={14} />;
-    if (norm.includes('twitter') || norm.includes('x')) return <Twitter size={14} />;
-    if (norm.includes('linkedin')) return <Linkedin size={14} />;
-    return <Link2 size={14} />;
   };
 
   return (
@@ -54,7 +45,7 @@ const Footer = () => {
             </Link>
             <p className="text-gray-400 text-xs leading-relaxed mb-6">
               {settings.aboutUsText || 
-                'Tailoring premium Saudi Nidha Abayas, Hijabs, and modest wear. Rooted in luxury Pakstani fashion values, redefining elegance.'}
+                'Tailoring premium Saudi Nidha Abayas, Hijabs, and modest wear. Rooted in luxury Pakistani fashion values, redefining elegance.'}
             </p>
             <div className="flex flex-wrap gap-2.5">
               {settings.socialLinks && settings.socialLinks.length > 0 ? (
@@ -64,10 +55,10 @@ const Footer = () => {
                     href={link.url}
                     target="_blank"
                     rel="noreferrer"
-                    className="text-gray-400 hover:text-luxury-gold transition-colors bg-gray-900/40 p-2 rounded-full border border-gray-800 flex items-center justify-center"
+                    className="text-gray-400 hover:text-luxury-gold hover:border-luxury-gold hover:scale-110 transition-all duration-300 bg-gray-900/60 p-2.5 rounded-full border border-gray-800 flex items-center justify-center shadow-sm"
                     title={link.platform}
                   >
-                    {renderSocialIcon(link.platform)}
+                    <SocialIcon platform={link.platform} url={link.url} size={15} />
                   </a>
                 ))
               ) : (
@@ -76,17 +67,19 @@ const Footer = () => {
                     href={settings.facebookUrl || 'https://facebook.com'}
                     target="_blank"
                     rel="noreferrer"
-                    className="text-gray-400 hover:text-luxury-gold transition-colors"
+                    className="text-gray-400 hover:text-luxury-gold hover:border-luxury-gold hover:scale-110 transition-all duration-300 bg-gray-900/60 p-2.5 rounded-full border border-gray-800 flex items-center justify-center"
+                    title="Facebook"
                   >
-                    <Facebook size={18} />
+                    <SocialIcon platform="Facebook" size={15} />
                   </a>
                   <a
                     href={settings.instagramUrl || 'https://instagram.com'}
                     target="_blank"
                     rel="noreferrer"
-                    className="text-gray-400 hover:text-luxury-gold transition-colors"
+                    className="text-gray-400 hover:text-luxury-gold hover:border-luxury-gold hover:scale-110 transition-all duration-300 bg-gray-900/60 p-2.5 rounded-full border border-gray-800 flex items-center justify-center"
+                    title="Instagram"
                   >
-                    <Instagram size={18} />
+                    <SocialIcon platform="Instagram" size={15} />
                   </a>
                 </>
               )}

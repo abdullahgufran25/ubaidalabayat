@@ -71,24 +71,47 @@ const Coupons = () => {
     setModalOpen(true);
   };
 
+  const applyPreset = (preset) => {
+    setCode(preset.code);
+    setDiscountType(preset.discountType);
+    setDiscountValue(preset.discountValue);
+    setMinOrderAmount(preset.minOrderAmount);
+    setMaxDiscount(preset.maxDiscount || '');
+    setUsageLimit(preset.usageLimit || '');
+    const exp = new Date();
+    exp.setMonth(exp.getMonth() + (preset.months || 3));
+    setExpiryDate(exp.toISOString().split('T')[0]);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!code || !discountValue || !expiryDate) {
-      addToast('Please enter coupon code, discount values, and expiry date', 'warning');
+    const cleanCode = code ? code.trim().toUpperCase() : '';
+    if (!cleanCode || !discountValue || !expiryDate) {
+      addToast('Please enter coupon code, discount value, and expiry date', 'warning');
+      return;
+    }
+
+    if (Number(discountValue) <= 0) {
+      addToast('Discount value must be greater than 0', 'warning');
+      return;
+    }
+
+    if (discountType === 'percentage' && Number(discountValue) > 100) {
+      addToast('Percentage discount cannot exceed 100%', 'warning');
       return;
     }
 
     setSubmitLoading(true);
 
     const payload = {
-      code: code.toUpperCase(),
+      code: cleanCode,
       discountType,
       discountValue: Number(discountValue),
-      minOrderAmount: Number(minOrderAmount),
-      maxDiscount: maxDiscount ? Number(maxDiscount) : undefined,
+      minOrderAmount: minOrderAmount ? Math.max(0, Number(minOrderAmount)) : 0,
+      maxDiscount: discountType === 'percentage' && maxDiscount && Number(maxDiscount) > 0 ? Number(maxDiscount) : undefined,
       expiryDate,
-      usageLimit: usageLimit ? Number(usageLimit) : null, // null is unlimited
+      usageLimit: usageLimit && Number(usageLimit) > 0 ? Number(usageLimit) : null,
       isActive,
     };
 
@@ -101,7 +124,7 @@ const Coupons = () => {
       }
 
       if (res.data.success) {
-        addToast(res.data.message, 'success');
+        addToast(res.data.message || 'Coupon saved successfully', 'success');
         setModalOpen(false);
         fetchCoupons();
       }
@@ -240,6 +263,45 @@ const Coupons = () => {
                 <X size={20} />
               </button>
             </div>
+
+            {/* 1-Click Inspiration Presets (When creating) */}
+            {!editingId && (
+              <div className="space-y-1.5 bg-white p-3 rounded border border-luxury-gray/70">
+                <p className="text-[10px] font-bold uppercase tracking-wider text-luxury-goldDark">
+                  ⚡ 1-Click Popular Presets:
+                </p>
+                <div className="flex flex-wrap gap-1.5">
+                  <button
+                    type="button"
+                    onClick={() => applyPreset({ code: 'WELCOME10', discountType: 'percentage', discountValue: '10', minOrderAmount: '0', maxDiscount: '2000', usageLimit: '', months: 3 })}
+                    className="text-[10px] bg-luxury-cream hover:bg-luxury-gold hover:text-luxury-dark border border-luxury-gray px-2 py-1 rounded font-semibold transition-colors"
+                  >
+                    WELCOME10 (10% Off)
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => applyPreset({ code: 'ELEGANCE1000', discountType: 'fixed', discountValue: '1000', minOrderAmount: '7000', maxDiscount: '', usageLimit: '', months: 6 })}
+                    className="text-[10px] bg-luxury-cream hover:bg-luxury-gold hover:text-luxury-dark border border-luxury-gray px-2 py-1 rounded font-semibold transition-colors"
+                  >
+                    ELEGANCE1000 (PKR 1000 Off)
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => applyPreset({ code: 'RAMADAN20', discountType: 'percentage', discountValue: '20', minOrderAmount: '10000', maxDiscount: '3500', usageLimit: '100', months: 2 })}
+                    className="text-[10px] bg-luxury-cream hover:bg-luxury-gold hover:text-luxury-dark border border-luxury-gray px-2 py-1 rounded font-semibold transition-colors"
+                  >
+                    RAMADAN20 (20% Off)
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => applyPreset({ code: 'FLAT500', discountType: 'fixed', discountValue: '500', minOrderAmount: '3500', maxDiscount: '', usageLimit: '', months: 1 })}
+                    className="text-[10px] bg-luxury-cream hover:bg-luxury-gold hover:text-luxury-dark border border-luxury-gray px-2 py-1 rounded font-semibold transition-colors"
+                  >
+                    FLAT500 (PKR 500 Off)
+                  </button>
+                </div>
+              </div>
+            )}
 
             {/* Form */}
             <form onSubmit={handleSubmit} className="space-y-4">

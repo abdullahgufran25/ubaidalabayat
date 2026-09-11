@@ -9,10 +9,41 @@ import { useSettings } from '../context/SettingsContext';
 
 const Checkout = () => {
   const navigate = useNavigate();
-  const { cartItems, coupon, discountAmount, getSubtotal, getShippingCharges, getTotal, clearCart } = useCart();
+  const {
+    cartItems,
+    coupon,
+    discountAmount,
+    couponError,
+    applyCoupon,
+    removeCoupon,
+    getSubtotal,
+    getShippingCharges,
+    getTotal,
+    clearCart,
+  } = useCart();
   const { user } = useAuth();
   const { addToast } = useToast();
   const { settings } = useSettings();
+
+  // Coupon state in Checkout
+  const [couponInput, setCouponInput] = useState('');
+  const [couponLoading, setCouponLoading] = useState(false);
+  const [couponLocalError, setCouponLocalError] = useState('');
+
+  const handleApplyCoupon = async (e) => {
+    if (e) e.preventDefault();
+    if (!couponInput.trim()) return;
+    setCouponLoading(true);
+    setCouponLocalError('');
+    const success = await applyCoupon(couponInput.trim());
+    setCouponLoading(false);
+    if (success) {
+      addToast(`Coupon '${couponInput.trim().toUpperCase()}' applied successfully!`, 'success');
+      setCouponInput('');
+    } else {
+      setCouponLocalError(couponError || 'Invalid or expired coupon code');
+    }
+  };
 
   // Form Shipping States
   const [fullName, setFullName] = useState('');
@@ -557,20 +588,73 @@ const Checkout = () => {
               ))}
             </div>
 
+            {/* Promo / Coupon Code Section */}
+            <div className="border-t border-luxury-gray pt-4 space-y-2">
+              <label className="text-[10px] uppercase font-bold tracking-wider text-luxury-dark block">
+                Have a Coupon / Promo Code?
+              </label>
+
+              {coupon ? (
+                <div className="flex items-center justify-between bg-green-50 border border-green-200 px-3 py-2.5 rounded text-xs">
+                  <div className="flex items-center text-green-800">
+                    <Check size={14} className="mr-2 flex-shrink-0 text-green-600" />
+                    <span className="font-medium text-[11px]">
+                      Coupon <strong className="uppercase font-bold">{coupon.code}</strong> applied!
+                    </span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={removeCoupon}
+                    className="text-[10px] text-red-500 hover:text-red-700 font-semibold uppercase tracking-wider ml-2 underline"
+                  >
+                    Remove
+                  </button>
+                </div>
+              ) : (
+                <div className="flex space-x-2">
+                  <input
+                    type="text"
+                    placeholder="COUPON CODE"
+                    value={couponInput}
+                    onChange={(e) => {
+                      setCouponInput(e.target.value.toUpperCase());
+                      if (couponLocalError) setCouponLocalError('');
+                    }}
+                    className="flex-1 border border-luxury-gray px-3 py-2 text-xs uppercase tracking-wider rounded focus:outline-none focus:border-luxury-gold font-mono"
+                  />
+                  <button
+                    type="button"
+                    onClick={handleApplyCoupon}
+                    disabled={couponLoading || !couponInput.trim()}
+                    className="bg-luxury-dark text-white px-4 py-2 text-xs font-semibold uppercase tracking-wider rounded hover:bg-luxury-gold hover:text-luxury-dark transition-colors disabled:opacity-50 flex items-center"
+                  >
+                    {couponLoading ? '...' : 'APPLY'}
+                  </button>
+                </div>
+              )}
+
+              {(couponLocalError || couponError) && !coupon && (
+                <div className="flex items-center text-[10px] text-red-600 font-semibold uppercase tracking-wider mt-1">
+                  <AlertCircle size={11} className="mr-1 flex-shrink-0" />
+                  <span>{couponLocalError || couponError}</span>
+                </div>
+              )}
+            </div>
+
             {/* Totals */}
             <div className="space-y-2 text-xs uppercase tracking-wider font-semibold border-t border-luxury-gray pt-4 pb-4">
               <div className="flex justify-between text-luxury-textGray">
                 <span>Subtotal</span>
-                <span>PKR {subtotal}</span>
+                <span>PKR {subtotal.toLocaleString()}</span>
               </div>
               <div className="flex justify-between text-luxury-textGray">
                 <span>Shipping</span>
-                <span>{shipping === 0 ? 'FREE' : `PKR ${shipping}`}</span>
+                <span>{shipping === 0 ? 'FREE' : `PKR ${shipping.toLocaleString()}`}</span>
               </div>
               {discountAmount > 0 && (
-                <div className="flex justify-between text-green-700">
-                  <span>Discount</span>
-                  <span>- PKR {discountAmount}</span>
+                <div className="flex justify-between text-green-700 font-bold">
+                  <span>Coupon Discount ({coupon?.code})</span>
+                  <span>- PKR {discountAmount.toLocaleString()}</span>
                 </div>
               )}
             </div>

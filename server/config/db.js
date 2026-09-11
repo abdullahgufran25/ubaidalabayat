@@ -16,13 +16,28 @@ const connectDB = async () => {
     try {
       console.log('Connecting to MongoDB Atlas...');
       const conn = await mongoose.connect(mongoUri, {
-        serverSelectionTimeoutMS: 6000, // Wait up to 6 seconds for Atlas
+        serverSelectionTimeoutMS: 6000,
       });
       cachedConn = conn;
       console.log(`MongoDB Connected (Atlas): ${conn.connection.host}`);
       return conn;
     } catch (err) {
       console.error(`Atlas connection failed: ${err.message}`);
+      // If SRV / TXT lookup timed out on cluster0.zz9m7gy, try direct shards
+      if (mongoUri.includes('cluster0.zz9m7gy.mongodb.net')) {
+        try {
+          console.log('Attempting direct shard connection (bypassing SRV/TXT lookup)...');
+          const directUri = 'mongodb://abdullah_gufran_26:260497@ac-y896bwf-shard-00-00.zz9m7gy.mongodb.net:27017,ac-y896bwf-shard-00-01.zz9m7gy.mongodb.net:27017,ac-y896bwf-shard-00-02.zz9m7gy.mongodb.net:27017/ubaid-al-abayat?ssl=true&authSource=admin&retryWrites=true&w=majority';
+          const conn = await mongoose.connect(directUri, {
+            serverSelectionTimeoutMS: 6000,
+          });
+          cachedConn = conn;
+          console.log(`MongoDB Connected (Atlas Direct): ${conn.connection.host}`);
+          return conn;
+        } catch (directErr) {
+          console.error(`Direct shard connection failed: ${directErr.message}`);
+        }
+      }
       console.log('Falling back to local or in-memory database...');
     }
   }

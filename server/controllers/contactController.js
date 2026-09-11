@@ -6,11 +6,22 @@ const ErrorResponse = require('../utils/errorResponse');
 // @route   POST /api/contact
 // @access  Public
 exports.submitContactForm = asyncHandler(async (req, res, next) => {
-  const { name, email, phone, message } = req.body;
+  let { name, email, phone, message } = req.body;
 
-  if (!name || !email || !message) {
-    return next(new ErrorResponse('Please provide name, email, and a message', 400));
+  if (!name || !name.trim()) {
+    return next(new ErrorResponse('Please enter your full name', 400));
   }
+  if (!email || !email.trim()) {
+    return next(new ErrorResponse('Please enter your email address', 400));
+  }
+  if (!message || !message.trim()) {
+    return next(new ErrorResponse('Please enter your message', 400));
+  }
+
+  name = name.trim();
+  email = email.trim().toLowerCase();
+  message = message.trim();
+  phone = phone ? phone.trim() : '';
 
   const contact = await ContactMessage.create({
     name,
@@ -21,7 +32,7 @@ exports.submitContactForm = asyncHandler(async (req, res, next) => {
 
   res.status(201).json({
     success: true,
-    message: 'Your message has been submitted. We will contact you soon!',
+    message: 'Thank you! Your inquiry has been submitted. Our team will contact you shortly.',
     data: contact,
   });
 });

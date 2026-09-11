@@ -24,6 +24,7 @@ import {
 import axios from 'axios';
 import { useSettings } from '../../context/SettingsContext';
 import { useToast } from '../../context/ToastContext';
+import SocialIcon from '../../components/SocialIcon';
 
 const Settings = () => {
   const { settings, reloadAll } = useSettings();
@@ -796,13 +797,18 @@ const Settings = () => {
               <div className="space-y-2.5">
                 {socialLinks.map((link) => (
                   <div key={link.platform} className="flex justify-between items-center bg-luxury-light border border-luxury-gray p-2.5 rounded text-xs">
-                    <div>
-                      <p className="font-bold text-luxury-dark uppercase tracking-wider text-[9px]">{link.platform}</p>
-                      <p className="text-[10px] text-luxury-textGray truncate max-w-[160px]" title={link.url}>{link.url}</p>
+                    <div className="flex items-center space-x-2.5 min-w-0">
+                      <div className="w-7 h-7 rounded-full bg-luxury-dark text-luxury-gold flex items-center justify-center flex-shrink-0 shadow-sm">
+                        <SocialIcon platform={link.platform} url={link.url} size={14} />
+                      </div>
+                      <div className="min-w-0">
+                        <p className="font-bold text-luxury-dark uppercase tracking-wider text-[10px]">{link.platform}</p>
+                        <p className="text-[10px] text-luxury-textGray truncate max-w-[130px] sm:max-w-[160px]" title={link.url}>{link.url}</p>
+                      </div>
                     </div>
                     <button
                       onClick={(e) => handleDeleteSocial(link.platform, e)}
-                      className="text-red-500 hover:text-red-700 text-[10px] font-bold uppercase tracking-wider p-1.5"
+                      className="text-red-500 hover:text-red-700 text-[10px] font-bold uppercase tracking-wider p-1.5 flex-shrink-0"
                     >
                       Delete
                     </button>
@@ -817,21 +823,27 @@ const Settings = () => {
               
               <div className="space-y-1.5">
                 <label className="text-[9px] uppercase font-bold tracking-wider text-luxury-textGray block font-semibold">Select Social Media *</label>
-                <select
-                  value={newPlatform}
-                  onChange={(e) => setNewPlatform(e.target.value)}
-                  className="w-full text-xs border border-luxury-gray p-2.5 rounded bg-white font-semibold focus:outline-none"
-                >
-                  <option value="Facebook">Facebook</option>
-                  <option value="Instagram">Instagram</option>
-                  <option value="Pinterest">Pinterest</option>
-                  <option value="TikTok">TikTok</option>
-                  <option value="YouTube">YouTube</option>
-                  <option value="Twitter/X">Twitter/X</option>
-                  <option value="Snapchat">Snapchat</option>
-                  <option value="LinkedIn">LinkedIn</option>
-                  <option value="Threads">Threads</option>
-                </select>
+                <div className="flex items-center space-x-2">
+                  <div className="w-8 h-8 rounded bg-luxury-dark text-luxury-gold flex items-center justify-center flex-shrink-0 shadow-sm">
+                    <SocialIcon platform={newPlatform} url={newUrl} size={16} />
+                  </div>
+                  <select
+                    value={newPlatform}
+                    onChange={(e) => setNewPlatform(e.target.value)}
+                    className="w-full text-xs border border-luxury-gray p-2 rounded bg-white font-semibold focus:outline-none"
+                  >
+                    <option value="Facebook">Facebook</option>
+                    <option value="Instagram">Instagram</option>
+                    <option value="TikTok">TikTok</option>
+                    <option value="YouTube">YouTube</option>
+                    <option value="Pinterest">Pinterest</option>
+                    <option value="Twitter/X">Twitter/X</option>
+                    <option value="Snapchat">Snapchat</option>
+                    <option value="WhatsApp">WhatsApp</option>
+                    <option value="LinkedIn">LinkedIn</option>
+                    <option value="Threads">Threads</option>
+                  </select>
+                </div>
               </div>
 
               <div className="space-y-1.5">

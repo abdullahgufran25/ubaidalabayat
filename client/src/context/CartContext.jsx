@@ -9,7 +9,14 @@ export const CartProvider = ({ children, shippingChargesDefault = 200, freeShipp
     return savedCart ? JSON.parse(savedCart) : [];
   });
   
-  const [coupon, setCoupon] = useState(null);
+  const [coupon, setCoupon] = useState(() => {
+    try {
+      const saved = localStorage.getItem('appliedCoupon');
+      return saved ? JSON.parse(saved) : null;
+    } catch (e) {
+      return null;
+    }
+  });
   const [discountAmount, setDiscountAmount] = useState(0);
   const [couponError, setCouponError] = useState('');
   
@@ -17,10 +24,18 @@ export const CartProvider = ({ children, shippingChargesDefault = 200, freeShipp
   const [shippingCharges, setShippingCharges] = useState(shippingChargesDefault);
   const [freeShippingThreshold, setFreeShippingThreshold] = useState(freeShippingThresholdDefault);
 
-  // Sync cart to localStorage whenever it changes
+  // Sync cart and coupon to localStorage whenever they change
   useEffect(() => {
     localStorage.setItem('cart', JSON.stringify(cartItems));
   }, [cartItems]);
+
+  useEffect(() => {
+    if (coupon) {
+      localStorage.setItem('appliedCoupon', JSON.stringify(coupon));
+    } else {
+      localStorage.removeItem('appliedCoupon');
+    }
+  }, [coupon]);
 
   // Recalculate coupon discount whenever cart items or coupon changes
   useEffect(() => {
@@ -127,6 +142,8 @@ export const CartProvider = ({ children, shippingChargesDefault = 200, freeShipp
     setCoupon(null);
     setDiscountAmount(0);
     setCouponError('');
+    localStorage.removeItem('cart');
+    localStorage.removeItem('appliedCoupon');
   };
 
   // Calculate totals
@@ -143,26 +160,29 @@ export const CartProvider = ({ children, shippingChargesDefault = 200, freeShipp
   const getTotal = () => {
     const sub = getSubtotal();
     const ship = getShippingCharges();
-    return sub + ship - discountAmount;
+    return Math.max(0, sub + ship - discountAmount);
   };
 
   // Apply Coupon
   const applyCoupon = async (code) => {
     setCouponError('');
-    if (!code) {
-      setCouponError('Please enter a coupon code');
+    const cleanCode = code ? code.trim().toUpperCase() : '';
+    if (!cleanCode) {
+      const msg = 'Please enter a coupon code';
+      setCouponError(msg);
       return false;
     }
 
     const sub = getSubtotal();
     if (sub === 0) {
-      setCouponError('Cart is empty');
+      const msg = 'Cart is empty. Please add items to apply a coupon.';
+      setCouponError(msg);
       return false;
     }
 
     try {
       const res = await axios.post('/api/coupons/validate', {
-        code,
+        code: cleanCode,
         orderAmount: sub,
       });
 
@@ -170,8 +190,10 @@ export const CartProvider = ({ children, shippingChargesDefault = 200, freeShipp
         setCoupon(res.data.data);
         return true;
       }
+      return false;
     } catch (err) {
-      setCouponError(err.response?.data?.message || 'Invalid coupon code');
+      const msg = err.response?.data?.message || 'Invalid or expired coupon code';
+      setCouponError(msg);
       setCoupon(null);
       return false;
     }
@@ -182,6 +204,7 @@ export const CartProvider = ({ children, shippingChargesDefault = 200, freeShipp
     setCoupon(null);
     setDiscountAmount(0);
     setCouponError('');
+    localStorage.removeItem('appliedCoupon');
   };
 
   // Dynamically update shipping settings (fetched by SettingsContext)

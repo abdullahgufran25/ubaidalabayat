@@ -341,7 +341,7 @@ Link: ${window.location.href}`;
                   <button
                     key={size}
                     onClick={() => setSelectedSize(size)}
-                    className={`border text-xs w-12 py-2.5 font-bold uppercase text-center tracking-wider transition-all ${
+                    className={`border text-xs min-w-[48px] px-4 py-2.5 font-bold uppercase text-center tracking-wider transition-all inline-flex items-center justify-center ${
                       selectedSize === size
                         ? 'border-luxury-dark bg-luxury-dark text-white shadow-sm'
                         : 'border-luxury-gray bg-white text-luxury-dark hover:border-luxury-gold'
