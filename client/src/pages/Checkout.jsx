@@ -518,7 +518,7 @@ const Checkout = () => {
                       {settings?.bankInstructions || 'Please transfer the exact order amount and share the payment screenshot on WhatsApp with your Order ID for instant dispatch.'}
                     </p>
                     <p className="text-[11px] text-luxury-dark pt-1 border-t border-gray-100">
-                      Amount to transfer: <strong className="text-luxury-goldDark font-bold font-sans text-xs">PKR {getTotal()}</strong> | WhatsApp for proof: <strong className="text-luxury-dark font-mono">{settings?.whatsappNumber || '03287512751'}</strong>
+                      Amount to transfer: <strong className="text-luxury-goldDark font-bold font-sans text-xs">PKR {total.toLocaleString()}</strong> | WhatsApp for proof: <strong className="text-luxury-dark font-mono">{settings?.whatsappNumber || '03287512751'}</strong>
                     </p>
                   </div>
                 </div>

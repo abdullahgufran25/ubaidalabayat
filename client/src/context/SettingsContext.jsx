@@ -25,8 +25,12 @@ export const SettingsProvider = ({ children }) => {
     bankBranch: '',
     bankInstructions: 'Please transfer the exact order amount and share the payment screenshot on WhatsApp with your Order ID for instant dispatch.',
     bankTransferEnabled: true,
+    bankTransferDiscountPercentage: 5,
+    bankTransferDiscountEnabled: true,
     codEnabled: true,
     cardPaymentEnabled: false,
+    cardDiscountPercentage: 10,
+    cardDiscountEnabled: true,
     announcementBar: {
       enabled: true,
       speed: 4000,
