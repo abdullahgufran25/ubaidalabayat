@@ -102,3 +102,32 @@
   animation: splash-progress 1.6s infinite ease-in-out;
 }
 
+/* Running tape / continuous marquee animation */
+@keyframes runningTape {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-running-tape {
+  display: flex;
+  width: max-content;
+  animation: runningTape 32s linear infinite;
+  will-change: transform;
+}
+
+.animate-running-tape:hover {
+  animation-play-state: paused;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+

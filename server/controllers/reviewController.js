@@ -141,3 +141,128 @@ exports.deleteReview = asyncHandler(async (req, res, next) => {
     data: {},
   });
 });
+
+// @desc    Get homepage running testimonials
+// @route   GET /api/reviews/testimonials
+// @access  Public
+exports.getHomeTestimonials = asyncHandler(async (req, res, next) => {
+  let testimonials = await Review.find({
+    isApproved: true,
+    isFeaturedOnHome: true,
+  })
+    .populate('product', 'name slug sku images')
+    .sort({ createdAt: -1 });
+
+  // Auto-seed initial elegant testimonials if none exist yet
+  if (testimonials.length === 0) {
+    const defaultTestimonials = [
+      {
+        userName: 'Zobia N.',
+        city: 'Islamabad',
+        title: 'Absolutely Premium',
+        rating: 5,
+        comment: 'The embroidery on the Zahra Abaya is exceptionally neat. Tailoring is perfect. Exceeded my expectations!',
+        isApproved: true,
+        isFeaturedOnHome: true,
+      },
+      {
+        userName: 'Amina K.',
+        city: 'Karachi',
+        title: 'Incredibly Soft Georgette',
+        rating: 5,
+        comment: 'Ordered modal and georgette hijabs. The draping is gorgeous, and they are completely slip-free. Recommended!',
+        isApproved: true,
+        isFeaturedOnHome: true,
+      },
+      {
+        userName: 'Maryam F.',
+        city: 'Lahore',
+        title: 'Outstanding Customer Service',
+        rating: 5,
+        comment: 'I wanted to customize my Abaya sleeve length. The team aligned over WhatsApp and delivered the perfect dress!',
+        isApproved: true,
+        isFeaturedOnHome: true,
+      },
+      {
+        userName: 'Ayesha B.',
+        city: 'Peshawar',
+        title: 'Pure Luxury Feel',
+        rating: 5,
+        comment: 'The fabric quality is pure Saudi Nidha, breathable and completely opaque. Standard size 54 fits like bespoke couture.',
+        isApproved: true,
+        isFeaturedOnHome: true,
+      },
+      {
+        userName: 'Fatima R.',
+        city: 'Rawalpindi',
+        title: 'Fast Delivery & Elegant Packaging',
+        rating: 5,
+        comment: 'Received within 2 days in a gorgeous branded luxury box. The attention to detail and packaging is unmatched!',
+        isApproved: true,
+        isFeaturedOnHome: true,
+      },
+    ];
+
+    testimonials = await Review.insertMany(defaultTestimonials);
+  }
+
+  res.status(200).json({
+    success: true,
+    count: testimonials.length,
+    data: testimonials,
+  });
+});
+
+// @desc    Toggle feature review on homepage running tape
+// @route   PUT /api/reviews/:id/feature-home
+// @access  Private/Admin|Staff
+exports.toggleFeatureHome = asyncHandler(async (req, res, next) => {
+  const review = await Review.findById(req.params.id);
+  if (!review) {
+    return next(new ErrorResponse('Review not found', 404));
+  }
+
+  review.isFeaturedOnHome = !review.isFeaturedOnHome;
+  // If featured on home, automatically ensure it is approved
+  if (review.isFeaturedOnHome) {
+    review.isApproved = true;
+  }
+  await review.save();
+
+  res.status(200).json({
+    success: true,
+    message: review.isFeaturedOnHome
+      ? 'Review is now featured on Homepage running tape!'
+      : 'Review removed from Homepage running tape',
+    data: review,
+  });
+});
+
+// @desc    Create custom testimonial directly from Admin CMS
+// @route   POST /api/reviews/admin-create
+// @access  Private/Admin|Staff
+exports.createAdminTestimonial = asyncHandler(async (req, res, next) => {
+  const { userName, city, title, rating, comment, isFeaturedOnHome, productId } = req.body;
+
+  if (!userName || !comment) {
+    return next(new ErrorResponse('Please provide client name and testimonial review text', 400));
+  }
+
+  const review = await Review.create({
+    userName: userName.trim(),
+    city: city ? city.trim() : '',
+    title: title ? title.trim() : '',
+    rating: Number(rating) || 5,
+    comment: comment.trim(),
+    product: productId || undefined,
+    user: req.user._id,
+    isApproved: true,
+    isFeaturedOnHome: isFeaturedOnHome !== false,
+  });
+
+  res.status(201).json({
+    success: true,
+    message: 'Customer testimonial created and featured successfully!',
+    data: review,
+  });
+});

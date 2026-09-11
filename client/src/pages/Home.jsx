@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, ShieldCheck, Truck, RotateCcw, MessageSquare } from 'lucide-react';
+import { ArrowRight, ShieldCheck, Truck, RotateCcw, MessageSquare, Star, CheckCircle2, Quote } from 'lucide-react';
 import axios from 'axios';
 import { useSettings } from '../context/SettingsContext';
 import ProductCard from '../components/ProductCard';
@@ -14,34 +14,39 @@ const Home = () => {
   const [newArrivals, setNewArrivals] = useState([]);
   const [bestsellers, setBestsellers] = useState([]);
   const [productsLoading, setProductsLoading] = useState(true);
+  const [testimonials, setTestimonials] = useState([]);
 
   // Active Hero banner index
   const [currentSlide, setCurrentSlide] = useState(0);
 
-  // Fetch product grids
+  // Fetch product grids and testimonials
   useEffect(() => {
-    const fetchHomeProducts = async () => {
+    const fetchHomeData = async () => {
       try {
         setProductsLoading(true);
         
-        // Fetch all product sections concurrently in parallel
-        const [featuredRes, newArrivalsRes, bestsellersRes] = await Promise.all([
+        // Fetch product sections and homepage testimonials concurrently
+        const [featuredRes, newArrivalsRes, bestsellersRes, testimonialsRes] = await Promise.all([
           axios.get('/api/products?featured=true&limit=4').catch((err) => ({ error: err })),
           axios.get('/api/products?newArrival=true&limit=4').catch((err) => ({ error: err })),
           axios.get('/api/products?bestseller=true&limit=4').catch((err) => ({ error: err })),
+          axios.get('/api/reviews/testimonials').catch((err) => ({ error: err })),
         ]);
 
         if (featuredRes?.data?.success) setFeaturedProducts(featuredRes.data.data);
         if (newArrivalsRes?.data?.success) setNewArrivals(newArrivalsRes.data.data);
         if (bestsellersRes?.data?.success) setBestsellers(bestsellersRes.data.data);
+        if (testimonialsRes?.data?.success && testimonialsRes.data.data?.length > 0) {
+          setTestimonials(testimonialsRes.data.data);
+        }
 
       } catch (err) {
-        console.error('Error fetching homepage products:', err);
+        console.error('Error fetching homepage products & testimonials:', err);
       } finally {
         setProductsLoading(false);
       }
     };
-    fetchHomeProducts();
+    fetchHomeData();
   }, []);
 
   // Filter hero banners vs promo banners directly from database
@@ -89,6 +94,58 @@ const Home = () => {
     }, 6000);
     return () => clearInterval(slideInterval);
   }, [heroBanners.length]);
+
+  const defaultTestimonials = [
+    {
+      _id: 't1',
+      userName: 'Zobia N.',
+      city: 'Islamabad',
+      title: 'Absolutely Premium',
+      rating: 5,
+      comment: 'The embroidery on the Zahra Abaya is exceptionally neat. Tailoring is perfect. Exceeded my expectations!',
+    },
+    {
+      _id: 't2',
+      userName: 'Amina K.',
+      city: 'Karachi',
+      title: 'Incredibly Soft Georgette',
+      rating: 5,
+      comment: 'Ordered modal and georgette hijabs. The draping is gorgeous, and they are completely slip-free. Recommended!',
+    },
+    {
+      _id: 't3',
+      userName: 'Maryam F.',
+      city: 'Lahore',
+      title: 'Outstanding Customer Service',
+      rating: 5,
+      comment: 'I wanted to customize my Abaya sleeve length. The team aligned over WhatsApp and delivered the perfect dress!',
+    },
+    {
+      _id: 't4',
+      userName: 'Ayesha B.',
+      city: 'Peshawar',
+      title: 'Pure Luxury Feel',
+      rating: 5,
+      comment: 'The fabric quality is pure Saudi Nidha, breathable and completely opaque. Standard size 54 fits like bespoke couture.',
+    },
+    {
+      _id: 't5',
+      userName: 'Fatima R.',
+      city: 'Rawalpindi',
+      title: 'Fast Delivery & Elegant Packaging',
+      rating: 5,
+      comment: 'Received within 2 days in a gorgeous branded luxury box. The attention to detail and packaging is unmatched!',
+    },
+  ];
+
+  const activeTestimonials = testimonials && testimonials.length > 0 ? testimonials : defaultTestimonials;
+  // Ensure enough items for seamless infinite marquee loop (at least 6 items per half)
+  const baseItems = activeTestimonials.length >= 6
+    ? activeTestimonials
+    : activeTestimonials.length >= 3
+      ? [...activeTestimonials, ...activeTestimonials]
+      : [...activeTestimonials, ...activeTestimonials, ...activeTestimonials, ...activeTestimonials];
+  const tapeItems = [...baseItems, ...baseItems];
 
   return (
     <div className="space-y-16 pb-12">
@@ -505,48 +562,99 @@ const Home = () => {
         </div>
       </section>
 
-      {/* 7. CUSTOMER REVIEWS TESTIMONIALS */}
-      <section className="max-w-[1550px] mx-auto px-2 sm:px-4 lg:px-6">
-        <div className="text-center space-y-2 mb-12">
-          <p className="text-[10px] tracking-[0.3em] uppercase text-luxury-goldDark font-bold">
-            Customer Love
-          </p>
-          <h2 className="text-2xl font-sans font-bold uppercase tracking-wider">
-            Testimonials
-          </h2>
-          <div className="h-0.5 w-12 bg-luxury-gold mx-auto"></div>
+      {/* 7. CUSTOMER REVIEWS TESTIMONIALS RUNNING TAPE */}
+      <section className="w-full py-8 overflow-hidden bg-gradient-to-b from-transparent via-[#FBFBF9]/80 to-transparent">
+        <div className="max-w-[1550px] mx-auto px-2 sm:px-4 lg:px-6 mb-8">
+          <div className="text-center space-y-2">
+            <p className="text-[10px] tracking-[0.3em] uppercase text-luxury-goldDark font-bold">
+              Customer Love & Trust
+            </p>
+            <h2 className="text-2xl sm:text-3xl font-sans font-bold uppercase tracking-wider">
+              Client Testimonials
+            </h2>
+            <div className="h-0.5 w-12 bg-luxury-gold mx-auto"></div>
+            <p className="text-xs text-luxury-textGray tracking-wide max-w-md mx-auto pt-1">
+              Real reviews from our modest fashion patrons across Pakistan & worldwide
+            </p>
+          </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="bg-white p-6 border border-luxury-gray rounded shadow-sm space-y-4">
-            <div className="text-luxury-gold font-bold text-lg">"Absolutely Premium"</div>
-            <p className="text-xs text-luxury-textGray leading-relaxed">
-              "The embroidery on the Zahra Abaya is exceptionally neat. Tailoring is perfect. Exceeded my expectations!"
-            </p>
-            <div className="border-t border-luxury-gray pt-3">
-              <p className="text-[10px] uppercase font-bold tracking-wider">Zobia N. - Islamabad</p>
-            </div>
-          </div>
+        {/* Running Tape Marquee Track */}
+        <div className="relative w-full overflow-hidden group">
+          {/* Edge Fades for high-end boutique look */}
+          <div className="pointer-events-none absolute top-0 left-0 bottom-0 w-8 sm:w-24 bg-gradient-to-r from-[#FBFBF9] to-transparent z-10"></div>
+          <div className="pointer-events-none absolute top-0 right-0 bottom-0 w-8 sm:w-24 bg-gradient-to-l from-[#FBFBF9] to-transparent z-10"></div>
 
-          <div className="bg-white p-6 border border-luxury-gray rounded shadow-sm space-y-4">
-            <div className="text-luxury-gold font-bold text-lg">"Incredibly Soft Georgette"</div>
-            <p className="text-xs text-luxury-textGray leading-relaxed">
-              "Ordered modal and georgette hijabs. The draping is gorgeous, and they are completely slip-free. Recommended!"
-            </p>
-            <div className="border-t border-luxury-gray pt-3">
-              <p className="text-[10px] uppercase font-bold tracking-wider">Amina K. - Karachi</p>
-            </div>
-          </div>
+          {/* Marquee Inner Track */}
+          <div className="animate-running-tape flex gap-6 py-4 px-3">
+            {tapeItems.map((rev, idx) => (
+              <div
+                key={`${rev._id || 'rev'}-${idx}`}
+                className="w-[300px] sm:w-[360px] shrink-0 bg-white p-6 border border-luxury-gray/80 rounded-xl shadow-[0_2px_12px_rgba(0,0,0,0.04)] hover:shadow-md hover:border-luxury-gold/60 transition-all duration-300 flex flex-col justify-between cursor-pointer"
+              >
+                <div>
+                  {/* Rating Stars & Verified Client badge */}
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex space-x-1">
+                      {[1, 2, 3, 4, 5].map((s) => (
+                        <Star
+                          key={s}
+                          size={13}
+                          className={s <= (rev.rating || 5) ? 'fill-[#C5A880] text-[#C5A880]' : 'text-gray-200'}
+                        />
+                      ))}
+                    </div>
+                    <span className="inline-flex items-center text-[10px] uppercase font-bold tracking-wider text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">
+                      <CheckCircle2 size={10} className="mr-1" /> Verified Client
+                    </span>
+                  </div>
 
-          <div className="bg-white p-6 border border-luxury-gray rounded shadow-sm space-y-4">
-            <div className="text-luxury-gold font-bold text-lg">"Outstanding Customer Service"</div>
-            <p className="text-xs text-luxury-textGray leading-relaxed">
-              "I wanted to customize my Abaya sleeve length. The team aligned over WhatsApp and delivered the perfect dress!"
-            </p>
-            <div className="border-t border-luxury-gray pt-3">
-              <p className="text-[10px] uppercase font-bold tracking-wider">Maryam F. - Lahore</p>
-            </div>
+                  {/* Title / Headline */}
+                  {rev.title && (
+                    <h4 className="font-bold text-sm text-luxury-dark tracking-wide mb-2 line-clamp-1">
+                      "{rev.title}"
+                    </h4>
+                  )}
+
+                  {/* Testimonial Quote */}
+                  <p className="text-xs text-luxury-textGray leading-relaxed italic line-clamp-4">
+                    "{rev.comment}"
+                  </p>
+                </div>
+
+                {/* Footer Customer Info */}
+                <div className="border-t border-luxury-gray/70 pt-4 mt-4 flex items-center justify-between">
+                  <div>
+                    <p className="text-xs font-bold uppercase tracking-wider text-luxury-dark">
+                      {rev.userName || 'Valued Patron'}
+                    </p>
+                    {rev.city ? (
+                      <p className="text-[10px] text-luxury-goldDark font-semibold uppercase tracking-wider">
+                        {rev.city}
+                      </p>
+                    ) : (
+                      <p className="text-[10px] text-gray-400 font-medium">Verified Buyer</p>
+                    )}
+                  </div>
+                  {rev.product?.name ? (
+                    <span className="text-[10px] text-gray-500 max-w-[130px] truncate text-right font-medium">
+                      {rev.product.name}
+                    </span>
+                  ) : (
+                    <Quote size={20} className="text-luxury-gold/30" />
+                  )}
+                </div>
+              </div>
+            ))}
           </div>
+        </div>
+
+        {/* Interactive Indicator */}
+        <div className="text-center mt-3">
+          <span className="inline-flex items-center text-[10px] text-luxury-textGray tracking-widest uppercase">
+            <span className="w-1.5 h-1.5 rounded-full bg-luxury-gold inline-block mr-2 animate-pulse"></span>
+            Continuous Live Tape • Hover or touch card to pause
+          </span>
         </div>
       </section>
 
