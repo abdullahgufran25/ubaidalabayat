@@ -17,7 +17,18 @@ export const CartProvider = ({ children, shippingChargesDefault = 200, freeShipp
       return null;
     }
   });
-  const [discountAmount, setDiscountAmount] = useState(0);
+  const [discountAmount, setDiscountAmount] = useState(() => {
+    try {
+      const saved = localStorage.getItem('appliedCoupon');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        return parsed.calculatedDiscount || 0;
+      }
+      return 0;
+    } catch (e) {
+      return 0;
+    }
+  });
   const [couponError, setCouponError] = useState('');
   
   // Settings sync from SettingsContext if available, otherwise fallback
@@ -170,14 +181,14 @@ export const CartProvider = ({ children, shippingChargesDefault = 200, freeShipp
     if (!cleanCode) {
       const msg = 'Please enter a coupon code';
       setCouponError(msg);
-      return false;
+      return { success: false, message: msg };
     }
 
     const sub = getSubtotal();
     if (sub === 0) {
       const msg = 'Cart is empty. Please add items to apply a coupon.';
       setCouponError(msg);
-      return false;
+      return { success: false, message: msg };
     }
 
     try {
@@ -188,14 +199,16 @@ export const CartProvider = ({ children, shippingChargesDefault = 200, freeShipp
 
       if (res.data.success) {
         setCoupon(res.data.data);
-        return true;
+        setDiscountAmount(res.data.data.calculatedDiscount || 0);
+        return { success: true, message: res.data.message || `Coupon '${cleanCode}' applied!`, data: res.data.data };
       }
-      return false;
+      return { success: false, message: res.data.message || 'Failed to apply coupon' };
     } catch (err) {
       const msg = err.response?.data?.message || 'Invalid or expired coupon code';
       setCouponError(msg);
       setCoupon(null);
-      return false;
+      setDiscountAmount(0);
+      return { success: false, message: msg };
     }
   };
 

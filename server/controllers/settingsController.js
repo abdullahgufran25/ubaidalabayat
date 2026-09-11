@@ -42,6 +42,12 @@ exports.getSettings = asyncHandler(async (req, res, next) => {
     await settings.save();
   }
 
+  if (settings.bankTransferDiscountPercentage === undefined) {
+    settings.bankTransferDiscountPercentage = 5;
+    settings.bankTransferDiscountEnabled = true;
+    await settings.save();
+  }
+
   res.status(200).json({
     success: true,
     data: settings,

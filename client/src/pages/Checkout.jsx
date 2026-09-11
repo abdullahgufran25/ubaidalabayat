@@ -35,13 +35,16 @@ const Checkout = () => {
     if (!couponInput.trim()) return;
     setCouponLoading(true);
     setCouponLocalError('');
-    const success = await applyCoupon(couponInput.trim());
+    const result = await applyCoupon(couponInput.trim());
     setCouponLoading(false);
-    if (success) {
-      addToast(`Coupon '${couponInput.trim().toUpperCase()}' applied successfully!`, 'success');
+    if (result && result.success) {
+      addToast(result.message || `Coupon '${couponInput.trim().toUpperCase()}' applied successfully!`, 'success');
       setCouponInput('');
+      setCouponLocalError('');
     } else {
-      setCouponLocalError(couponError || 'Invalid or expired coupon code');
+      const err = result?.message || couponError || 'Invalid or expired coupon code';
+      setCouponLocalError(err);
+      addToast(err, 'error');
     }
   };
 
@@ -183,10 +186,27 @@ const Checkout = () => {
 
   const subtotal = getSubtotal();
   const shipping = getShippingCharges();
-  const couponDiscount = discountAmount || 0;
+  const couponDiscount = (coupon && coupon.calculatedDiscount !== undefined) ? coupon.calculatedDiscount : (discountAmount || 0);
+
+  // Prepayment & Card discounts
+  const bankDiscountPercentage = settings?.bankTransferDiscountEnabled !== false ? (settings?.bankTransferDiscountPercentage ?? 5) : 0;
   const cardDiscountPercentage = settings?.cardDiscountEnabled !== false ? (settings?.cardDiscountPercentage ?? 10) : 0;
-  const cardDiscount = (paymentMethod === 'Online' && cardDiscountPercentage > 0) ? Math.round((subtotal * cardDiscountPercentage) / 100) : 0;
-  const totalDiscount = Math.min(subtotal, couponDiscount + cardDiscount);
+
+  let paymentDiscount = 0;
+  let paymentDiscountLabel = '';
+  let paymentDiscountPercentage = 0;
+
+  if (paymentMethod === 'Bank Transfer' && bankDiscountPercentage > 0) {
+    paymentDiscountPercentage = bankDiscountPercentage;
+    paymentDiscount = Math.round((subtotal * bankDiscountPercentage) / 100);
+    paymentDiscountLabel = `Bank Transfer Privilege (${bankDiscountPercentage}%)`;
+  } else if (paymentMethod === 'Online' && cardDiscountPercentage > 0) {
+    paymentDiscountPercentage = cardDiscountPercentage;
+    paymentDiscount = Math.round((subtotal * cardDiscountPercentage) / 100);
+    paymentDiscountLabel = `Card Payment Privilege (${cardDiscountPercentage}%)`;
+  }
+
+  const totalDiscount = Math.min(subtotal, couponDiscount + paymentDiscount);
   const total = Math.max(0, subtotal + shipping - totalDiscount);
 
   return (
@@ -364,12 +384,18 @@ const Checkout = () => {
                           Direct Bank Transfer / EasyPaisa / Raast
                         </span>
                       </div>
-                      <span className="bg-blue-100 text-blue-800 text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded">
-                        Extra 5% Privilege
-                      </span>
+                      {bankDiscountPercentage > 0 ? (
+                        <span className="bg-emerald-100 text-emerald-800 text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded border border-emerald-300">
+                          Extra {bankDiscountPercentage}% Privilege
+                        </span>
+                      ) : (
+                        <span className="bg-blue-100 text-blue-800 text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded">
+                          Direct Transfer
+                        </span>
+                      )}
                     </div>
                     <p className="text-[11px] text-luxury-textGray mt-1 leading-relaxed">
-                      Transfer directly to our official {settings?.bankName || 'bank'} account via Bank App, ATM, Raast, or Mobile Wallet.
+                      Transfer directly to our official {settings?.bankName || 'bank'} account via Bank App, ATM, Raast, or Mobile Wallet.{bankDiscountPercentage > 0 ? ` Enjoy an automatic ${bankDiscountPercentage}% privilege discount applied directly on your bill!` : ''}
                     </p>
                   </div>
                 </label>
@@ -667,10 +693,10 @@ const Checkout = () => {
                   <span>- PKR {couponDiscount.toLocaleString()}</span>
                 </div>
               )}
-              {cardDiscount > 0 && (
+              {paymentDiscount > 0 && (
                 <div className="flex justify-between text-emerald-700 font-bold bg-emerald-50/80 p-2 rounded -mx-1 border border-emerald-200/60">
-                  <span>Card Payment Privilege ({cardDiscountPercentage}%)</span>
-                  <span>- PKR {cardDiscount.toLocaleString()}</span>
+                  <span>{paymentDiscountLabel}</span>
+                  <span>- PKR {paymentDiscount.toLocaleString()}</span>
                 </div>
               )}
             </div>

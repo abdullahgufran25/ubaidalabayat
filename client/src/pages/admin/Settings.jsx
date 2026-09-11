@@ -48,6 +48,8 @@ const Settings = () => {
   const [bankBranch, setBankBranch] = useState('');
   const [bankInstructions, setBankInstructions] = useState('');
   const [bankTransferEnabled, setBankTransferEnabled] = useState(true);
+  const [bankTransferDiscountPercentage, setBankTransferDiscountPercentage] = useState(5);
+  const [bankTransferDiscountEnabled, setBankTransferDiscountEnabled] = useState(true);
   const [codEnabled, setCodEnabled] = useState(true);
   const [cardPaymentEnabled, setCardPaymentEnabled] = useState(false);
   const [cardDiscountPercentage, setCardDiscountPercentage] = useState(10);
@@ -95,6 +97,8 @@ const Settings = () => {
       setBankBranch(settings.bankBranch || '');
       setBankInstructions(settings.bankInstructions || 'Please transfer the exact order amount and share the payment screenshot on WhatsApp with your Order ID for instant dispatch.');
       setBankTransferEnabled(settings.bankTransferEnabled !== false);
+      setBankTransferDiscountPercentage(settings.bankTransferDiscountPercentage !== undefined ? settings.bankTransferDiscountPercentage : 5);
+      setBankTransferDiscountEnabled(settings.bankTransferDiscountEnabled !== false);
       setCodEnabled(settings.codEnabled !== false);
       setCardPaymentEnabled(settings.cardPaymentEnabled === true);
       setCardDiscountPercentage(settings.cardDiscountPercentage !== undefined ? settings.cardDiscountPercentage : 10);
@@ -200,6 +204,8 @@ const Settings = () => {
       bankBranch,
       bankInstructions,
       bankTransferEnabled,
+      bankTransferDiscountPercentage: Number(bankTransferDiscountPercentage),
+      bankTransferDiscountEnabled,
       codEnabled,
       cardPaymentEnabled,
       cardDiscountPercentage: Number(cardDiscountPercentage),
@@ -712,6 +718,57 @@ const Settings = () => {
                     </div>
                     <p className="text-[10px] text-purple-900 font-medium">
                       Customers will automatically receive an instant <strong>{cardDiscountPercentage || 0}% OFF</strong> on their total bill whenever Credit / Debit Card is selected!
+                    </p>
+                  </div>
+                )}
+              </div>
+
+              {/* Bank Transfer Instant Privilege Discount Configuration */}
+              <div className="bg-emerald-50/60 border border-emerald-200 p-4 rounded space-y-3">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                  <div>
+                    <h4 className="text-xs font-bold uppercase tracking-wider text-emerald-900 flex items-center">
+                      <Percent size={14} className="mr-1.5 text-emerald-700" />
+                      <span>Direct Bank Transfer Privilege Discount</span>
+                    </h4>
+                    <p className="text-[11px] text-emerald-800/80 mt-0.5">
+                      Automatic percentage discount deducted directly from the customer's bill when selecting Direct Bank Transfer / EasyPaisa / Raast at checkout.
+                    </p>
+                  </div>
+
+                  <label className="flex items-center space-x-2 cursor-pointer bg-white px-2.5 py-1 rounded border border-emerald-200">
+                    <input
+                      type="checkbox"
+                      checked={bankTransferDiscountEnabled}
+                      onChange={(e) => setBankTransferDiscountEnabled(e.target.checked)}
+                      className="rounded text-emerald-600 focus:ring-emerald-500 h-4 w-4"
+                    />
+                    <span className="text-xs font-bold text-emerald-900">
+                      {bankTransferDiscountEnabled ? 'Discount Active' : 'Discount Disabled'}
+                    </span>
+                  </label>
+                </div>
+
+                {bankTransferDiscountEnabled && (
+                  <div className="flex flex-col sm:flex-row sm:items-center space-y-2 sm:space-y-0 sm:space-x-4 pt-1">
+                    <div className="w-full sm:w-36 space-y-1">
+                      <label className="text-[9px] uppercase font-bold tracking-wider text-emerald-900 block">
+                        Discount Rate (%) *
+                      </label>
+                      <div className="relative">
+                        <input
+                          type="number"
+                          min="0"
+                          max="100"
+                          value={bankTransferDiscountPercentage}
+                          onChange={(e) => setBankTransferDiscountPercentage(e.target.value)}
+                          className="w-full text-xs border border-emerald-300 p-2 pr-7 rounded bg-white font-bold text-emerald-950 focus:outline-none focus:border-emerald-600 font-mono"
+                        />
+                        <span className="absolute right-2.5 top-2 text-xs font-bold text-emerald-700">%</span>
+                      </div>
+                    </div>
+                    <p className="text-[10px] text-emerald-900 font-medium">
+                      Customers will automatically receive an instant <strong>{bankTransferDiscountPercentage || 0}% OFF</strong> on their total bill whenever Direct Bank Transfer is selected!
                     </p>
                   </div>
                 )}

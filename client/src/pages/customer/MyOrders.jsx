@@ -223,16 +223,16 @@ const MyOrders = () => {
                             <span>Shipping charges</span>
                             <span className="text-luxury-dark font-sans font-bold">{order.shippingCharges === 0 ? 'FREE' : `PKR ${order.shippingCharges?.toLocaleString()}`}</span>
                           </div>
-                          {(order.couponDiscount > 0 || (order.couponCode && order.discountAmount > (order.cardDiscount || 0))) && (
+                          {(order.couponDiscount > 0 || (order.couponCode && order.discountAmount > (order.paymentDiscount || order.cardDiscount || 0))) && (
                             <div className="flex justify-between text-green-700 bg-green-50 p-1.5 rounded -mx-1 border border-green-200">
                               <span>Coupon Discount ({order.couponCode || 'PROMO'})</span>
-                              <span className="font-sans font-bold">- PKR {(order.couponDiscount || (order.discountAmount - (order.cardDiscount || 0))).toLocaleString()}</span>
+                              <span className="font-sans font-bold">- PKR {(order.couponDiscount || (order.discountAmount - (order.paymentDiscount || order.cardDiscount || 0))).toLocaleString()}</span>
                             </div>
                           )}
-                          {((order.cardDiscount && order.cardDiscount > 0) || (order.paymentMethod === 'Online' && order.discountAmount > 0 && !order.couponCode)) && (
+                          {((order.paymentDiscount && order.paymentDiscount > 0) || (order.cardDiscount && order.cardDiscount > 0) || (['Online', 'Bank Transfer'].includes(order.paymentMethod) && order.discountAmount > 0 && !order.couponCode)) && (
                             <div className="flex justify-between text-emerald-700 bg-emerald-50 p-1.5 rounded -mx-1 border border-emerald-200">
-                              <span>Card Payment Privilege ({order.cardDiscountPercentage || 10}%)</span>
-                              <span className="font-sans font-bold">- PKR {(order.cardDiscount || order.discountAmount).toLocaleString()}</span>
+                              <span>{order.paymentDiscountType || (order.paymentMethod === 'Bank Transfer' ? 'Bank Transfer Privilege' : 'Card Payment Privilege')} ({order.paymentDiscountPercentage || order.cardDiscountPercentage || (order.paymentMethod === 'Bank Transfer' ? 5 : 10)}%)</span>
+                              <span className="font-sans font-bold">- PKR {(order.paymentDiscount || order.cardDiscount || order.discountAmount).toLocaleString()}</span>
                             </div>
                           )}
                           <div className="flex justify-between items-center text-xs font-bold text-luxury-dark border-t border-luxury-gray pt-2">

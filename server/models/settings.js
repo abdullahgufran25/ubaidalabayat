@@ -85,6 +85,16 @@ const storeSettingsSchema = new mongoose.Schema(
       type: Boolean,
       default: true,
     },
+    bankTransferDiscountPercentage: {
+      type: Number,
+      default: 5,
+      min: 0,
+      max: 100,
+    },
+    bankTransferDiscountEnabled: {
+      type: Boolean,
+      default: true,
+    },
     codEnabled: {
       type: Boolean,
       default: true,

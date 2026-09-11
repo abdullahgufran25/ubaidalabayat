@@ -90,18 +90,27 @@ exports.createOrder = asyncHandler(async (req, res, next) => {
     }
   }
 
-  // Calculate Card Payment discount (if paymentMethod === 'Online' and enabled)
-  let cardDiscount = 0;
-  let cardDiscountPercentage = 0;
-  if (paymentMethod === 'Online' && settings.cardDiscountEnabled !== false) {
-    cardDiscountPercentage = settings.cardDiscountPercentage !== undefined ? Number(settings.cardDiscountPercentage) : 10;
-    if (cardDiscountPercentage > 0) {
-      cardDiscount = Math.round((cardDiscountPercentage / 100) * subtotal);
+  // Calculate Payment Method discount (Bank Transfer or Card)
+  let paymentDiscount = 0;
+  let paymentDiscountType = '';
+  let paymentDiscountPercentage = 0;
+
+  if (paymentMethod === 'Bank Transfer' && settings.bankTransferDiscountEnabled !== false) {
+    paymentDiscountPercentage = settings.bankTransferDiscountPercentage !== undefined ? Number(settings.bankTransferDiscountPercentage) : 5;
+    if (paymentDiscountPercentage > 0) {
+      paymentDiscount = Math.round((paymentDiscountPercentage / 100) * subtotal);
+      paymentDiscountType = 'Bank Transfer';
+    }
+  } else if (paymentMethod === 'Online' && settings.cardDiscountEnabled !== false) {
+    paymentDiscountPercentage = settings.cardDiscountPercentage !== undefined ? Number(settings.cardDiscountPercentage) : 10;
+    if (paymentDiscountPercentage > 0) {
+      paymentDiscount = Math.round((paymentDiscountPercentage / 100) * subtotal);
+      paymentDiscountType = 'Card';
     }
   }
 
   // Ensure total discount doesn't exceed subtotal
-  let totalDiscount = couponDiscount + cardDiscount;
+  let totalDiscount = couponDiscount + paymentDiscount;
   if (totalDiscount > subtotal) {
     totalDiscount = subtotal;
   }
@@ -143,8 +152,11 @@ exports.createOrder = asyncHandler(async (req, res, next) => {
     shippingCharges,
     discountAmount: totalDiscount,
     couponDiscount,
-    cardDiscount,
-    cardDiscountPercentage,
+    paymentDiscount,
+    paymentDiscountType,
+    paymentDiscountPercentage,
+    cardDiscount: paymentDiscount,
+    cardDiscountPercentage: paymentDiscountPercentage,
     couponCode: couponCode ? couponCode.toUpperCase() : undefined,
     total,
     paymentMethod,
