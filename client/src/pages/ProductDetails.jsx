@@ -579,19 +579,13 @@ Link: ${window.location.href}`;
             )}
 
             {!isEligibleForReview && (
-              <div className="bg-gray-50 border border-luxury-gray p-5 rounded mt-6 text-xs text-luxury-textGray leading-relaxed space-y-2">
-                <p className="font-bold text-luxury-dark uppercase tracking-wider text-[10px]">📝 Write a Review</p>
-                <p>Only customers who have purchased this product and received it can write reviews.</p>
-                <div className="bg-white border border-gray-200 p-3 rounded space-y-1 mt-2 text-[11px] normal-case">
-                  <p className="font-bold text-luxury-goldDark uppercase text-[10px]">How to submit a review for testing:</p>
-                  <ol className="list-decimal pl-4 space-y-1 text-luxury-textGray font-sans">
-                    <li>Log in as customer (e.g. <code>customer@ubaidalabayat.com</code> / <code>customerpassword123</code>).</li>
-                    <li>Add this product to cart and place a <strong>Cash on Delivery (COD)</strong> order.</li>
-                    <li>Log in to Admin dashboard (<code>admin@ubaidalabayat.com</code> / <code>adminpassword123</code>).</li>
-                    <li>Go to <strong>Orders Manager</strong>, click view order, and update status to <strong>Delivered</strong>.</li>
-                    <li>Return back to this product details page to submit your star rating and comment review!</li>
-                  </ol>
-                </div>
+              <div className="bg-luxury-light/50 border border-luxury-gray p-4 rounded mt-6 text-xs text-luxury-textGray leading-relaxed">
+                <p className="font-bold text-luxury-dark uppercase tracking-wider text-[10px] mb-1">
+                  Customer Reviews
+                </p>
+                <p>
+                  Only verified patrons who have purchased and received this piece can submit a review.
+                </p>
               </div>
             )}
           </div>
