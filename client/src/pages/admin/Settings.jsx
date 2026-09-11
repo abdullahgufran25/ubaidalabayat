@@ -19,7 +19,8 @@ import {
   Plus,
   Sparkles,
   Eye,
-  Sliders
+  Sliders,
+  Percent
 } from 'lucide-react';
 import axios from 'axios';
 import { useSettings } from '../../context/SettingsContext';
@@ -49,6 +50,8 @@ const Settings = () => {
   const [bankTransferEnabled, setBankTransferEnabled] = useState(true);
   const [codEnabled, setCodEnabled] = useState(true);
   const [cardPaymentEnabled, setCardPaymentEnabled] = useState(false);
+  const [cardDiscountPercentage, setCardDiscountPercentage] = useState(10);
+  const [cardDiscountEnabled, setCardDiscountEnabled] = useState(true);
 
   // Dynamic Social Links State
   const [socialLinks, setSocialLinks] = useState([]);
@@ -94,6 +97,8 @@ const Settings = () => {
       setBankTransferEnabled(settings.bankTransferEnabled !== false);
       setCodEnabled(settings.codEnabled !== false);
       setCardPaymentEnabled(settings.cardPaymentEnabled === true);
+      setCardDiscountPercentage(settings.cardDiscountPercentage !== undefined ? settings.cardDiscountPercentage : 10);
+      setCardDiscountEnabled(settings.cardDiscountEnabled !== false);
       // Top Announcement Bar CMS sync
       if (settings.announcementBar) {
         setAnnouncementEnabled(settings.announcementBar.enabled !== false);
@@ -197,6 +202,8 @@ const Settings = () => {
       bankTransferEnabled,
       codEnabled,
       cardPaymentEnabled,
+      cardDiscountPercentage: Number(cardDiscountPercentage),
+      cardDiscountEnabled,
       // Top Announcement Bar / Promotional Slider CMS
       announcementBar: {
         enabled: announcementEnabled,
@@ -658,6 +665,57 @@ const Settings = () => {
                   </span>
                 </p>
               )}
+
+              {/* Card Payment Instant Discount Configuration */}
+              <div className="bg-purple-50/60 border border-purple-200 p-4 rounded space-y-3">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                  <div>
+                    <h4 className="text-xs font-bold uppercase tracking-wider text-purple-900 flex items-center">
+                      <Percent size={14} className="mr-1.5 text-purple-700" />
+                      <span>Card Payment Instant Privilege Discount</span>
+                    </h4>
+                    <p className="text-[11px] text-purple-800/80 mt-0.5">
+                      Automatic percentage discount deducted directly from the customer's bill when selecting Credit / Debit card at checkout.
+                    </p>
+                  </div>
+
+                  <label className="flex items-center space-x-2 cursor-pointer bg-white px-2.5 py-1 rounded border border-purple-200">
+                    <input
+                      type="checkbox"
+                      checked={cardDiscountEnabled}
+                      onChange={(e) => setCardDiscountEnabled(e.target.checked)}
+                      className="rounded text-purple-600 focus:ring-purple-500 h-4 w-4"
+                    />
+                    <span className="text-xs font-bold text-purple-900">
+                      {cardDiscountEnabled ? 'Discount Active' : 'Discount Disabled'}
+                    </span>
+                  </label>
+                </div>
+
+                {cardDiscountEnabled && (
+                  <div className="flex flex-col sm:flex-row sm:items-center space-y-2 sm:space-y-0 sm:space-x-4 pt-1">
+                    <div className="w-full sm:w-36 space-y-1">
+                      <label className="text-[9px] uppercase font-bold tracking-wider text-purple-900 block">
+                        Discount Rate (%) *
+                      </label>
+                      <div className="relative">
+                        <input
+                          type="number"
+                          min="0"
+                          max="100"
+                          value={cardDiscountPercentage}
+                          onChange={(e) => setCardDiscountPercentage(e.target.value)}
+                          className="w-full text-xs border border-purple-300 p-2 pr-7 rounded bg-white font-bold text-purple-950 focus:outline-none focus:border-purple-600 font-mono"
+                        />
+                        <span className="absolute right-2.5 top-2 text-xs font-bold text-purple-700">%</span>
+                      </div>
+                    </div>
+                    <p className="text-[10px] text-purple-900 font-medium">
+                      Customers will automatically receive an instant <strong>{cardDiscountPercentage || 0}% OFF</strong> on their total bill whenever Credit / Debit Card is selected!
+                    </p>
+                  </div>
+                )}
+              </div>
             </div>
 
             {/* Bank Account Details Grid */}

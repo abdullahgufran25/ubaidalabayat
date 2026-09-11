@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { CheckCircle, Calendar, MapPin, Phone, MessageSquare, ArrowRight, Truck, Copy, Check, Landmark } from 'lucide-react';
+import { CheckCircle, Calendar, MapPin, Phone, MessageSquare, ArrowRight, Truck, Copy, Check, Landmark, Printer } from 'lucide-react';
 import axios from 'axios';
 import { useSettings } from '../context/SettingsContext';
 
@@ -41,11 +41,20 @@ const OrderSuccess = () => {
     if (cleanNumber.startsWith('03')) {
       cleanNumber = '92' + cleanNumber.substring(1);
     }
-    const message = `Hello Ubaid Al Abayat, I placed an order recently. Here are my details:
+    const couponLine = (order.couponDiscount > 0 || order.couponCode)
+      ? `\n*Coupon Discount (${order.couponCode || 'PROMO'}):* -PKR ${(order.couponDiscount || (order.cardDiscount ? order.discountAmount - order.cardDiscount : order.discountAmount)).toLocaleString()}`
+      : '';
+    const cardLine = (order.cardDiscount > 0 || (order.paymentMethod === 'Online' && order.discountAmount > 0 && !order.couponCode))
+      ? `\n*Card Payment Discount:* -PKR ${(order.cardDiscount || order.discountAmount).toLocaleString()}`
+      : '';
+
+    const message = `Hello Ubaid Al Abayat, I placed an order recently. Here are my bill details:
 *Order Number:* ${order.orderNumber}
 *Name:* ${order.shippingAddress.fullName}
-*Total Amount:* PKR ${order.total}
-*Payment Method:* ${order.paymentMethod}
+*Subtotal:* PKR ${order.subtotal?.toLocaleString()}
+*Shipping:* ${order.shippingCharges === 0 ? 'FREE' : `PKR ${order.shippingCharges?.toLocaleString()}`}${couponLine}${cardLine}
+*Total Payable:* PKR ${order.total?.toLocaleString()}
+*Payment Method:* ${order.paymentMethod} (${order.paymentStatus})
 Please confirm my order and let me know the status.`;
 
     const url = `https://wa.me/${cleanNumber}?text=${encodeURIComponent(message)}`;
@@ -277,21 +286,34 @@ Please confirm my order and let me know the status.`;
           <div className="border-t border-luxury-gray pt-4 space-y-2 text-xs uppercase tracking-wider font-semibold text-luxury-textGray">
             <div className="flex justify-between">
               <span>Subtotal</span>
-              <span className="text-luxury-dark font-sans font-medium">PKR {order.subtotal}</span>
+              <span className="text-luxury-dark font-sans font-medium">PKR {order.subtotal?.toLocaleString()}</span>
             </div>
             <div className="flex justify-between">
               <span>Shipping</span>
-              <span className="text-luxury-dark font-sans font-medium">{order.shippingCharges === 0 ? 'FREE' : `PKR ${order.shippingCharges}`}</span>
+              <span className="text-luxury-dark font-sans font-medium">{order.shippingCharges === 0 ? 'FREE' : `PKR ${order.shippingCharges?.toLocaleString()}`}</span>
             </div>
-            {order.discountAmount > 0 && (
-              <div className="flex justify-between text-green-700">
-                <span>Discount</span>
-                <span className="font-sans font-medium">- PKR {order.discountAmount}</span>
+            {(order.couponDiscount > 0 || (order.couponCode && order.discountAmount > (order.cardDiscount || 0))) && (
+              <div className="flex justify-between text-green-700 bg-green-50/70 p-2 rounded -mx-1 border border-green-200/50">
+                <span>Coupon Discount ({order.couponCode || 'PROMO'})</span>
+                <span className="font-sans font-medium">- PKR {(order.couponDiscount || (order.discountAmount - (order.cardDiscount || 0))).toLocaleString()}</span>
+              </div>
+            )}
+            {((order.cardDiscount && order.cardDiscount > 0) || (order.paymentMethod === 'Online' && order.discountAmount > 0 && !order.couponCode)) && (
+              <div className="flex justify-between text-emerald-700 bg-emerald-50/70 p-2 rounded -mx-1 border border-emerald-200/50">
+                <span>Card Payment Privilege ({order.cardDiscountPercentage || 10}%)</span>
+                <span className="font-sans font-medium">- PKR {(order.cardDiscount || order.discountAmount).toLocaleString()}</span>
               </div>
             )}
             <div className="flex justify-between items-center text-sm font-bold text-luxury-dark font-sans border-t border-luxury-gray pt-4">
-              <span>Total Paid ({order.paymentMethod})</span>
-              <span className="font-sans text-base">PKR {order.total}</span>
+              <div>
+                <span>Total Amount ({order.paymentMethod})</span>
+                {order.discountAmount > 0 && (
+                  <span className="block text-[10px] text-green-700 normal-case font-normal">
+                    (Total Savings: PKR {order.discountAmount.toLocaleString()})
+                  </span>
+                )}
+              </div>
+              <span className="font-sans text-base text-luxury-goldDark">PKR {order.total?.toLocaleString()}</span>
             </div>
           </div>
         </div>
@@ -301,11 +323,20 @@ Please confirm my order and let me know the status.`;
       {/* Action Buttons footer */}
       <div className="flex flex-col sm:flex-row justify-center items-center gap-4 border-t border-luxury-gray pt-8">
         <button
+          type="button"
+          onClick={() => window.print()}
+          className="w-full sm:w-auto border border-luxury-gray bg-white hover:bg-luxury-cream text-luxury-dark transition-colors font-bold px-6 py-3.5 uppercase tracking-widest text-[10px] rounded flex items-center justify-center shadow-sm"
+        >
+          <Printer size={15} className="mr-2 text-luxury-goldDark" />
+          Print Original Bill / Invoice
+        </button>
+
+        <button
           onClick={handleWhatsAppStatus}
           className="w-full sm:w-auto border border-green-200 bg-green-50 text-green-800 hover:bg-green-100 transition-colors font-bold px-8 py-3.5 uppercase tracking-widest text-[10px] rounded flex items-center justify-center"
         >
           <MessageSquare size={16} className="mr-2" />
-          Track via WhatsApp Support
+          Share Bill on WhatsApp
         </button>
 
         <Link

@@ -93,6 +93,16 @@ const storeSettingsSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    cardDiscountPercentage: {
+      type: Number,
+      default: 10,
+      min: 0,
+      max: 100,
+    },
+    cardDiscountEnabled: {
+      type: Boolean,
+      default: true,
+    },
     // Top Announcement Bar / Promotional Slider
     announcementBar: {
       enabled: {

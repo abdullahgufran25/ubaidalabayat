@@ -217,21 +217,34 @@ const MyOrders = () => {
                         <div className="bg-white border border-luxury-gray p-4 rounded space-y-2 uppercase tracking-wider text-[10px] font-semibold text-luxury-textGray">
                           <div className="flex justify-between">
                             <span>Subtotal</span>
-                            <span className="text-luxury-dark font-sans font-bold">PKR {order.subtotal}</span>
+                            <span className="text-luxury-dark font-sans font-bold">PKR {order.subtotal?.toLocaleString()}</span>
                           </div>
                           <div className="flex justify-between">
                             <span>Shipping charges</span>
-                            <span className="text-luxury-dark font-sans font-bold">{order.shippingCharges === 0 ? 'FREE' : `PKR ${order.shippingCharges}`}</span>
+                            <span className="text-luxury-dark font-sans font-bold">{order.shippingCharges === 0 ? 'FREE' : `PKR ${order.shippingCharges?.toLocaleString()}`}</span>
                           </div>
-                          {order.discountAmount > 0 && (
-                            <div className="flex justify-between text-green-700">
-                              <span>Discount</span>
-                              <span className="font-sans font-bold">- PKR {order.discountAmount}</span>
+                          {(order.couponDiscount > 0 || (order.couponCode && order.discountAmount > (order.cardDiscount || 0))) && (
+                            <div className="flex justify-between text-green-700 bg-green-50 p-1.5 rounded -mx-1 border border-green-200">
+                              <span>Coupon Discount ({order.couponCode || 'PROMO'})</span>
+                              <span className="font-sans font-bold">- PKR {(order.couponDiscount || (order.discountAmount - (order.cardDiscount || 0))).toLocaleString()}</span>
+                            </div>
+                          )}
+                          {((order.cardDiscount && order.cardDiscount > 0) || (order.paymentMethod === 'Online' && order.discountAmount > 0 && !order.couponCode)) && (
+                            <div className="flex justify-between text-emerald-700 bg-emerald-50 p-1.5 rounded -mx-1 border border-emerald-200">
+                              <span>Card Payment Privilege ({order.cardDiscountPercentage || 10}%)</span>
+                              <span className="font-sans font-bold">- PKR {(order.cardDiscount || order.discountAmount).toLocaleString()}</span>
                             </div>
                           )}
                           <div className="flex justify-between items-center text-xs font-bold text-luxury-dark border-t border-luxury-gray pt-2">
-                            <span>Total Paid ({order.paymentMethod})</span>
-                            <span className="font-sans text-sm font-bold text-luxury-goldDark">PKR {order.total}</span>
+                            <div>
+                              <span>Total Paid ({order.paymentMethod})</span>
+                              {order.discountAmount > 0 && (
+                                <span className="block text-[9px] text-green-700 normal-case font-medium">
+                                  (Total Saved: PKR {order.discountAmount.toLocaleString()})
+                                </span>
+                              )}
+                            </div>
+                            <span className="font-sans text-sm font-bold text-luxury-goldDark">PKR {order.total?.toLocaleString()}</span>
                           </div>
                         </div>
                       </div>

@@ -67,29 +67,46 @@ exports.createOrder = asyncHandler(async (req, res, next) => {
   const shippingCharges = subtotal >= settings.freeShippingThreshold ? 0 : settings.shippingCharges;
 
   // Calculate Coupon discount
-  let discountAmount = 0;
+  let couponDiscount = 0;
   let couponDoc = null;
   if (couponCode) {
     couponDoc = await Coupon.findOne({ code: couponCode.toUpperCase() });
     if (couponDoc && couponDoc.isValid(subtotal)) {
       if (couponDoc.discountType === 'percentage') {
-        discountAmount = (couponDoc.discountValue / 100) * subtotal;
-        if (couponDoc.maxDiscount && discountAmount > couponDoc.maxDiscount) {
-          discountAmount = couponDoc.maxDiscount;
+        couponDiscount = (couponDoc.discountValue / 100) * subtotal;
+        if (couponDoc.maxDiscount && couponDiscount > couponDoc.maxDiscount) {
+          couponDiscount = couponDoc.maxDiscount;
         }
       } else {
-        discountAmount = couponDoc.discountValue;
+        couponDiscount = couponDoc.discountValue;
       }
       // Ensure discount doesn't exceed subtotal
-      if (discountAmount > subtotal) {
-        discountAmount = subtotal;
+      if (couponDiscount > subtotal) {
+        couponDiscount = subtotal;
       }
+      couponDiscount = Math.round(couponDiscount);
     } else {
       return next(new ErrorResponse('Invalid or expired coupon code', 400));
     }
   }
 
-  const total = subtotal + shippingCharges - discountAmount;
+  // Calculate Card Payment discount (if paymentMethod === 'Online' and enabled)
+  let cardDiscount = 0;
+  let cardDiscountPercentage = 0;
+  if (paymentMethod === 'Online' && settings.cardDiscountEnabled !== false) {
+    cardDiscountPercentage = settings.cardDiscountPercentage !== undefined ? Number(settings.cardDiscountPercentage) : 10;
+    if (cardDiscountPercentage > 0) {
+      cardDiscount = Math.round((cardDiscountPercentage / 100) * subtotal);
+    }
+  }
+
+  // Ensure total discount doesn't exceed subtotal
+  let totalDiscount = couponDiscount + cardDiscount;
+  if (totalDiscount > subtotal) {
+    totalDiscount = subtotal;
+  }
+
+  const total = Math.max(0, subtotal + shippingCharges - totalDiscount);
 
   // Generate unique order number (e.g. UA-10001)
   const orderCount = await Order.countDocuments();
@@ -124,7 +141,10 @@ exports.createOrder = asyncHandler(async (req, res, next) => {
     items: processedItems,
     subtotal,
     shippingCharges,
-    discountAmount,
+    discountAmount: totalDiscount,
+    couponDiscount,
+    cardDiscount,
+    cardDiscountPercentage,
     couponCode: couponCode ? couponCode.toUpperCase() : undefined,
     total,
     paymentMethod,

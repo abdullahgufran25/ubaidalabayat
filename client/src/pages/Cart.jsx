@@ -244,9 +244,9 @@ const Cart = () => {
                 <span>{shipping === 0 ? 'FREE' : `PKR ${shipping}`}</span>
               </div>
               {discountAmount > 0 && (
-                <div className="flex justify-between text-green-700">
-                  <span>Discount</span>
-                  <span>- PKR {discountAmount}</span>
+                <div className="flex justify-between text-green-700 font-bold bg-green-50/70 p-2 rounded -mx-1 border border-green-200/50">
+                  <span>Coupon Discount ({coupon?.code})</span>
+                  <span>- PKR {discountAmount.toLocaleString()}</span>
                 </div>
               )}
             </div>

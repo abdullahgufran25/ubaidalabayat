@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Edit2, Eye, X, RefreshCw, AlertCircle, CheckCircle, Truck, Info, Phone, Mail, MapPin } from 'lucide-react';
+import { Edit2, Eye, X, RefreshCw, AlertCircle, CheckCircle, Truck, Info, Phone, Mail, MapPin, Printer } from 'lucide-react';
 import axios from 'axios';
 import { useToast } from '../../context/ToastContext';
 
@@ -267,23 +267,51 @@ const Orders = () => {
                   <div className="space-y-2 text-[10px] uppercase tracking-wider font-semibold text-luxury-textGray">
                     <div className="flex justify-between">
                       <span>Subtotal</span>
-                      <span className="text-luxury-dark font-sans font-bold">PKR {selectedOrder.subtotal}</span>
+                      <span className="text-luxury-dark font-sans font-bold">PKR {selectedOrder.subtotal?.toLocaleString()}</span>
                     </div>
                     <div className="flex justify-between">
                       <span>Shipping</span>
-                      <span className="text-luxury-dark font-sans font-bold">PKR {selectedOrder.shippingCharges}</span>
+                      <span className="text-luxury-dark font-sans font-bold">
+                        {selectedOrder.shippingCharges === 0 ? 'FREE' : `PKR ${selectedOrder.shippingCharges?.toLocaleString()}`}
+                      </span>
                     </div>
-                    {selectedOrder.discountAmount > 0 && (
-                      <div className="flex justify-between text-green-700">
-                        <span>Discount</span>
-                        <span className="font-sans font-bold">- PKR {selectedOrder.discountAmount}</span>
+                    {(selectedOrder.couponDiscount > 0 || (selectedOrder.couponCode && selectedOrder.discountAmount > (selectedOrder.cardDiscount || 0))) && (
+                      <div className="flex justify-between text-green-700 bg-green-50 p-1.5 rounded -mx-1 border border-green-200">
+                        <span>Coupon Discount ({selectedOrder.couponCode || 'PROMO'})</span>
+                        <span className="font-sans font-bold">
+                          - PKR {(selectedOrder.couponDiscount || (selectedOrder.discountAmount - (selectedOrder.cardDiscount || 0))).toLocaleString()}
+                        </span>
+                      </div>
+                    )}
+                    {((selectedOrder.cardDiscount && selectedOrder.cardDiscount > 0) || (selectedOrder.paymentMethod === 'Online' && selectedOrder.discountAmount > 0 && !selectedOrder.couponCode)) && (
+                      <div className="flex justify-between text-emerald-700 bg-emerald-50 p-1.5 rounded -mx-1 border border-emerald-200">
+                        <span>Card Payment Privilege ({selectedOrder.cardDiscountPercentage || 10}%)</span>
+                        <span className="font-sans font-bold">
+                          - PKR {(selectedOrder.cardDiscount || selectedOrder.discountAmount).toLocaleString()}
+                        </span>
                       </div>
                     )}
                     <div className="flex justify-between items-center text-xs font-bold text-luxury-dark border-t border-luxury-gray pt-2">
-                      <span>Total Amount</span>
-                      <span className="font-sans text-sm font-bold text-luxury-goldDark">PKR {selectedOrder.total}</span>
+                      <div>
+                        <span>Total Amount ({selectedOrder.paymentMethod})</span>
+                        {selectedOrder.discountAmount > 0 && (
+                          <span className="block text-[9px] text-green-700 normal-case font-medium">
+                            (Total Savings: PKR {selectedOrder.discountAmount.toLocaleString()})
+                          </span>
+                        )}
+                      </div>
+                      <span className="font-sans text-sm font-bold text-luxury-goldDark">PKR {selectedOrder.total?.toLocaleString()}</span>
                     </div>
                   </div>
+
+                  <button
+                    type="button"
+                    onClick={() => window.print()}
+                    className="w-full mt-3 bg-gray-50 hover:bg-luxury-cream border border-luxury-gray text-luxury-dark py-2 text-[10px] uppercase font-bold tracking-wider rounded flex items-center justify-center transition-colors shadow-sm"
+                  >
+                    <Printer size={13} className="mr-1.5 text-luxury-goldDark" />
+                    <span>Print Invoice / Bill</span>
+                  </button>
                 </div>
 
                 {/* Status Update Trigger Form */}

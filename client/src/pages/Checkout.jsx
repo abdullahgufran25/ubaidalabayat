@@ -183,7 +183,11 @@ const Checkout = () => {
 
   const subtotal = getSubtotal();
   const shipping = getShippingCharges();
-  const total = getTotal();
+  const couponDiscount = discountAmount || 0;
+  const cardDiscountPercentage = settings?.cardDiscountEnabled !== false ? (settings?.cardDiscountPercentage ?? 10) : 0;
+  const cardDiscount = (paymentMethod === 'Online' && cardDiscountPercentage > 0) ? Math.round((subtotal * cardDiscountPercentage) / 100) : 0;
+  const totalDiscount = Math.min(subtotal, couponDiscount + cardDiscount);
+  const total = Math.max(0, subtotal + shipping - totalDiscount);
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8 animate-fade-in">
@@ -396,12 +400,18 @@ const Checkout = () => {
                           Credit / Debit Card
                         </span>
                       </div>
-                      <span className="bg-purple-100 text-purple-800 text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded">
-                        Visa / Mastercard
-                      </span>
+                      {cardDiscountPercentage > 0 ? (
+                        <span className="bg-emerald-100 text-emerald-800 text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded border border-emerald-300">
+                          {cardDiscountPercentage}% Instant Off
+                        </span>
+                      ) : (
+                        <span className="bg-purple-100 text-purple-800 text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded">
+                          Visa / Mastercard
+                        </span>
+                      )}
                     </div>
                     <p className="text-[11px] text-luxury-textGray mt-1 leading-relaxed">
-                      Pay securely using any Pakistani or International Visa / Mastercard debit or credit card.
+                      Pay securely using Visa / Mastercard.{cardDiscountPercentage > 0 ? ` Enjoy an automatic ${cardDiscountPercentage}% privilege discount applied directly on your bill!` : ''}
                     </p>
                   </div>
                 </label>
@@ -642,7 +652,7 @@ const Checkout = () => {
             </div>
 
             {/* Totals */}
-            <div className="space-y-2 text-xs uppercase tracking-wider font-semibold border-t border-luxury-gray pt-4 pb-4">
+            <div className="space-y-2.5 text-xs uppercase tracking-wider font-semibold border-t border-luxury-gray pt-4 pb-4">
               <div className="flex justify-between text-luxury-textGray">
                 <span>Subtotal</span>
                 <span>PKR {subtotal.toLocaleString()}</span>
@@ -651,17 +661,30 @@ const Checkout = () => {
                 <span>Shipping</span>
                 <span>{shipping === 0 ? 'FREE' : `PKR ${shipping.toLocaleString()}`}</span>
               </div>
-              {discountAmount > 0 && (
-                <div className="flex justify-between text-green-700 font-bold">
+              {couponDiscount > 0 && (
+                <div className="flex justify-between text-green-700 font-bold bg-green-50/80 p-2 rounded -mx-1 border border-green-200/60">
                   <span>Coupon Discount ({coupon?.code})</span>
-                  <span>- PKR {discountAmount.toLocaleString()}</span>
+                  <span>- PKR {couponDiscount.toLocaleString()}</span>
+                </div>
+              )}
+              {cardDiscount > 0 && (
+                <div className="flex justify-between text-emerald-700 font-bold bg-emerald-50/80 p-2 rounded -mx-1 border border-emerald-200/60">
+                  <span>Card Payment Privilege ({cardDiscountPercentage}%)</span>
+                  <span>- PKR {cardDiscount.toLocaleString()}</span>
                 </div>
               )}
             </div>
 
             <div className="flex justify-between items-center text-sm font-bold uppercase font-sans border-t border-luxury-gray pt-4">
-              <span>Total Amount</span>
-              <span className="font-sans text-base">PKR {total}</span>
+              <div>
+                <span>Total Amount</span>
+                {totalDiscount > 0 && (
+                  <span className="block text-[10px] text-green-700 normal-case font-medium">
+                    (Total Savings: PKR {totalDiscount.toLocaleString()})
+                  </span>
+                )}
+              </div>
+              <span className="font-sans text-base text-luxury-goldDark">PKR {total.toLocaleString()}</span>
             </div>
 
             {/* Submit Order Action */}
