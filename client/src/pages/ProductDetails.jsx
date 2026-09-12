@@ -454,14 +454,7 @@ Link: ${window.location.href}`;
             <div className="p-5 text-xs text-luxury-textGray leading-relaxed">
               {activeTab === 'description' ? (
                 <div className="space-y-3">
-                  <p>{product.description}</p>
-                  <p className="font-semibold text-luxury-dark uppercase tracking-wider text-[10px] pt-2">Specifications:</p>
-                  <ul className="list-disc pl-4 space-y-1">
-                    <li>Fabric: Imported Premium Saudi Nidha / Linen Crepe</li>
-                    <li>Sleeve Style: Bell Cuffs with detailed trim accents</li>
-                    <li>Drape Silhouette: Flowing luxury classic cut</li>
-                    <li>Care: Dry clean recommended, low steam iron</li>
-                  </ul>
+                  <p className="whitespace-pre-line leading-relaxed">{product.description}</p>
                 </div>
               ) : (
                 <div className="space-y-2">
