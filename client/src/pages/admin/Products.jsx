@@ -219,6 +219,34 @@ const Products = () => {
     addToast('Set as Main Cover photo (#1)', 'success');
   };
 
+  const handleCoverFileChange = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const coverItem = {
+      id: `new-cover-${Date.now()}`,
+      type: 'new',
+      url: URL.createObjectURL(file),
+      file: file,
+      name: file.name,
+    };
+    setImageList((prev) => [coverItem, ...prev]);
+    e.target.value = '';
+    addToast('Front Cover photo added as #1!', 'success');
+  };
+
+  const handleJumpToPosition = (fromIndex, toIndex) => {
+    if (fromIndex === toIndex || toIndex < 0 || toIndex >= imageList.length) return;
+    setImageList((prev) => {
+      const updated = [...prev];
+      const [item] = updated.splice(fromIndex, 1);
+      updated.splice(toIndex, 0, item);
+      return updated;
+    });
+    if (toIndex === 0) {
+      addToast('Photo set as #1 Front Cover!', 'success');
+    }
+  };
+
   const handleRemoveImage = (index) => {
     setImageList((prev) => {
       const item = prev[index];
@@ -314,11 +342,13 @@ const Products = () => {
 
     // Build the final sequence order array strictly preserving user order
     const sequenceOrder = [];
-    for (const item of imageList) {
+    for (let i = 0; i < imageList.length; i++) {
+      const item = imageList[i];
       if (item.type === 'new' && item.file) {
         const processedFile = await compressImage(item.file);
-        formData.append('images', processedFile);
-        sequenceOrder.push({ type: 'new', name: processedFile.name });
+        const indexedFilename = `${String(i).padStart(2, '0')}_${processedFile.name}`;
+        formData.append('images', processedFile, indexedFilename);
+        sequenceOrder.push({ type: 'new', name: indexedFilename });
       } else if (item.type === 'existing') {
         sequenceOrder.push({ type: 'existing', url: item.url });
       }
@@ -831,44 +861,91 @@ const Products = () => {
                         )}
                       </div>
                       <p className="text-[10px] text-luxury-textGray mt-0.5">
-                        Images will display on the store in this exact sequence. <strong>#1 COVER</strong> is the primary catalog photo.
+                        The photo marked <strong className="text-luxury-dark">#1 FRONT COVER</strong> will display as the main picture on your website.
                       </p>
                     </div>
 
-                    {/* Add More Images Button */}
-                    <label className="cursor-pointer inline-flex items-center space-x-1.5 bg-luxury-dark text-white hover:bg-luxury-gold hover:text-luxury-dark transition-colors px-3 py-1.5 rounded text-xs font-bold uppercase tracking-wider shadow-sm flex-shrink-0">
-                      <Plus size={14} />
-                      <span>Add Photos</span>
-                      <input
-                        type="file"
-                        multiple
-                        accept="image/*"
-                        onChange={handleFileChange}
-                        className="hidden"
-                      />
-                    </label>
+                    {/* Dual Action Buttons */}
+                    <div className="flex items-center space-x-2 flex-shrink-0">
+                      {/* 1. Add Front Cover Photo */}
+                      <label className="cursor-pointer inline-flex items-center space-x-1.5 bg-luxury-gold text-luxury-dark hover:bg-opacity-90 transition-all px-3 py-1.5 rounded text-xs font-bold uppercase tracking-wider shadow-sm">
+                        <Star size={13} className="fill-luxury-dark" />
+                        <span>Add Front Cover</span>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={handleCoverFileChange}
+                          className="hidden"
+                        />
+                      </label>
+
+                      {/* 2. Add More Photos */}
+                      <label className="cursor-pointer inline-flex items-center space-x-1.5 bg-luxury-dark text-white hover:bg-luxury-gold hover:text-luxury-dark transition-colors px-3 py-1.5 rounded text-xs font-bold uppercase tracking-wider shadow-sm">
+                        <Plus size={13} />
+                        <span>Add More Photos</span>
+                        <input
+                          type="file"
+                          multiple
+                          accept="image/*"
+                          onChange={handleFileChange}
+                          className="hidden"
+                        />
+                      </label>
+                    </div>
                   </div>
 
                   {/* Empty state or upload dropzone if no images */}
                   {imageList.length === 0 ? (
-                    <label className="border-2 border-dashed border-luxury-gray bg-white p-6 rounded flex flex-col justify-center items-center text-center space-y-2 hover:border-luxury-gold cursor-pointer transition-colors block">
-                      <input
-                        type="file"
-                        multiple
-                        accept="image/*"
-                        onChange={handleFileChange}
-                        className="hidden"
-                      />
-                      <ImageIcon size={32} className="text-luxury-gold" />
-                      <span className="text-xs font-semibold uppercase tracking-wider text-luxury-dark">
-                        Select Product Photos
-                      </span>
-                      <span className="text-[10px] text-luxury-textGray leading-relaxed max-w-sm">
-                        Select multiple photos at once or add them one by one. You can arrange their sequence using the Left / Right controls.
-                      </span>
-                    </label>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+                      {/* Box 1: Select Main Front Photo */}
+                      <label className="border-2 border-dashed border-luxury-gold bg-luxury-gold/5 p-6 rounded-lg flex flex-col justify-center items-center text-center space-y-2 hover:bg-luxury-gold/10 cursor-pointer transition-colors">
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={handleCoverFileChange}
+                          className="hidden"
+                        />
+                        <div className="p-3 bg-luxury-gold/20 text-luxury-dark rounded-full">
+                          <Star size={24} className="fill-luxury-dark" />
+                        </div>
+                        <span className="text-xs font-bold uppercase tracking-wider text-luxury-dark">
+                          1. Select Front Cover Photo
+                        </span>
+                        <span className="text-[10px] text-luxury-textGray leading-relaxed max-w-xs">
+                          Click here to pick your main front-facing photo. It is guaranteed to be photo #1!
+                        </span>
+                      </label>
+
+                      {/* Box 2: Select All Photos at Once */}
+                      <label className="border-2 border-dashed border-luxury-gray bg-white p-6 rounded-lg flex flex-col justify-center items-center text-center space-y-2 hover:border-luxury-gold cursor-pointer transition-colors">
+                        <input
+                          type="file"
+                          multiple
+                          accept="image/*"
+                          onChange={handleFileChange}
+                          className="hidden"
+                        />
+                        <div className="p-3 bg-gray-100 text-luxury-dark rounded-full">
+                          <ImageIcon size={24} className="text-luxury-dark" />
+                        </div>
+                        <span className="text-xs font-bold uppercase tracking-wider text-luxury-dark">
+                          2. Or Upload All Photos Together
+                        </span>
+                        <span className="text-[10px] text-luxury-textGray leading-relaxed max-w-xs">
+                          Select all views at once. You can easily click "Set as Front Cover" on the front photo!
+                        </span>
+                      </label>
+                    </div>
                   ) : (
                     <div className="space-y-3">
+                      {/* Guide Alert */}
+                      <div className="p-2.5 bg-amber-50 border border-amber-200 rounded-lg text-xs text-amber-900 flex items-start space-x-2">
+                        <AlertCircle size={15} className="text-amber-600 flex-shrink-0 mt-0.5" />
+                        <span className="text-[11px] leading-relaxed">
+                          <strong>Front Cover Tip:</strong> The photo labeled <span className="bg-luxury-gold text-luxury-dark font-bold px-1 py-0.5 rounded text-[10px]">#1 FRONT COVER</span> will show on your website catalog. If the back or side photo is currently #1, simply click <strong>"Set as Front Cover"</strong> on the front photo!
+                        </span>
+                      </div>
+
                       {/* Grid of image sequence cards */}
                       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
                         {imageList.map((item, idx) => {
@@ -878,7 +955,7 @@ const Products = () => {
                               key={item.id}
                               className={`relative bg-white rounded-lg border overflow-hidden shadow-sm flex flex-col justify-between transition-all ${
                                 isCover
-                                  ? 'border-2 border-luxury-gold ring-2 ring-luxury-gold/30 shadow-md'
+                                  ? 'border-2 border-luxury-gold ring-2 ring-luxury-gold/40 shadow-md'
                                   : 'border-luxury-gray hover:border-gray-400'
                               }`}
                             >
@@ -887,7 +964,7 @@ const Products = () => {
                                 {isCover ? (
                                   <span className="pointer-events-auto bg-luxury-gold text-luxury-dark font-black text-[9px] px-2 py-0.5 rounded shadow flex items-center space-x-1">
                                     <Star size={10} className="fill-luxury-dark" />
-                                    <span>#1 COVER</span>
+                                    <span>#1 FRONT COVER</span>
                                   </span>
                                 ) : (
                                   <span className="pointer-events-auto bg-luxury-dark/90 text-white font-bold text-[9px] px-1.5 py-0.5 rounded shadow">
@@ -915,55 +992,68 @@ const Products = () => {
                               </div>
 
                               {/* Card Controls Footer */}
-                              <div className="p-1.5 bg-gray-50 border-t border-gray-100 flex flex-col space-y-1">
-                                <div className="flex items-center justify-between gap-1">
-                                  {/* Move Left */}
+                              <div className="p-2 bg-gray-50 border-t border-gray-100 flex flex-col space-y-1.5">
+                                {/* Set as Cover button if not already cover */}
+                                {!isCover ? (
+                                  <button
+                                    type="button"
+                                    onClick={() => handleSetCover(idx)}
+                                    className="w-full py-1 px-1.5 bg-luxury-gold text-luxury-dark hover:bg-opacity-90 font-bold text-[10px] rounded uppercase tracking-wider transition-all flex items-center justify-center space-x-1 shadow-sm"
+                                    title="Make this photo the primary front cover image"
+                                  >
+                                    <Star size={10} className="fill-luxury-dark text-luxury-dark" />
+                                    <span>Set as Front Cover</span>
+                                  </button>
+                                ) : (
+                                  <div className="text-center py-0.5">
+                                    <span className="text-[9px] uppercase font-bold text-emerald-700 tracking-wider">
+                                      ✓ Active Main Photo
+                                    </span>
+                                  </div>
+                                )}
+
+                                {/* Jump to Position Selector & Left/Right Arrows */}
+                                <div className="flex items-center justify-between gap-1 pt-1 border-t border-gray-200">
+                                  {/* Left Arrow */}
                                   <button
                                     type="button"
                                     onClick={() => handleMoveImage(idx, 'left')}
                                     disabled={idx === 0}
-                                    className="flex-1 py-1 px-1.5 bg-white border border-gray-300 rounded text-[10px] font-bold text-gray-700 hover:bg-luxury-gold hover:text-luxury-dark hover:border-luxury-gold disabled:opacity-30 disabled:hover:bg-white disabled:hover:text-gray-700 transition-colors flex items-center justify-center space-x-0.5"
-                                    title="Move earlier in sequence"
+                                    className="py-1 px-1.5 bg-white border border-gray-300 rounded text-[10px] font-bold text-gray-700 hover:bg-luxury-gold hover:text-luxury-dark hover:border-luxury-gold disabled:opacity-30 disabled:hover:bg-white disabled:hover:text-gray-700 transition-colors flex items-center justify-center"
+                                    title="Move earlier"
                                   >
                                     <ArrowLeft size={10} />
-                                    <span>Left</span>
                                   </button>
 
-                                  {/* Move Right */}
+                                  {/* Slot Position Selector */}
+                                  <select
+                                    value={idx}
+                                    onChange={(e) => handleJumpToPosition(idx, Number(e.target.value))}
+                                    className="flex-1 text-[10px] bg-white border border-gray-300 rounded px-1 py-0.5 font-bold text-luxury-dark text-center"
+                                  >
+                                    {imageList.map((_, pIdx) => (
+                                      <option key={pIdx} value={pIdx}>
+                                        {pIdx === 0 ? 'Pos 1 (Cover)' : pIdx === 1 ? 'Pos 2 (Hover)' : `Pos ${pIdx + 1}`}
+                                      </option>
+                                    ))}
+                                  </select>
+
+                                  {/* Right Arrow */}
                                   <button
                                     type="button"
                                     onClick={() => handleMoveImage(idx, 'right')}
                                     disabled={idx === imageList.length - 1}
-                                    className="flex-1 py-1 px-1.5 bg-white border border-gray-300 rounded text-[10px] font-bold text-gray-700 hover:bg-luxury-gold hover:text-luxury-dark hover:border-luxury-gold disabled:opacity-30 disabled:hover:bg-white disabled:hover:text-gray-700 transition-colors flex items-center justify-center space-x-0.5"
-                                    title="Move later in sequence"
+                                    className="py-1 px-1.5 bg-white border border-gray-300 rounded text-[10px] font-bold text-gray-700 hover:bg-luxury-gold hover:text-luxury-dark hover:border-luxury-gold disabled:opacity-30 disabled:hover:bg-white disabled:hover:text-gray-700 transition-colors flex items-center justify-center"
+                                    title="Move later"
                                   >
-                                    <span>Right</span>
                                     <ArrowRight size={10} />
                                   </button>
                                 </div>
-
-                                {/* Set as Cover button if not already cover */}
-                                {!isCover && (
-                                  <button
-                                    type="button"
-                                    onClick={() => handleSetCover(idx)}
-                                    className="w-full py-0.5 px-1 bg-luxury-light hover:bg-luxury-gold hover:text-luxury-dark text-luxury-goldDark border border-luxury-gold/40 rounded text-[9px] font-bold uppercase tracking-wider transition-colors flex items-center justify-center space-x-1"
-                                    title="Make this photo the primary cover image"
-                                  >
-                                    <Star size={9} />
-                                    <span>Set as Cover</span>
-                                  </button>
-                                )}
                               </div>
                             </div>
                           );
                         })}
                       </div>
-
-                      {/* Helper status text */}
-                      <p className="text-[10px] text-gray-500 italic">
-                        Tip: Click <strong>"Left"</strong> or <strong>"Right"</strong> arrows to change sequence, or click <strong>"Set as Cover"</strong> to make any photo the #1 primary photo.
-                      </p>
                     </div>
                   )}
                 </div>

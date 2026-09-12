@@ -241,13 +241,17 @@ exports.createProduct = asyncHandler(async (req, res, next) => {
     return next(new ErrorResponse(`Product with SKU '${sku}' already exists`, 400));
   }
 
-  // Handle uploaded images concurrently in parallel
+  // Handle uploaded images in strict sequence
   let imageUrls = [];
   if (req.files && req.files.length > 0) {
-    const uploadResults = await Promise.all(
-      req.files.map((file) => uploadSingleImage(file))
-    );
-    imageUrls = uploadResults.filter(Boolean);
+    // Sort files by index prefix (00_, 01_, 02_, ...) so the client's explicit sequence is strictly maintained
+    req.files.sort((a, b) => (a.originalname || '').localeCompare(b.originalname || ''));
+
+    // Upload sequentially to eliminate any possible race condition or out-of-order responses
+    for (const file of req.files) {
+      const url = await uploadSingleImage(file);
+      if (url) imageUrls.push(url);
+    }
   } else if (req.body.images) {
     // If sent as raw array/string list from API
     imageUrls = Array.isArray(req.body.images) ? req.body.images : [req.body.images];
@@ -327,13 +331,14 @@ exports.updateProduct = asyncHandler(async (req, res, next) => {
 
   let imageUrls = [...product.images];
 
-  // If new files uploaded, upload them first
+  // If new files uploaded, upload them first in strict sequence
   let newUrls = [];
   if (req.files && req.files.length > 0) {
-    const uploadResults = await Promise.all(
-      req.files.map((file) => uploadSingleImage(file))
-    );
-    newUrls = uploadResults.filter(Boolean);
+    req.files.sort((a, b) => (a.originalname || '').localeCompare(b.originalname || ''));
+    for (const file of req.files) {
+      const url = await uploadSingleImage(file);
+      if (url) newUrls.push(url);
+    }
   }
 
   // If finalImageOrder was provided from Admin CMS, assemble the exact sequence of existing + new images
