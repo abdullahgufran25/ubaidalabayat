@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Edit2, Trash2, X, AlertCircle, RefreshCw, Image as ImageIcon } from 'lucide-react';
+import { Plus, Edit2, Trash2, X, AlertCircle, RefreshCw, Image as ImageIcon, ArrowLeft, ArrowRight, Star } from 'lucide-react';
 import axios from 'axios';
 import { useSettings } from '../../context/SettingsContext';
 import { useToast } from '../../context/ToastContext';
@@ -104,8 +104,8 @@ const Products = () => {
   const [newArrival, setNewArrival] = useState(false);
   const [isActive, setIsActive] = useState(true);
 
-  // Files
-  const [files, setFiles] = useState([]);
+  // Images List with exact sequence & preview objects
+  const [imageList, setImageList] = useState([]);
   const [submitLoading, setSubmitLoading] = useState(false);
 
   // Fetch all products on mount
@@ -148,7 +148,7 @@ const Products = () => {
     setBestseller(false);
     setNewArrival(true);
     setIsActive(true);
-    setFiles([]);
+    setImageList([]);
     setModalOpen(true);
   };
 
@@ -167,12 +167,66 @@ const Products = () => {
     setBestseller(product.bestseller || false);
     setNewArrival(product.newArrival || false);
     setIsActive(product.isActive);
-    setFiles([]);
+    
+    // Load existing images into sequence gallery
+    const existing = (product.images || []).map((imgUrl, idx) => ({
+      id: `existing-${idx}-${Date.now()}`,
+      type: 'existing',
+      url: imgUrl,
+      name: `Photo ${idx + 1}`,
+    }));
+    setImageList(existing);
     setModalOpen(true);
   };
 
   const handleFileChange = (e) => {
-    setFiles(Array.from(e.target.files));
+    const selected = Array.from(e.target.files || []);
+    if (selected.length === 0) return;
+
+    const newItems = selected.map((file, idx) => ({
+      id: `new-${Date.now()}-${idx}-${Math.random()}`,
+      type: 'new',
+      url: URL.createObjectURL(file),
+      file: file,
+      name: file.name,
+    }));
+
+    setImageList((prev) => [...prev, ...newItems]);
+    e.target.value = ''; // Reset to allow re-selecting or adding more files sequentially
+  };
+
+  const handleMoveImage = (index, direction) => {
+    const targetIndex = direction === 'left' ? index - 1 : index + 1;
+    if (targetIndex < 0 || targetIndex >= imageList.length) return;
+
+    setImageList((prev) => {
+      const updated = [...prev];
+      const temp = updated[index];
+      updated[index] = updated[targetIndex];
+      updated[targetIndex] = temp;
+      return updated;
+    });
+  };
+
+  const handleSetCover = (index) => {
+    if (index === 0) return;
+    setImageList((prev) => {
+      const updated = [...prev];
+      const [item] = updated.splice(index, 1);
+      updated.unshift(item);
+      return updated;
+    });
+    addToast('Set as Main Cover photo (#1)', 'success');
+  };
+
+  const handleRemoveImage = (index) => {
+    setImageList((prev) => {
+      const item = prev[index];
+      if (item && item.type === 'new' && item.url) {
+        URL.revokeObjectURL(item.url);
+      }
+      return prev.filter((_, i) => i !== index);
+    });
   };
 
   const compressImage = (file) => {
@@ -236,7 +290,7 @@ const Products = () => {
       return;
     }
 
-    if (!editingId && files.length === 0) {
+    if (imageList.length === 0) {
       addToast('Please select at least one product image', 'warning');
       return;
     }
@@ -258,12 +312,18 @@ const Products = () => {
     formData.append('newArrival', newArrival ? 'true' : 'false');
     formData.append('isActive', isActive ? 'true' : 'false');
 
-    if (files.length > 0) {
-      for (const file of files) {
-        const processedFile = await compressImage(file);
+    // Build the final sequence order array strictly preserving user order
+    const sequenceOrder = [];
+    for (const item of imageList) {
+      if (item.type === 'new' && item.file) {
+        const processedFile = await compressImage(item.file);
         formData.append('images', processedFile);
+        sequenceOrder.push({ type: 'new', name: processedFile.name });
+      } else if (item.type === 'existing') {
+        sequenceOrder.push({ type: 'existing', url: item.url });
       }
     }
+    formData.append('finalImageOrder', JSON.stringify(sequenceOrder));
 
     try {
       let res;
@@ -756,33 +816,154 @@ const Products = () => {
                   />
                 </div>
 
-                {/* File Uploader */}
-                <div className="sm:col-span-3 space-y-2">
-                  <label className="text-[10px] uppercase font-bold tracking-wider text-luxury-textGray block">Product Images Upload (Max 5)</label>
-                  <div className="border border-dashed border-luxury-gray bg-white p-4 rounded flex flex-col justify-center items-center text-center space-y-2 hover:border-luxury-gold cursor-pointer transition-colors relative">
-                    <input
-                      type="file"
-                      multiple
-                      accept="image/*"
-                      onChange={handleFileChange}
-                      className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                    />
-                    <ImageIcon size={28} className="text-luxury-gold" />
-                    <span className="text-xs font-semibold uppercase tracking-wider text-luxury-dark">
-                      Select Files
-                    </span>
-                    <span className="text-[10px] text-luxury-textGray leading-relaxed">
-                      Select up to 5 images (JPEG, PNG, WEBP, max 5MB each).
-                    </span>
-                  </div>
-                  {files.length > 0 && (
-                    <div className="text-[10px] uppercase tracking-wider text-green-700 font-bold bg-green-50 border border-green-100 p-2.5 rounded">
-                      Selected {files.length} images: {files.map(f => f.name).join(', ')}
+                {/* Product Images & Sequence Gallery */}
+                <div className="sm:col-span-3 space-y-3 bg-gray-50/90 border border-luxury-gray p-4 rounded-lg">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-gray-200 pb-2.5">
+                    <div>
+                      <div className="flex items-center space-x-2">
+                        <label className="text-xs uppercase font-bold tracking-wider text-luxury-dark">
+                          Product Images Sequence ({imageList.length})
+                        </label>
+                        {imageList.length > 0 && (
+                          <span className="bg-luxury-gold/20 text-luxury-dark text-[10px] font-bold px-2 py-0.5 rounded border border-luxury-gold/40">
+                            Strict Order Active
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-[10px] text-luxury-textGray mt-0.5">
+                        Images will display on the store in this exact sequence. <strong>#1 COVER</strong> is the primary catalog photo.
+                      </p>
                     </div>
-                  )}
-                  {editingId && files.length === 0 && (
-                    <div className="text-[10px] uppercase tracking-wider text-luxury-textGray font-semibold bg-gray-50 border border-luxury-gray p-2.5 rounded">
-                      Leave empty to retain existing product images.
+
+                    {/* Add More Images Button */}
+                    <label className="cursor-pointer inline-flex items-center space-x-1.5 bg-luxury-dark text-white hover:bg-luxury-gold hover:text-luxury-dark transition-colors px-3 py-1.5 rounded text-xs font-bold uppercase tracking-wider shadow-sm flex-shrink-0">
+                      <Plus size={14} />
+                      <span>Add Photos</span>
+                      <input
+                        type="file"
+                        multiple
+                        accept="image/*"
+                        onChange={handleFileChange}
+                        className="hidden"
+                      />
+                    </label>
+                  </div>
+
+                  {/* Empty state or upload dropzone if no images */}
+                  {imageList.length === 0 ? (
+                    <label className="border-2 border-dashed border-luxury-gray bg-white p-6 rounded flex flex-col justify-center items-center text-center space-y-2 hover:border-luxury-gold cursor-pointer transition-colors block">
+                      <input
+                        type="file"
+                        multiple
+                        accept="image/*"
+                        onChange={handleFileChange}
+                        className="hidden"
+                      />
+                      <ImageIcon size={32} className="text-luxury-gold" />
+                      <span className="text-xs font-semibold uppercase tracking-wider text-luxury-dark">
+                        Select Product Photos
+                      </span>
+                      <span className="text-[10px] text-luxury-textGray leading-relaxed max-w-sm">
+                        Select multiple photos at once or add them one by one. You can arrange their sequence using the Left / Right controls.
+                      </span>
+                    </label>
+                  ) : (
+                    <div className="space-y-3">
+                      {/* Grid of image sequence cards */}
+                      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
+                        {imageList.map((item, idx) => {
+                          const isCover = idx === 0;
+                          return (
+                            <div
+                              key={item.id}
+                              className={`relative bg-white rounded-lg border overflow-hidden shadow-sm flex flex-col justify-between transition-all ${
+                                isCover
+                                  ? 'border-2 border-luxury-gold ring-2 ring-luxury-gold/30 shadow-md'
+                                  : 'border-luxury-gray hover:border-gray-400'
+                              }`}
+                            >
+                              {/* Top Bar: Position Badge & Remove Button */}
+                              <div className="absolute top-1.5 left-1.5 right-1.5 z-10 flex items-center justify-between pointer-events-none">
+                                {isCover ? (
+                                  <span className="pointer-events-auto bg-luxury-gold text-luxury-dark font-black text-[9px] px-2 py-0.5 rounded shadow flex items-center space-x-1">
+                                    <Star size={10} className="fill-luxury-dark" />
+                                    <span>#1 COVER</span>
+                                  </span>
+                                ) : (
+                                  <span className="pointer-events-auto bg-luxury-dark/90 text-white font-bold text-[9px] px-1.5 py-0.5 rounded shadow">
+                                    #{idx + 1} {idx === 1 ? '• Hover' : ''}
+                                  </span>
+                                )}
+
+                                <button
+                                  type="button"
+                                  onClick={() => handleRemoveImage(idx)}
+                                  className="pointer-events-auto w-5 h-5 rounded-full bg-red-600/90 hover:bg-red-700 text-white flex items-center justify-center text-[10px] font-bold shadow transition-transform hover:scale-110"
+                                  title="Remove image"
+                                >
+                                  ✕
+                                </button>
+                              </div>
+
+                              {/* Thumbnail preview */}
+                              <div className="aspect-[3/4] bg-luxury-cream overflow-hidden">
+                                <img
+                                  src={item.url}
+                                  alt=""
+                                  className="w-full h-full object-cover"
+                                />
+                              </div>
+
+                              {/* Card Controls Footer */}
+                              <div className="p-1.5 bg-gray-50 border-t border-gray-100 flex flex-col space-y-1">
+                                <div className="flex items-center justify-between gap-1">
+                                  {/* Move Left */}
+                                  <button
+                                    type="button"
+                                    onClick={() => handleMoveImage(idx, 'left')}
+                                    disabled={idx === 0}
+                                    className="flex-1 py-1 px-1.5 bg-white border border-gray-300 rounded text-[10px] font-bold text-gray-700 hover:bg-luxury-gold hover:text-luxury-dark hover:border-luxury-gold disabled:opacity-30 disabled:hover:bg-white disabled:hover:text-gray-700 transition-colors flex items-center justify-center space-x-0.5"
+                                    title="Move earlier in sequence"
+                                  >
+                                    <ArrowLeft size={10} />
+                                    <span>Left</span>
+                                  </button>
+
+                                  {/* Move Right */}
+                                  <button
+                                    type="button"
+                                    onClick={() => handleMoveImage(idx, 'right')}
+                                    disabled={idx === imageList.length - 1}
+                                    className="flex-1 py-1 px-1.5 bg-white border border-gray-300 rounded text-[10px] font-bold text-gray-700 hover:bg-luxury-gold hover:text-luxury-dark hover:border-luxury-gold disabled:opacity-30 disabled:hover:bg-white disabled:hover:text-gray-700 transition-colors flex items-center justify-center space-x-0.5"
+                                    title="Move later in sequence"
+                                  >
+                                    <span>Right</span>
+                                    <ArrowRight size={10} />
+                                  </button>
+                                </div>
+
+                                {/* Set as Cover button if not already cover */}
+                                {!isCover && (
+                                  <button
+                                    type="button"
+                                    onClick={() => handleSetCover(idx)}
+                                    className="w-full py-0.5 px-1 bg-luxury-light hover:bg-luxury-gold hover:text-luxury-dark text-luxury-goldDark border border-luxury-gold/40 rounded text-[9px] font-bold uppercase tracking-wider transition-colors flex items-center justify-center space-x-1"
+                                    title="Make this photo the primary cover image"
+                                  >
+                                    <Star size={9} />
+                                    <span>Set as Cover</span>
+                                  </button>
+                                )}
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+
+                      {/* Helper status text */}
+                      <p className="text-[10px] text-gray-500 italic">
+                        Tip: Click <strong>"Left"</strong> or <strong>"Right"</strong> arrows to change sequence, or click <strong>"Set as Cover"</strong> to make any photo the #1 primary photo.
+                      </p>
                     </div>
                   )}
                 </div>

@@ -327,16 +327,49 @@ exports.updateProduct = asyncHandler(async (req, res, next) => {
 
   let imageUrls = [...product.images];
 
-  // If new files uploaded, append or replace them
+  // If new files uploaded, upload them first
+  let newUrls = [];
   if (req.files && req.files.length > 0) {
     const uploadResults = await Promise.all(
       req.files.map((file) => uploadSingleImage(file))
     );
-    const newUrls = uploadResults.filter(Boolean);
+    newUrls = uploadResults.filter(Boolean);
+  }
 
-    // If request wants to replace images (e.g. replace=true query or parameter), replace. Else append.
+  // If finalImageOrder was provided from Admin CMS, assemble the exact sequence of existing + new images
+  if (req.body.finalImageOrder) {
+    try {
+      const orderList = JSON.parse(req.body.finalImageOrder);
+      const orderedImages = [];
+      let newIdx = 0;
+
+      for (const item of orderList) {
+        if (item.type === 'existing' && item.url) {
+          orderedImages.push(item.url);
+        } else if (item.type === 'new' && newIdx < newUrls.length) {
+          orderedImages.push(newUrls[newIdx++]);
+        }
+      }
+
+      // Append any remaining new uploads
+      while (newIdx < newUrls.length) {
+        orderedImages.push(newUrls[newIdx++]);
+      }
+
+      imageUrls = orderedImages;
+
+      // Clean up removed images from Cloudinary storage
+      const removedImages = product.images.filter((img) => !imageUrls.includes(img));
+      for (const oldImg of removedImages) {
+        await deleteImage(oldImg);
+      }
+    } catch (err) {
+      console.error('Error applying finalImageOrder:', err);
+      imageUrls = [...imageUrls, ...newUrls];
+    }
+  } else if (req.files && req.files.length > 0) {
+    // Fallback if finalImageOrder not provided
     if (req.body.replaceImages === 'true') {
-      // Delete old images from Cloudinary / storage
       for (const oldImg of product.images) {
         await deleteImage(oldImg);
       }
