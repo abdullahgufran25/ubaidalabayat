@@ -15,44 +15,25 @@ const Shop = () => {
   const [loading, setLoading] = useState(true);
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
 
-  // Dynamic filter options loaded from active products
-  const [dynamicSizes, setDynamicSizes] = useState([]);
-  const [dynamicColors, setDynamicColors] = useState([]);
+  // Simple standard sizes and basic colors
+  const availableSizes = ['Standard', 'Free Size', 'Custom'];
 
-  useEffect(() => {
-    const fetchFilters = async () => {
-      try {
-        const res = await axios.get('/api/products/filters');
-        if (res.data.success) {
-          if (Array.isArray(res.data.data?.sizes) && res.data.data.sizes.length > 0) {
-            setDynamicSizes(res.data.data.sizes);
-          }
-          if (Array.isArray(res.data.data?.colors) && res.data.data.colors.length > 0) {
-            setDynamicColors(res.data.data.colors);
-          }
-        }
-      } catch (err) {
-        // Fallback gracefully
-      }
-    };
-    fetchFilters();
-  }, []);
-
-  const defaultSizes = ['50', '52', '54', '56', '58', '60', 'XS', 'S', 'M', 'L', 'XL', '2XL', 'Standard', 'Free Size'];
-  const defaultColors = ['Black', 'Beige', 'Emerald Green', 'Navy Blue', 'Deep Plum', 'Mocha', 'Sand Beige', 'Dusty Rose', 'Maroon', 'White', 'Olive Green'];
-
-  // Dynamically merge options from DB products + CMS Store Settings
-  const rawSizes = [
-    ...(dynamicSizes.length > 0 ? dynamicSizes : []),
-    ...(settings?.availableSizes || defaultSizes),
+  const basicColors = [
+    { name: 'Black', hex: '#111827' },
+    { name: 'Beige', hex: '#D2B48C' },
+    { name: 'White', hex: '#FFFFFF' },
+    { name: 'Navy Blue', hex: '#1E3A8A' },
+    { name: 'Emerald Green', hex: '#065F46' },
+    { name: 'Maroon', hex: '#831843' },
+    { name: 'Deep Plum', hex: '#581C87' },
+    { name: 'Mocha', hex: '#78350F' },
+    { name: 'Sand Beige', hex: '#E6D7B9' },
+    { name: 'Dusty Rose', hex: '#BE185D' },
+    { name: 'Grey', hex: '#6B7280' },
+    { name: 'Brown', hex: '#713F12' },
+    { name: 'Olive Green', hex: '#3F6212' },
+    { name: 'Lilac', hex: '#C084FC' },
   ];
-  const availableSizes = Array.from(new Set(rawSizes.map((s) => String(s).trim()))).filter(Boolean);
-
-  const rawColors = [
-    ...(dynamicColors.length > 0 ? dynamicColors : []),
-    ...(settings?.availableColors || defaultColors),
-  ];
-  const availableColors = Array.from(new Set(rawColors.map((c) => String(c).trim()))).filter(Boolean);
 
   // Parse filters from URL query parameters
   const currentCategory = searchParams.get('category') || '';
@@ -257,20 +238,24 @@ const Shop = () => {
           {/* Colors Filter */}
           <div className="space-y-3">
             <h3 className="text-xs uppercase tracking-widest font-bold text-luxury-gold">Select Color</h3>
-            <div className="flex flex-wrap gap-2">
-              {availableColors.map((color) => {
-                const active = currentColors.includes(color);
+            <div className="flex flex-wrap gap-1.5">
+              {basicColors.map((color) => {
+                const active = currentColors.includes(color.name);
                 return (
                   <button
-                    key={color}
-                    onClick={() => toggleArrayFilter('colors', color)}
-                    className={`border text-[10px] px-3 py-1.5 font-semibold uppercase tracking-wider rounded transition-all ${
+                    key={color.name}
+                    onClick={() => toggleArrayFilter('colors', color.name)}
+                    className={`border text-[10px] px-2.5 py-1.5 font-medium rounded transition-all inline-flex items-center space-x-1.5 ${
                       active
-                        ? 'border-luxury-dark bg-luxury-dark text-white'
-                        : 'border-luxury-gray bg-white text-luxury-dark hover:border-luxury-gold'
+                        ? 'border-luxury-dark bg-luxury-dark text-white shadow-sm font-bold'
+                        : 'border-luxury-gray bg-white text-luxury-dark hover:border-luxury-gold hover:bg-luxury-light'
                     }`}
                   >
-                    {color}
+                    <span
+                      className="w-2.5 h-2.5 rounded-full border border-gray-300 flex-shrink-0"
+                      style={{ backgroundColor: color.hex }}
+                    />
+                    <span>{color.name}</span>
                   </button>
                 );
               })}
@@ -457,18 +442,24 @@ const Shop = () => {
               {/* Colors */}
               <div className="space-y-3">
                 <h3 className="text-xs uppercase tracking-widest font-bold text-luxury-gold">Select Color</h3>
-                <div className="flex flex-wrap gap-2">
-                  {availableColors.map((color) => {
-                    const active = currentColors.includes(color);
+                <div className="flex flex-wrap gap-1.5">
+                  {basicColors.map((color) => {
+                    const active = currentColors.includes(color.name);
                     return (
                       <button
-                        key={color}
-                        onClick={() => toggleArrayFilter('colors', color)}
-                        className={`border text-[10px] px-3 py-1.5 font-semibold uppercase tracking-wider rounded ${
-                          active ? 'border-luxury-dark bg-luxury-dark text-white' : 'border-luxury-gray bg-white'
+                        key={color.name}
+                        onClick={() => toggleArrayFilter('colors', color.name)}
+                        className={`border text-[10px] px-2.5 py-1.5 font-medium rounded inline-flex items-center space-x-1.5 ${
+                          active
+                            ? 'border-luxury-dark bg-luxury-dark text-white shadow-sm font-bold'
+                            : 'border-luxury-gray bg-white text-luxury-dark'
                         }`}
                       >
-                        {color}
+                        <span
+                          className="w-2.5 h-2.5 rounded-full border border-gray-300 flex-shrink-0"
+                          style={{ backgroundColor: color.hex }}
+                        />
+                        <span>{color.name}</span>
                       </button>
                     );
                   })}

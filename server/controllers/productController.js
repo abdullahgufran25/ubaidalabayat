@@ -74,14 +74,14 @@ exports.getProducts = asyncHandler(async (req, res, next) => {
 
   // Size filter
   if (req.query.sizes) {
-    const sizesArr = req.query.sizes.split(',');
-    filter.sizes = { $in: sizesArr };
+    const sizesArr = req.query.sizes.split(',').map(s => s.trim()).filter(Boolean);
+    filter.sizes = { $in: sizesArr.map(s => new RegExp(`^${s}$`, 'i')) };
   }
 
   // Color filter
   if (req.query.colors) {
-    const colorsArr = req.query.colors.split(',');
-    filter.colors = { $in: colorsArr };
+    const colorsArr = req.query.colors.split(',').map(c => c.trim()).filter(Boolean);
+    filter.colors = { $in: colorsArr.map(c => new RegExp(`^${c}$`, 'i')) };
   }
 
   // Flags filters

@@ -28,8 +28,8 @@ const Home = () => {
         // Fetch product sections and homepage testimonials concurrently
         const [featuredRes, newArrivalsRes, bestsellersRes, testimonialsRes] = await Promise.all([
           axios.get('/api/products?featured=true&limit=4').catch((err) => ({ error: err })),
-          axios.get('/api/products?newArrival=true&limit=4').catch((err) => ({ error: err })),
-          axios.get('/api/products?bestseller=true&limit=4').catch((err) => ({ error: err })),
+          axios.get('/api/products?newArrival=true&limit=16').catch((err) => ({ error: err })),
+          axios.get('/api/products?bestseller=true&limit=16').catch((err) => ({ error: err })),
           axios.get('/api/reviews/testimonials').catch((err) => ({ error: err })),
         ]);
 
@@ -409,7 +409,7 @@ const Home = () => {
 
         {productsLoading ? (
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-            {[1, 2, 3, 4].map(n => (
+            {[1, 2, 3, 4, 5, 6, 7, 8].map(n => (
               <div key={n} className="animate-pulse space-y-4">
                 <div className="bg-gray-200 aspect-[3/4] w-full"></div>
                 <div className="h-4 bg-gray-200 w-3/4"></div>
@@ -478,7 +478,7 @@ const Home = () => {
 
         {productsLoading ? (
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-            {[1, 2, 3, 4].map(n => (
+            {[1, 2, 3, 4, 5, 6, 7, 8].map(n => (
               <div key={n} className="animate-pulse space-y-4">
                 <div className="bg-gray-200 aspect-[3/4] w-full"></div>
                 <div className="h-4 bg-gray-200 w-3/4"></div>
