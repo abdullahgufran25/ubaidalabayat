@@ -81,7 +81,20 @@ exports.getProducts = asyncHandler(async (req, res, next) => {
   // Color filter
   if (req.query.colors) {
     const colorsArr = req.query.colors.split(',').map(c => c.trim()).filter(Boolean);
-    filter.colors = { $in: colorsArr.map(c => new RegExp(`^${c}$`, 'i')) };
+    const regexList = [];
+    colorsArr.forEach(c => {
+      const escaped = c.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&');
+      regexList.push(new RegExp(`^${escaped}$`, 'i'));
+      regexList.push(new RegExp(escaped, 'i'));
+      if (c.includes(' ')) {
+        c.split(' ').forEach(w => {
+          if (w.length > 2) {
+            regexList.push(new RegExp(`^${w.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&')}$`, 'i'));
+          }
+        });
+      }
+    });
+    filter.colors = { $in: regexList };
   }
 
   // Flags filters

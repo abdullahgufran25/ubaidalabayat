@@ -24,33 +24,14 @@ const Products = () => {
   const [colors, setColors] = useState('');
   const [description, setDescription] = useState('');
   
-  // Custom Size & Color State
+  // Custom Size State
   const [customSizeInput, setCustomSizeInput] = useState('');
-  const [customColorInput, setCustomColorInput] = useState('');
   const [sizeTab, setSizeTab] = useState('universal'); // 'universal' | 'numeric' | 'alpha'
 
   // Presets
   const NUMERIC_SIZES = ['50', '52', '54', '56', '58', '60'];
   const ALPHA_SIZES = ['XS', 'S', 'M', 'L', 'XL', '2XL', '3XL'];
   const UNIVERSAL_SIZES = ['Standard', 'Free Size', 'Custom'];
-  const POPULAR_COLORS = [
-    { name: 'Black', hex: '#111827' },
-    { name: 'Beige', hex: '#D2B48C' },
-    { name: 'Emerald Green', hex: '#065F46' },
-    { name: 'Navy Blue', hex: '#1E3A8A' },
-    { name: 'Deep Plum', hex: '#581C87' },
-    { name: 'Mocha', hex: '#78350F' },
-    { name: 'Sand Beige', hex: '#E6D7B9' },
-    { name: 'Dusty Rose', hex: '#BE185D' },
-    { name: 'Maroon', hex: '#831843' },
-    { name: 'White', hex: '#FFFFFF' },
-    { name: 'Olive Green', hex: '#3F6212' },
-    { name: 'Brown', hex: '#713F12' },
-    { name: 'Grey', hex: '#6B7280' },
-    { name: 'Lilac', hex: '#C084FC' },
-    { name: 'Burgundy', hex: '#881337' },
-    { name: 'Teal', hex: '#0F766E' },
-  ];
 
   const selectedSizesList = sizes
     ? sizes.split(',').map((s) => s.trim()).filter(Boolean)
@@ -73,29 +54,6 @@ const Products = () => {
       setSizes([...selectedSizesList, val].join(', '));
     }
     setCustomSizeInput('');
-  };
-
-  const selectedColorsList = colors
-    ? colors.split(',').map((c) => c.trim()).filter(Boolean)
-    : [];
-
-  const handleToggleColor = (colorVal) => {
-    if (selectedColorsList.includes(colorVal)) {
-      const next = selectedColorsList.filter((c) => c !== colorVal);
-      setColors(next.join(', '));
-    } else {
-      setColors([...selectedColorsList, colorVal].join(', '));
-    }
-  };
-
-  const handleAddCustomColor = (e) => {
-    if (e) e.preventDefault();
-    const val = customColorInput.trim();
-    if (!val) return;
-    if (!selectedColorsList.includes(val)) {
-      setColors([...selectedColorsList, val].join(', '));
-    }
-    setCustomColorInput('');
   };
 
   // Toggles
@@ -143,7 +101,7 @@ const Products = () => {
     setCategory(categories[0]?._id || '');
     setSizes('Standard, Free Size, Custom');
     setSizeTab('universal');
-    setColors('Black, Beige');
+    setColors('');
     setDescription('');
     setFeatured(false);
     setBestseller(false);
@@ -712,95 +670,65 @@ const Products = () => {
                   </div>
                 </div>
 
-                {/* Dynamic Color Manager */}
-                <div className="sm:col-span-3 bg-gray-50/80 border border-luxury-gray p-4 rounded space-y-3">
-                  <div className="border-b border-gray-200 pb-2">
-                    <label className="text-xs uppercase font-bold tracking-wider text-luxury-dark block">
-                      Product Colors (Presets + Custom)
-                    </label>
-                    <p className="text-[10px] text-luxury-textGray">
-                      Select popular abaya colors or type any custom color shades.
-                    </p>
+                {/* Product Color Input */}
+                <div className="sm:col-span-3 bg-gray-50/80 border border-luxury-gray p-4 rounded space-y-2">
+                  <div className="flex items-center justify-between border-b border-gray-200 pb-2">
+                    <div>
+                      <label className="text-xs uppercase font-bold tracking-wider text-luxury-dark block">
+                        Product Color(s)
+                      </label>
+                      <p className="text-[10px] text-luxury-textGray">
+                        Is item ka color yahan enter karein (maslan: Black ya Beige). Koi bhi color khud se add nahi hoga.
+                      </p>
+                    </div>
+                    {colors && (
+                      <button
+                        type="button"
+                        onClick={() => setColors('')}
+                        className="text-[10px] uppercase font-bold text-red-600 hover:underline"
+                      >
+                        Clear Color
+                      </button>
+                    )}
                   </div>
 
-                  {/* Popular Color presets */}
-                  <div className="flex flex-wrap gap-1.5 items-center">
-                    <span className="text-[10px] uppercase font-bold text-gray-500 mr-1">Popular:</span>
-                    {POPULAR_COLORS.map((col) => {
-                      const isSelected = selectedColorsList.includes(col.name);
+                  <input
+                    type="text"
+                    value={colors}
+                    onChange={(e) => setColors(e.target.value)}
+                    placeholder="e.g. Black (agar 1 se zyada hon to: Black, Beige)"
+                    className="w-full text-sm border-2 border-luxury-gray p-2 px-3 rounded focus:outline-none focus:border-luxury-gold text-black font-medium placeholder-gray-400 bg-white"
+                  />
+
+                  {/* Quick Click Color chips */}
+                  <div className="flex flex-wrap gap-1.5 items-center pt-1">
+                    <span className="text-[10px] uppercase font-bold text-gray-500 mr-1">Quick Select (optional):</span>
+                    {['Black', 'White', 'Beige', 'Navy Blue', 'Emerald Green', 'Maroon', 'Brown', 'Grey', 'Lilac', 'Dusty Rose', 'Deep Plum', 'Olive Green', 'Pink', 'Teal'].map((cName) => {
+                      const currentArr = colors ? colors.split(',').map((s) => s.trim().toLowerCase()) : [];
+                      const isSelected = currentArr.includes(cName.toLowerCase());
                       return (
                         <button
-                          key={col.name}
+                          key={cName}
                           type="button"
-                          onClick={() => handleToggleColor(col.name)}
-                          className={`text-xs px-2.5 py-1 rounded font-semibold uppercase tracking-wider border transition-all inline-flex items-center space-x-1.5 ${
+                          onClick={() => {
+                            const list = colors ? colors.split(',').map((s) => s.trim()).filter(Boolean) : [];
+                            const exists = list.some((s) => s.toLowerCase() === cName.toLowerCase());
+                            if (exists) {
+                              setColors(list.filter((s) => s.toLowerCase() !== cName.toLowerCase()).join(', '));
+                            } else {
+                              setColors([...list, cName].join(', '));
+                            }
+                          }}
+                          className={`text-xs px-2.5 py-1 rounded font-semibold border transition-all ${
                             isSelected
-                              ? 'bg-luxury-gold text-luxury-dark border-luxury-goldDark shadow-sm font-bold'
+                              ? 'bg-luxury-gold text-luxury-dark border-luxury-goldDark font-bold shadow-sm'
                               : 'bg-white text-gray-700 border-gray-300 hover:border-luxury-gold hover:bg-luxury-cream/30'
                           }`}
                         >
-                          <span
-                            className="w-2.5 h-2.5 rounded-full border border-gray-400 flex-shrink-0"
-                            style={{ backgroundColor: col.hex }}
-                          />
-                          <span>{isSelected ? `✓ ${col.name}` : col.name}</span>
+                          {isSelected ? `✓ ${cName}` : `+ ${cName}`}
                         </button>
                       );
                     })}
-                  </div>
-
-                  {/* Custom Color input row */}
-                  <div className="flex items-center space-x-2 pt-1">
-                    <input
-                      type="text"
-                      value={customColorInput}
-                      onChange={(e) => setCustomColorInput(e.target.value)}
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter') {
-                          e.preventDefault();
-                          handleAddCustomColor();
-                        }
-                      }}
-                      placeholder="Type custom color (e.g. Lavender, Rose Gold, Champagne, Charcoal)..."
-                      className="flex-1 text-xs border border-gray-300 p-2 rounded bg-white font-medium focus:outline-none focus:border-luxury-gold"
-                    />
-                    <button
-                      type="button"
-                      onClick={handleAddCustomColor}
-                      disabled={!customColorInput.trim()}
-                      className="bg-luxury-dark text-white px-3 py-2 text-xs font-bold uppercase tracking-wider rounded hover:bg-luxury-gold hover:text-luxury-dark disabled:opacity-50 transition-colors"
-                    >
-                      + Add Color
-                    </button>
-                  </div>
-
-                  {/* Active Selected Colors display */}
-                  <div className="pt-2 border-t border-gray-200">
-                    <span className="text-[10px] uppercase font-bold tracking-wider text-gray-600 block mb-1.5">
-                      Selected Colors for this Product ({selectedColorsList.length}):
-                    </span>
-                    {selectedColorsList.length === 0 ? (
-                      <p className="text-[11px] text-amber-700 italic">No colors selected yet. Click popular colors above or type a color.</p>
-                    ) : (
-                      <div className="flex flex-wrap gap-1.5">
-                        {selectedColorsList.map((col) => (
-                          <span
-                            key={col}
-                            className="inline-flex items-center space-x-1.5 bg-luxury-dark text-white text-xs px-2.5 py-1 rounded font-bold tracking-wider shadow-sm"
-                          >
-                            <span>{col}</span>
-                            <button
-                              type="button"
-                              onClick={() => handleToggleColor(col)}
-                              className="text-gray-300 hover:text-red-400 font-bold ml-1"
-                              title={`Remove color ${col}`}
-                            >
-                              ✕
-                            </button>
-                          </span>
-                        ))}
-                      </div>
-                    )}
                   </div>
                 </div>
 
