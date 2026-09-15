@@ -1,5 +1,24 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Edit2, Trash2, X, AlertCircle, RefreshCw, Image as ImageIcon, ArrowLeft, ArrowRight, Star } from 'lucide-react';
+import { 
+  Plus, 
+  Edit2, 
+  Trash2, 
+  X, 
+  AlertCircle, 
+  RefreshCw, 
+  Image as ImageIcon, 
+  ArrowLeft, 
+  ArrowRight, 
+  Star,
+  Sparkles,
+  Check,
+  CheckCircle2,
+  ArrowUp,
+  ArrowDown,
+  Search,
+  Flame,
+  SlidersHorizontal
+} from 'lucide-react';
 import axios from 'axios';
 import { useSettings } from '../../context/SettingsContext';
 import { useToast } from '../../context/ToastContext';
@@ -12,6 +31,17 @@ const Products = () => {
   const [loading, setLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
   const [editingId, setEditingId] = useState(null);
+
+  // Showcase Curator & Table Filter States
+  const [showcaseModalOpen, setShowcaseModalOpen] = useState(false);
+  const [showcaseType, setShowcaseType] = useState('newArrival'); // 'newArrival' | 'bestseller'
+  const [showcaseNewArrivals, setShowcaseNewArrivals] = useState([]); // array of product IDs
+  const [showcaseBestsellers, setShowcaseBestsellers] = useState([]); // array of product IDs
+  const [showcaseSearch, setShowcaseSearch] = useState('');
+  const [showcaseCategory, setShowcaseCategory] = useState('');
+  const [showcaseSaving, setShowcaseSaving] = useState(false);
+  const [tableFilter, setTableFilter] = useState('all'); // 'all' | 'newArrival' | 'bestseller' | 'draft'
+  const [tableSearch, setTableSearch] = useState('');
 
   // Form States
   const [name, setName] = useState('');
@@ -70,14 +100,120 @@ const Products = () => {
   const fetchProducts = async () => {
     setLoading(true);
     try {
-      const res = await axios.get('/api/products?limit=100'); // Load all for admin list
+      const res = await axios.get('/api/products?limit=250'); // Load all for admin list
       if (res.data.success) {
-        setProducts(res.data.data);
+        const prods = res.data.data;
+        setProducts(prods);
+
+        // Sync showcase lists ordered by sequence
+        const naList = prods
+          .filter((p) => p.newArrival)
+          .sort((a, b) => (a.newArrivalOrder || 999) - (b.newArrivalOrder || 999))
+          .map((p) => p._id);
+        setShowcaseNewArrivals(naList);
+
+        const bsList = prods
+          .filter((p) => p.bestseller)
+          .sort((a, b) => (a.bestsellerOrder || 999) - (b.bestsellerOrder || 999))
+          .map((p) => p._id);
+        setShowcaseBestsellers(bsList);
       }
     } catch (err) {
       addToast('Failed to fetch products', 'error');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleQuickToggleFlag = async (productId, flag) => {
+    const prod = products.find((p) => p._id === productId);
+    if (!prod) return;
+    const nextVal = !prod[flag];
+
+    // Optimistic UI update
+    setProducts((prev) =>
+      prev.map((p) => (p._id === productId ? { ...p, [flag]: nextVal } : p))
+    );
+
+    if (flag === 'newArrival') {
+      setShowcaseNewArrivals((prev) =>
+        nextVal ? [...prev, productId] : prev.filter((id) => id !== productId)
+      );
+    } else if (flag === 'bestseller') {
+      setShowcaseBestsellers((prev) =>
+        nextVal ? [...prev, productId] : prev.filter((id) => id !== productId)
+      );
+    }
+
+    try {
+      const res = await axios.patch(`/api/products/${productId}/toggle`, { flag, value: nextVal });
+      if (res.data.success) {
+        addToast(
+          `${flag === 'newArrival' ? 'New Arrival' : 'Best Seller'} ${nextVal ? 'enabled' : 'removed'} for "${prod.name}"`,
+          'success'
+        );
+      }
+    } catch (err) {
+      // Revert if error
+      setProducts((prev) =>
+        prev.map((p) => (p._id === productId ? { ...p, [flag]: !nextVal } : p))
+      );
+      addToast('Failed to update status', 'error');
+    }
+  };
+
+  const handleToggleShowcaseItem = (type, productId) => {
+    if (type === 'newArrival') {
+      if (showcaseNewArrivals.includes(productId)) {
+        setShowcaseNewArrivals(showcaseNewArrivals.filter((id) => id !== productId));
+      } else {
+        if (showcaseNewArrivals.length >= 16) {
+          addToast('Note: Homepage grid shows maximum 16 items', 'info');
+        }
+        setShowcaseNewArrivals([...showcaseNewArrivals, productId]);
+      }
+    } else {
+      if (showcaseBestsellers.includes(productId)) {
+        setShowcaseBestsellers(showcaseBestsellers.filter((id) => id !== productId));
+      } else {
+        if (showcaseBestsellers.length >= 16) {
+          addToast('Note: Homepage grid shows maximum 16 items', 'info');
+        }
+        setShowcaseBestsellers([...showcaseBestsellers, productId]);
+      }
+    }
+  };
+
+  const handleMoveShowcaseItem = (type, index, direction) => {
+    const list = type === 'newArrival' ? [...showcaseNewArrivals] : [...showcaseBestsellers];
+    const targetIndex = direction === 'up' ? index - 1 : index + 1;
+    if (targetIndex < 0 || targetIndex >= list.length) return;
+
+    const temp = list[index];
+    list[index] = list[targetIndex];
+    list[targetIndex] = temp;
+
+    if (type === 'newArrival') {
+      setShowcaseNewArrivals(list);
+    } else {
+      setShowcaseBestsellers(list);
+    }
+  };
+
+  const handleSaveShowcase = async (type) => {
+    setShowcaseSaving(true);
+    const productIds = type === 'newArrival' ? showcaseNewArrivals : showcaseBestsellers;
+    try {
+      const res = await axios.post('/api/products/home-showcase', { type, productIds });
+      if (res.data.success) {
+        addToast(res.data.message, 'success');
+        fetchProducts();
+        setShowcaseModalOpen(false);
+      }
+    } catch (err) {
+      addToast(err.response?.data?.message || 'Failed to save showcase', 'error');
+    } finally {
+      setShowcaseSaving(false);
     }
   };
 
@@ -105,7 +241,7 @@ const Products = () => {
     setDescription('');
     setFeatured(false);
     setBestseller(false);
-    setNewArrival(true);
+    setNewArrival(false);
     setIsActive(true);
     setImageList([]);
     setModalOpen(true);
@@ -333,6 +469,21 @@ const Products = () => {
     }
   };
 
+  const filteredProducts = products.filter((prod) => {
+    if (tableFilter === 'newArrival' && !prod.newArrival) return false;
+    if (tableFilter === 'bestseller' && !prod.bestseller) return false;
+    if (tableFilter === 'draft' && prod.isActive) return false;
+
+    if (tableSearch) {
+      const q = tableSearch.toLowerCase();
+      const matchName = prod.name?.toLowerCase().includes(q);
+      const matchSku = prod.sku?.toLowerCase().includes(q);
+      const matchCat = prod.category?.name?.toLowerCase().includes(q);
+      if (!matchName && !matchSku && !matchCat) return false;
+    }
+    return true;
+  });
+
   return (
     <div className="space-y-8 animate-fade-in font-sans">
       
@@ -345,13 +496,94 @@ const Products = () => {
           </p>
         </div>
 
-        <button
-          onClick={handleOpenCreateModal}
-          className="luxury-btn py-2.5 text-xs font-semibold tracking-widest flex items-center justify-center space-x-2"
-        >
-          <Plus size={14} />
-          <span>Add Product</span>
-        </button>
+        <div className="flex flex-wrap items-center gap-2.5">
+          <button
+            type="button"
+            onClick={() => {
+              setShowcaseType('newArrival');
+              setShowcaseModalOpen(true);
+            }}
+            className="bg-luxury-gold text-luxury-dark hover:bg-luxury-goldDark font-bold px-3.5 py-2.5 rounded text-xs uppercase tracking-wider flex items-center space-x-1.5 transition-colors shadow-sm"
+          >
+            <Sparkles size={14} />
+            <span>Curate Homepage (16 & 16)</span>
+          </button>
+
+          <button
+            onClick={handleOpenCreateModal}
+            className="luxury-btn py-2.5 text-xs font-semibold tracking-widest flex items-center justify-center space-x-2"
+          >
+            <Plus size={14} />
+            <span>Add Product</span>
+          </button>
+        </div>
+      </div>
+
+      {/* Catalog Table Filter Tabs & Search */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div className="flex flex-wrap items-center gap-1.5 bg-gray-100 p-1 rounded-lg text-xs font-bold uppercase tracking-wider">
+          <button
+            type="button"
+            onClick={() => setTableFilter('all')}
+            className={`px-3 py-1.5 rounded transition-all ${
+              tableFilter === 'all'
+                ? 'bg-white text-luxury-dark shadow-sm'
+                : 'text-gray-600 hover:text-black'
+            }`}
+          >
+            All Products ({products.length})
+          </button>
+          <button
+            type="button"
+            onClick={() => setTableFilter('newArrival')}
+            className={`px-3 py-1.5 rounded transition-all flex items-center space-x-1.5 ${
+              tableFilter === 'newArrival'
+                ? 'bg-emerald-700 text-white shadow-sm'
+                : 'text-gray-600 hover:text-black'
+            }`}
+          >
+            <span>✦ New Arrivals</span>
+            <span className="bg-black/20 px-1.5 py-0.5 rounded text-[10px]">
+              {products.filter(p => p.newArrival).length}/16
+            </span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setTableFilter('bestseller')}
+            className={`px-3 py-1.5 rounded transition-all flex items-center space-x-1.5 ${
+              tableFilter === 'bestseller'
+                ? 'bg-blue-700 text-white shadow-sm'
+                : 'text-gray-600 hover:text-black'
+            }`}
+          >
+            <span>★ Best Sellers</span>
+            <span className="bg-black/20 px-1.5 py-0.5 rounded text-[10px]">
+              {products.filter(p => p.bestseller).length}/16
+            </span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setTableFilter('draft')}
+            className={`px-3 py-1.5 rounded transition-all ${
+              tableFilter === 'draft'
+                ? 'bg-white text-luxury-dark shadow-sm'
+                : 'text-gray-600 hover:text-black'
+            }`}
+          >
+            Drafts ({products.filter(p => !p.isActive).length})
+          </button>
+        </div>
+
+        {/* Search in table */}
+        <div className="w-full sm:w-64">
+          <input
+            type="text"
+            value={tableSearch}
+            onChange={(e) => setTableSearch(e.target.value)}
+            placeholder="Search article name or SKU..."
+            className="w-full text-xs border border-luxury-gray px-3 py-2 rounded focus:outline-none focus:border-luxury-gold bg-white"
+          />
+        </div>
       </div>
 
       {/* Grid List Products Table */}
@@ -360,9 +592,11 @@ const Products = () => {
           <RefreshCw size={24} className="animate-spin text-luxury-gold mb-2" />
           <span>Loading products catalog...</span>
         </div>
-      ) : products.length === 0 ? (
+      ) : filteredProducts.length === 0 ? (
         <div className="bg-white border border-luxury-gray rounded p-12 text-center text-xs text-luxury-textGray uppercase tracking-wider">
-          No products inside catalog database. Click "Add Product" to create your first article.
+          {products.length === 0 
+            ? 'No products inside catalog database. Click "Add Product" to create your first article.' 
+            : 'No products match the selected filter criteria.'}
         </div>
       ) : (
         <div className="bg-white border border-luxury-gray rounded overflow-hidden shadow-sm">
@@ -375,22 +609,21 @@ const Products = () => {
                   <th className="p-4">Category</th>
                   <th className="p-4">Price</th>
                   <th className="p-4 text-center">Stock</th>
+                  <th className="p-4 text-center">Home Showcase (16)</th>
                   <th className="p-4 text-center">Status</th>
                   <th className="p-4 text-right">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-luxury-gray">
-                {products.map((prod) => (
+                {filteredProducts.map((prod) => (
                   <tr key={prod._id} className="hover:bg-gray-55 transition-colors">
                     {/* Thumbnail & Name */}
                     <td className="p-4 flex items-center space-x-3">
-                      <img src={prod.images[0]} alt="" className="w-10 h-12 object-cover border border-luxury-gray" />
+                      <img src={prod.images?.[0]} alt="" className="w-10 h-12 object-cover border border-luxury-gray flex-shrink-0" />
                       <div>
                         <h4 className="font-sans font-bold text-luxury-dark leading-tight line-clamp-1">{prod.name}</h4>
                         <div className="flex space-x-2 mt-1">
                           {prod.featured && <span className="bg-purple-100 text-purple-700 text-[8px] font-bold uppercase tracking-wider px-1">Featured</span>}
-                          {prod.bestseller && <span className="bg-blue-100 text-blue-700 text-[8px] font-bold uppercase tracking-wider px-1">Best</span>}
-                          {prod.newArrival && <span className="bg-green-100 text-green-700 text-[8px] font-bold uppercase tracking-wider px-1">New</span>}
                         </div>
                       </div>
                     </td>
@@ -418,6 +651,37 @@ const Products = () => {
                       <span className={prod.stock === 0 ? 'text-red-600' : prod.stock <= 5 ? 'text-yellow-600' : 'text-luxury-dark'}>
                         {prod.stock}
                       </span>
+                    </td>
+
+                    {/* 1-Click Home Showcase Toggles */}
+                    <td className="p-4 text-center">
+                      <div className="flex items-center justify-center gap-1.5">
+                        <button
+                          type="button"
+                          onClick={() => handleQuickToggleFlag(prod._id, 'newArrival')}
+                          className={`px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider transition-all border ${
+                            prod.newArrival
+                              ? 'bg-emerald-600 text-white border-emerald-700 shadow-sm'
+                              : 'bg-white text-gray-400 border-gray-200 hover:border-emerald-500 hover:text-emerald-700'
+                          }`}
+                          title={prod.newArrival ? 'Remove from Home New Arrivals' : 'Add to Home New Arrivals'}
+                        >
+                          {prod.newArrival ? '✓ New' : '+ New'}
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => handleQuickToggleFlag(prod._id, 'bestseller')}
+                          className={`px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider transition-all border ${
+                            prod.bestseller
+                              ? 'bg-blue-600 text-white border-blue-700 shadow-sm'
+                              : 'bg-white text-gray-400 border-gray-200 hover:border-blue-500 hover:text-blue-700'
+                          }`}
+                          title={prod.bestseller ? 'Remove from Home Best Sellers' : 'Add to Home Best Sellers'}
+                        >
+                          {prod.bestseller ? '★ Best' : '+ Best'}
+                        </button>
+                      </div>
                     </td>
 
                     {/* Status */}
@@ -960,6 +1224,351 @@ const Products = () => {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Homepage Showcase Curator Modal */}
+      {showcaseModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 overflow-y-auto bg-black bg-opacity-60 backdrop-blur-sm animate-fade-in">
+          <div className="bg-white border-2 border-luxury-dark w-full max-w-5xl rounded-lg shadow-2xl my-auto flex flex-col max-h-[92vh] overflow-hidden">
+            
+            {/* Modal Header */}
+            <div className="p-4 sm:p-5 border-b border-luxury-gray flex items-center justify-between bg-luxury-cream">
+              <div className="flex items-center space-x-2.5">
+                <div className="w-8 h-8 rounded-full bg-luxury-gold flex items-center justify-center text-luxury-dark shadow-sm">
+                  <Sparkles size={18} />
+                </div>
+                <div>
+                  <h2 className="font-sans text-base sm:text-lg font-bold uppercase tracking-wider text-luxury-dark">
+                    Curate Homepage Products (16 & 16)
+                  </h2>
+                  <p className="text-[11px] text-luxury-textGray">
+                    Select exactly which 16 articles appear on your Home page for New Arrivals and Best Sellers.
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowcaseModalOpen(false)}
+                className="text-gray-400 hover:text-black p-1 transition-colors"
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            {/* Showcase Type Tabs & Progress Bar */}
+            <div className="bg-gray-50 border-b border-gray-200 px-4 sm:px-6 pt-3">
+              <div className="flex flex-wrap items-center justify-between gap-3 pb-3">
+                <div className="flex items-center space-x-2 bg-white p-1 border border-gray-200 rounded-lg text-xs font-bold uppercase tracking-wider">
+                  <button
+                    type="button"
+                    onClick={() => setShowcaseType('newArrival')}
+                    className={`px-3.5 py-1.5 rounded transition-all flex items-center space-x-1.5 ${
+                      showcaseType === 'newArrival'
+                        ? 'bg-emerald-700 text-white shadow-sm'
+                        : 'text-gray-600 hover:text-black'
+                    }`}
+                  >
+                    <span>✦ New Arrivals</span>
+                    <span className="bg-black/20 px-1.5 py-0.5 rounded text-[10px]">
+                      {showcaseNewArrivals.length} / 16
+                    </span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setShowcaseType('bestseller')}
+                    className={`px-3.5 py-1.5 rounded transition-all flex items-center space-x-1.5 ${
+                      showcaseType === 'bestseller'
+                        ? 'bg-blue-700 text-white shadow-sm'
+                        : 'text-gray-600 hover:text-black'
+                    }`}
+                  >
+                    <span>★ Best Sellers</span>
+                    <span className="bg-black/20 px-1.5 py-0.5 rounded text-[10px]">
+                      {showcaseBestsellers.length} / 16
+                    </span>
+                  </button>
+                </div>
+
+                {/* Status Counter Badge */}
+                {(() => {
+                  const count = showcaseType === 'newArrival' ? showcaseNewArrivals.length : showcaseBestsellers.length;
+                  if (count === 16) {
+                    return (
+                      <span className="inline-flex items-center space-x-1.5 bg-emerald-50 text-emerald-800 border border-emerald-300 px-3 py-1 rounded text-xs font-bold">
+                        <CheckCircle2 size={14} className="text-emerald-600" />
+                        <span>Perfect! Exact 16 of 16 articles selected</span>
+                      </span>
+                    );
+                  }
+                  if (count < 16) {
+                    return (
+                      <span className="inline-flex items-center space-x-1.5 bg-amber-50 text-amber-800 border border-amber-300 px-3 py-1 rounded text-xs font-semibold">
+                        <AlertCircle size={14} className="text-amber-600" />
+                        <span>{count} of 16 selected ({16 - count} more needed to fill 4×4 grid)</span>
+                      </span>
+                    );
+                  }
+                  return (
+                    <span className="inline-flex items-center space-x-1.5 bg-blue-50 text-blue-800 border border-blue-300 px-3 py-1 rounded text-xs font-semibold">
+                      <AlertCircle size={14} className="text-blue-600" />
+                      <span>{count} selected (First 16 will display on homepage)</span>
+                    </span>
+                  );
+                })()}
+              </div>
+            </div>
+
+            {/* Scrollable Content Area */}
+            <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-6">
+
+              {/* 1. CURRENT HOMEPAGE QUEUE */}
+              {(() => {
+                const currentList = showcaseType === 'newArrival' ? showcaseNewArrivals : showcaseBestsellers;
+                const activeProducts = currentList
+                  .map((id) => products.find((p) => p._id === id))
+                  .filter(Boolean);
+
+                return (
+                  <div className="bg-gray-50 border border-luxury-gray p-4 rounded-lg space-y-3">
+                    <div className="flex items-center justify-between border-b border-gray-200 pb-2">
+                      <div>
+                        <h3 className="text-xs font-bold uppercase tracking-wider text-luxury-dark">
+                          Current Homepage {showcaseType === 'newArrival' ? 'New Arrivals' : 'Best Sellers'} ({activeProducts.length})
+                        </h3>
+                        <p className="text-[10px] text-luxury-textGray">
+                          Items will appear on the storefront in this sequence (Slot #1 to #16). Use ▲ and ▼ to reorder.
+                        </p>
+                      </div>
+                      {currentList.length > 0 && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (window.confirm(`Clear all selected ${showcaseType === 'newArrival' ? 'New Arrivals' : 'Best Sellers'}?`)) {
+                              if (showcaseType === 'newArrival') setShowcaseNewArrivals([]);
+                              else setShowcaseBestsellers([]);
+                            }
+                          }}
+                          className="text-[10px] uppercase font-bold text-red-600 hover:underline"
+                        >
+                          Clear Selection
+                        </button>
+                      )}
+                    </div>
+
+                    {activeProducts.length === 0 ? (
+                      <div className="text-center py-6 bg-white border border-dashed border-gray-300 rounded text-xs text-gray-500">
+                        No articles selected yet for {showcaseType === 'newArrival' ? 'New Arrivals' : 'Best Sellers'}. Click <strong>"+ Select for Home"</strong> on products below.
+                      </div>
+                    ) : (
+                      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2.5">
+                        {activeProducts.map((prod, idx) => {
+                          const isExcess = idx >= 16;
+                          return (
+                            <div
+                              key={prod._id}
+                              className={`relative bg-white border rounded p-2 flex items-center space-x-2.5 shadow-sm transition-all ${
+                                isExcess ? 'border-amber-300 bg-amber-50/50' : 'border-gray-200 hover:border-luxury-gold'
+                              }`}
+                            >
+                              <span className={`text-[10px] font-black px-1.5 py-0.5 rounded flex-shrink-0 ${
+                                isExcess ? 'bg-amber-200 text-amber-800' : 'bg-luxury-dark text-white'
+                              }`}>
+                                #{idx + 1}
+                              </span>
+                              <img
+                                src={prod.images?.[0]}
+                                alt=""
+                                className="w-9 h-11 object-cover rounded border flex-shrink-0"
+                              />
+                              <div className="min-w-0 flex-1">
+                                <h5 className="font-bold text-[11px] truncate text-luxury-dark">{prod.name}</h5>
+                                <p className="text-[10px] text-gray-500 font-mono">{prod.sku}</p>
+                              </div>
+                              <div className="flex flex-col space-y-1 flex-shrink-0">
+                                <div className="flex items-center space-x-0.5">
+                                  <button
+                                    type="button"
+                                    disabled={idx === 0}
+                                    onClick={() => handleMoveShowcaseItem(showcaseType, idx, 'up')}
+                                    className="p-1 text-gray-500 hover:text-black disabled:opacity-20 transition-colors"
+                                    title="Move earlier"
+                                  >
+                                    <ArrowUp size={11} />
+                                  </button>
+                                  <button
+                                    type="button"
+                                    disabled={idx === activeProducts.length - 1}
+                                    onClick={() => handleMoveShowcaseItem(showcaseType, idx, 'down')}
+                                    className="p-1 text-gray-500 hover:text-black disabled:opacity-20 transition-colors"
+                                    title="Move later"
+                                  >
+                                    <ArrowDown size={11} />
+                                  </button>
+                                </div>
+                                <button
+                                  type="button"
+                                  onClick={() => handleToggleShowcaseItem(showcaseType, prod._id)}
+                                  className="text-red-500 hover:text-red-700 text-[10px] font-bold text-center"
+                                  title="Remove from showcase"
+                                >
+                                  ✕
+                                </button>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+                );
+              })()}
+
+              {/* 2. AVAILABLE PRODUCTS TO SELECT FROM */}
+              <div className="space-y-3">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                  <h3 className="text-xs font-bold uppercase tracking-wider text-luxury-dark">
+                    Available Catalog Articles
+                  </h3>
+                  {/* Search and Category Filters */}
+                  <div className="flex items-center space-x-2 w-full sm:w-auto">
+                    <input
+                      type="text"
+                      value={showcaseSearch}
+                      onChange={(e) => setShowcaseSearch(e.target.value)}
+                      placeholder="Search article name or SKU..."
+                      className="text-xs border border-gray-300 p-2 rounded bg-white w-full sm:w-56 focus:outline-none focus:border-luxury-gold"
+                    />
+                    <select
+                      value={showcaseCategory}
+                      onChange={(e) => setShowcaseCategory(e.target.value)}
+                      className="text-xs border border-gray-300 p-2 rounded bg-white focus:outline-none focus:border-luxury-gold"
+                    >
+                      <option value="">All Categories</option>
+                      {categories.map((c) => (
+                        <option key={c._id} value={c._id}>{c.name}</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+
+                {/* Grid of catalog products */}
+                {(() => {
+                  const currentList = showcaseType === 'newArrival' ? showcaseNewArrivals : showcaseBestsellers;
+                  const filteredCatalog = products.filter((prod) => {
+                    if (showcaseCategory && prod.category?._id !== showcaseCategory && prod.category !== showcaseCategory) return false;
+                    if (showcaseSearch) {
+                      const q = showcaseSearch.toLowerCase();
+                      const matchName = prod.name?.toLowerCase().includes(q);
+                      const matchSku = prod.sku?.toLowerCase().includes(q);
+                      if (!matchName && !matchSku) return false;
+                    }
+                    return true;
+                  });
+
+                  if (filteredCatalog.length === 0) {
+                    return (
+                      <div className="text-center py-10 bg-white border border-gray-200 rounded text-xs text-gray-500">
+                        No matching articles found.
+                      </div>
+                    );
+                  }
+
+                  return (
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 max-h-96 overflow-y-auto pr-1">
+                      {filteredCatalog.map((prod) => {
+                        const isSelected = currentList.includes(prod._id);
+                        const pos = currentList.indexOf(prod._id);
+
+                        return (
+                          <div
+                            key={prod._id}
+                            className={`bg-white border rounded-lg p-2.5 flex flex-col justify-between space-y-2 transition-all shadow-sm ${
+                              isSelected
+                                ? 'border-2 border-luxury-gold ring-1 ring-luxury-gold/30 bg-luxury-cream/20'
+                                : 'border-gray-200 hover:border-gray-400'
+                            }`}
+                          >
+                            <div className="relative aspect-[3/4] bg-gray-100 rounded overflow-hidden">
+                              <img
+                                src={prod.images?.[0]}
+                                alt=""
+                                className="w-full h-full object-cover"
+                              />
+                              {isSelected && (
+                                <span className="absolute top-1 left-1 bg-luxury-gold text-luxury-dark text-[9px] font-black px-1.5 py-0.5 rounded shadow">
+                                  #{pos + 1} On Home
+                                </span>
+                              )}
+                            </div>
+
+                            <div>
+                              <h4 className="font-sans font-bold text-xs truncate text-luxury-dark" title={prod.name}>
+                                {prod.name}
+                              </h4>
+                              <div className="flex items-center justify-between text-[10px] text-gray-500 font-mono mt-0.5">
+                                <span>{prod.sku}</span>
+                                <span className="font-sans font-bold text-luxury-dark">PKR {prod.salePrice || prod.price}</span>
+                              </div>
+                            </div>
+
+                            <button
+                              type="button"
+                              onClick={() => handleToggleShowcaseItem(showcaseType, prod._id)}
+                              className={`w-full py-1.5 px-2 rounded text-[10px] font-bold uppercase tracking-wider transition-all flex items-center justify-center space-x-1 ${
+                                isSelected
+                                  ? 'bg-red-50 hover:bg-red-100 text-red-600 border border-red-200'
+                                  : 'bg-luxury-dark hover:bg-luxury-gold hover:text-luxury-dark text-white'
+                              }`}
+                            >
+                              {isSelected ? (
+                                <span>✕ Remove</span>
+                              ) : (
+                                <span>+ Select for Home</span>
+                              )}
+                            </button>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  );
+                })()}
+              </div>
+
+            </div>
+
+            {/* Modal Footer */}
+            <div className="p-4 border-t border-luxury-gray flex flex-col sm:flex-row items-center justify-between gap-3 bg-gray-50">
+              <span className="text-xs text-luxury-textGray">
+                {showcaseType === 'newArrival' ? showcaseNewArrivals.length : showcaseBestsellers.length} articles selected for Homepage {showcaseType === 'newArrival' ? 'New Arrivals' : 'Best Sellers'}.
+              </span>
+
+              <div className="flex items-center space-x-3 w-full sm:w-auto justify-end">
+                <button
+                  type="button"
+                  onClick={() => setShowcaseModalOpen(false)}
+                  className="luxury-btn-outline py-2 px-4 text-xs"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  disabled={showcaseSaving}
+                  onClick={() => handleSaveShowcase(showcaseType)}
+                  className="luxury-btn py-2 px-6 text-xs font-bold uppercase tracking-wider disabled:opacity-50 flex items-center space-x-2"
+                >
+                  <Check size={14} />
+                  <span>
+                    {showcaseSaving
+                      ? 'Saving...'
+                      : `Save Homepage ${showcaseType === 'newArrival' ? 'New Arrivals' : 'Best Sellers'}`}
+                  </span>
+                </button>
+              </div>
+            </div>
+
           </div>
         </div>
       )}

@@ -85,9 +85,17 @@ const productSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    bestsellerOrder: {
+      type: Number,
+      default: 999,
+    },
     newArrival: {
       type: Boolean,
       default: false,
+    },
+    newArrivalOrder: {
+      type: Number,
+      default: 999,
     },
     isActive: {
       type: Boolean,

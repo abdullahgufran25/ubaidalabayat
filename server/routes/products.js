@@ -7,11 +7,17 @@ const {
   createProduct,
   updateProduct,
   deleteProduct,
+  toggleProductFlag,
+  setHomeShowcase,
 } = require('../controllers/productController');
 
 const router = express.Router();
 const { protect, authorize, checkAuthOptional } = require('../middleware/auth');
 const { upload } = require('../services/upload');
+
+// Protected showcase and toggle routes
+router.post('/home-showcase', protect, authorize('admin', 'staff'), setHomeShowcase);
+router.patch('/:id/toggle', protect, authorize('admin', 'staff'), toggleProductFlag);
 
 // Public routes (with optional auth mapping to show active vs inactive products)
 router.get('/', checkAuthOptional, getProducts);

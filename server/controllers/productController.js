@@ -149,10 +149,22 @@ exports.getProducts = asyncHandler(async (req, res, next) => {
     } else if (sortBy === 'bestselling') {
       query = query.sort({ bestseller: -1, stock: -1 });
     } else {
-      query = query.sort('-createdAt');
+      if (req.query.newArrival === 'true') {
+        query = query.sort('newArrivalOrder -createdAt');
+      } else if (req.query.bestseller === 'true') {
+        query = query.sort('bestsellerOrder -createdAt');
+      } else {
+        query = query.sort('-createdAt');
+      }
     }
   } else {
-    query = query.sort('-createdAt');
+    if (req.query.newArrival === 'true') {
+      query = query.sort('newArrivalOrder -createdAt');
+    } else if (req.query.bestseller === 'true') {
+      query = query.sort('bestsellerOrder -createdAt');
+    } else {
+      query = query.sort('-createdAt');
+    }
   }
 
   // Pagination
@@ -509,5 +521,60 @@ exports.getProductFilters = asyncHandler(async (req, res, next) => {
       sizes: uniqueSizes,
       colors: uniqueColors,
     },
+  });
+});
+
+// @desc    Toggle product flag (newArrival, bestseller, featured, isActive)
+// @route   PATCH /api/products/:id/toggle
+// @access  Private/Admin
+exports.toggleProductFlag = asyncHandler(async (req, res, next) => {
+  const { flag, value } = req.body;
+  if (!['newArrival', 'bestseller', 'featured', 'isActive'].includes(flag)) {
+    return next(new ErrorResponse('Invalid flag specified', 400));
+  }
+
+  const product = await Product.findById(req.params.id);
+  if (!product) {
+    return next(new ErrorResponse(`Product not found with id of ${req.params.id}`, 404));
+  }
+
+  product[flag] = value !== undefined ? Boolean(value) : !product[flag];
+  await product.save({ validateBeforeSave: false });
+
+  res.status(200).json({
+    success: true,
+    message: `Product ${flag} set to ${product[flag]}`,
+    data: product,
+  });
+});
+
+// @desc    Bulk set home showcase products (newArrival, bestseller)
+// @route   POST /api/products/home-showcase
+// @access  Private/Admin
+exports.setHomeShowcase = asyncHandler(async (req, res, next) => {
+  const { type, productIds } = req.body; // type: 'newArrival' | 'bestseller'
+  if (!['newArrival', 'bestseller'].includes(type)) {
+    return next(new ErrorResponse('Invalid showcase type', 400));
+  }
+
+  if (!Array.isArray(productIds)) {
+    return next(new ErrorResponse('productIds must be an array of IDs', 400));
+  }
+
+  // 1. Reset all products for this showcase type to false
+  await Product.updateMany({}, { [type]: false });
+
+  // 2. Set the selected productIds to true, and assign sequential order (1, 2, 3, ...)
+  const orderField = type === 'newArrival' ? 'newArrivalOrder' : 'bestsellerOrder';
+  for (let i = 0; i < productIds.length; i++) {
+    await Product.findByIdAndUpdate(productIds[i], {
+      [type]: true,
+      [orderField]: i + 1,
+    });
+  }
+
+  res.status(200).json({
+    success: true,
+    message: `Homepage ${type === 'newArrival' ? 'New Arrivals' : 'Bestsellers'} updated successfully (${productIds.length} products)`,
   });
 });
