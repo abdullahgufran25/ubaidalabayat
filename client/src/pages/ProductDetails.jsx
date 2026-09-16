@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { Star, Heart, ShoppingBag, Send, AlertCircle, ChevronRight, MessageCircle } from 'lucide-react';
+import { Star, Heart, ShoppingBag, Send, AlertCircle, ChevronRight, ChevronLeft, MessageCircle, ZoomIn, Maximize2, X } from 'lucide-react';
 import axios from 'axios';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
@@ -21,6 +21,53 @@ const ProductDetails = () => {
   const [relatedProducts, setRelatedProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeImage, setActiveImage] = useState('');
+  
+  // Fabric Zoom & Lightbox States
+  const [isZoomed, setIsZoomed] = useState(false);
+  const [zoomPos, setZoomPos] = useState({ x: 50, y: 50 });
+  const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [lightboxIndex, setLightboxIndex] = useState(0);
+
+  const handleMouseMove = (e) => {
+    const { left, top, width, height } = e.currentTarget.getBoundingClientRect();
+    const x = ((e.clientX - left) / width) * 100;
+    const y = ((e.clientY - top) / height) * 100;
+    setZoomPos({
+      x: Math.max(0, Math.min(100, x)),
+      y: Math.max(0, Math.min(100, y)),
+    });
+  };
+
+  const handleMouseEnter = () => {
+    setIsZoomed(true);
+  };
+
+  const handleMouseLeave = () => {
+    setIsZoomed(false);
+    setZoomPos({ x: 50, y: 50 });
+  };
+
+  const openLightbox = (index) => {
+    const currentIdx = index !== undefined ? index : (product?.images?.indexOf(activeImage) >= 0 ? product.images.indexOf(activeImage) : 0);
+    setLightboxIndex(currentIdx);
+    setLightboxOpen(true);
+  };
+
+  // Keyboard navigation for lightbox
+  useEffect(() => {
+    if (!lightboxOpen) return;
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') setLightboxOpen(false);
+      if (e.key === 'ArrowRight' && product?.images?.length) {
+        setLightboxIndex((prev) => (prev + 1) % product.images.length);
+      }
+      if (e.key === 'ArrowLeft' && product?.images?.length) {
+        setLightboxIndex((prev) => (prev - 1 + product.images.length) % product.images.length);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [lightboxOpen, product?.images]);
   
   // Selection States
   const [selectedSize, setSelectedSize] = useState('');
@@ -237,7 +284,7 @@ Link: ${window.location.href}`;
                 key={i}
                 onClick={() => setActiveImage(img)}
                 className={`aspect-[3/4] w-14 sm:w-full border overflow-hidden transition-all ${
-                  activeImage === img ? 'border-luxury-dark shadow-sm scale-95' : 'border-luxury-gray hover:border-luxury-gold'
+                  activeImage === img ? 'border-luxury-dark ring-1 ring-luxury-dark shadow-sm scale-95' : 'border-luxury-gray hover:border-luxury-gold opacity-80 hover:opacity-100'
                 }`}
               >
                 <img src={img} alt="" className="w-full h-full object-cover" />
@@ -245,13 +292,47 @@ Link: ${window.location.href}`;
             ))}
           </div>
 
-          {/* Main Display image */}
-          <div className="flex-1 aspect-[3/4] bg-luxury-cream border border-luxury-gray overflow-hidden relative group">
+          {/* Main Display image with dynamic cursor-following fabric zoom */}
+          <div 
+            className="flex-1 aspect-[3/4] bg-luxury-cream border border-luxury-gray overflow-hidden relative group cursor-crosshair select-none"
+            onMouseMove={handleMouseMove}
+            onMouseEnter={handleMouseEnter}
+            onMouseLeave={handleMouseLeave}
+            onClick={() => openLightbox()}
+          >
             <img
               src={activeImage}
               alt={product.name}
-              className="w-full h-full object-cover transition-transform duration-500 hover:scale-110 cursor-zoom-in"
+              className="w-full h-full object-cover pointer-events-none"
+              style={{
+                transformOrigin: `${zoomPos.x}% ${zoomPos.y}%`,
+                transform: isZoomed ? 'scale(2.8)' : 'scale(1)',
+                transition: isZoomed ? 'transform 0.12s ease-out' : 'transform 0.35s cubic-bezier(0.25, 1, 0.5, 1)',
+              }}
             />
+
+            {/* Hint overlay badge */}
+            <div 
+              className={`absolute bottom-3 left-3 bg-white/90 backdrop-blur-sm border border-luxury-gray/80 px-2.5 py-1 rounded shadow-sm text-[11px] font-medium text-luxury-dark flex items-center gap-1.5 pointer-events-none transition-opacity duration-200 ${
+                isZoomed ? 'opacity-0' : 'opacity-100'
+              }`}
+            >
+              <ZoomIn size={13} className="text-luxury-goldDark" />
+              <span>Hover to Zoom Fabric</span>
+            </div>
+
+            {/* Expand / Fullscreen button */}
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                openLightbox();
+              }}
+              className="absolute top-3 right-3 w-9 h-9 rounded-full bg-white/90 hover:bg-white text-luxury-dark shadow-md flex items-center justify-center transition-all opacity-0 group-hover:opacity-100 hover:scale-110"
+              title="Fullscreen View"
+            >
+              <Maximize2 size={16} />
+            </button>
           </div>
         </div>
 
@@ -597,6 +678,109 @@ Link: ${window.location.href}`;
             ))}
           </div>
         </section>
+      )}
+
+      {/* High-Resolution Fullscreen Lightbox Modal */}
+      {lightboxOpen && product?.images?.length > 0 && (
+        <div 
+          className="fixed inset-0 z-[9999] bg-black/95 backdrop-blur-md flex flex-col justify-between p-4 sm:p-6 select-none"
+          onClick={() => setLightboxOpen(false)}
+        >
+          {/* Top Navigation Bar */}
+          <div 
+            className="flex items-center justify-between text-white px-2 sm:px-6 py-2 z-10 w-full max-w-6xl mx-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center space-x-3">
+              <span className="font-serif tracking-widest text-xs uppercase text-luxury-gold">Ubaid Al Abayat</span>
+              <span className="text-white/40">•</span>
+              <span className="text-xs font-light text-white/80 truncate max-w-xs">{product.name}</span>
+            </div>
+            
+            <div className="flex items-center space-x-4">
+              <span className="text-xs text-white/60 font-mono tracking-wider">
+                {lightboxIndex + 1} / {product.images.length}
+              </span>
+              <button
+                type="button"
+                onClick={() => setLightboxOpen(false)}
+                className="w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-colors"
+                title="Close (Esc)"
+              >
+                <X size={20} />
+              </button>
+            </div>
+          </div>
+
+          {/* Center Main Image Stage */}
+          <div 
+            className="relative flex-1 flex items-center justify-center my-auto min-h-0 overflow-hidden w-full max-w-5xl mx-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Previous Image Arrow */}
+            {product.images.length > 1 && (
+              <button
+                type="button"
+                onClick={() => {
+                  const newIdx = (lightboxIndex - 1 + product.images.length) % product.images.length;
+                  setLightboxIndex(newIdx);
+                  setActiveImage(product.images[newIdx]);
+                }}
+                className="absolute left-2 sm:left-4 z-20 w-11 h-11 rounded-full bg-black/60 hover:bg-black/90 border border-white/20 text-white flex items-center justify-center transition-all hover:scale-105"
+                title="Previous Image (←)"
+              >
+                <ChevronLeft size={24} />
+              </button>
+            )}
+
+            {/* Displayed Lightbox Image */}
+            <img
+              src={product.images[lightboxIndex]}
+              alt={`${product.name} - View ${lightboxIndex + 1}`}
+              className="max-h-[75vh] max-w-[90vw] object-contain rounded shadow-2xl transition-all duration-300"
+            />
+
+            {/* Next Image Arrow */}
+            {product.images.length > 1 && (
+              <button
+                type="button"
+                onClick={() => {
+                  const newIdx = (lightboxIndex + 1) % product.images.length;
+                  setLightboxIndex(newIdx);
+                  setActiveImage(product.images[newIdx]);
+                }}
+                className="absolute right-2 sm:right-4 z-20 w-11 h-11 rounded-full bg-black/60 hover:bg-black/90 border border-white/20 text-white flex items-center justify-center transition-all hover:scale-105"
+                title="Next Image (→)"
+              >
+                <ChevronRight size={24} />
+              </button>
+            )}
+          </div>
+
+          {/* Bottom Thumbnail Strip */}
+          {product.images.length > 1 && (
+            <div 
+              className="flex justify-center items-center gap-2 py-3 overflow-x-auto z-10 w-full max-w-md mx-auto"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {product.images.map((img, i) => (
+                <button
+                  key={i}
+                  type="button"
+                  onClick={() => {
+                    setLightboxIndex(i);
+                    setActiveImage(img);
+                  }}
+                  className={`w-12 h-16 rounded overflow-hidden border-2 transition-all flex-shrink-0 ${
+                    lightboxIndex === i ? 'border-luxury-gold scale-105 shadow-lg' : 'border-white/20 opacity-50 hover:opacity-100'
+                  }`}
+                >
+                  <img src={img} alt="" className="w-full h-full object-cover" />
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
       )}
 
     </div>
