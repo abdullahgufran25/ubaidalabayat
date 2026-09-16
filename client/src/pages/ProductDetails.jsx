@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { Star, Heart, ShoppingBag, Send, AlertCircle, ChevronRight, ChevronLeft, MessageCircle, ZoomIn, Maximize2, X } from 'lucide-react';
 import axios from 'axios';
@@ -22,29 +22,42 @@ const ProductDetails = () => {
   const [loading, setLoading] = useState(true);
   const [activeImage, setActiveImage] = useState('');
   
-  // Fabric Zoom & Lightbox States
-  const [isZoomed, setIsZoomed] = useState(false);
-  const [zoomPos, setZoomPos] = useState({ x: 50, y: 50 });
+  // Fabric Magnifier Loupe & Lightbox States
+  const imageContainerRef = useRef(null);
+  const [isHovering, setIsHovering] = useState(false);
+  const [cursorPos, setCursorPos] = useState({ x: 0, y: 0 });
+  const [containerSize, setContainerSize] = useState({ width: 0, height: 0 });
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
 
+  const LENS_SIZE = 190; // Lens circle diameter in pixels
+  const ZOOM_LEVEL = 3; // 3x Fabric Magnification
+
   const handleMouseMove = (e) => {
-    const { left, top, width, height } = e.currentTarget.getBoundingClientRect();
-    const x = ((e.clientX - left) / width) * 100;
-    const y = ((e.clientY - top) / height) * 100;
-    setZoomPos({
-      x: Math.max(0, Math.min(100, x)),
-      y: Math.max(0, Math.min(100, y)),
+    if (!imageContainerRef.current) return;
+    const rect = imageContainerRef.current.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+
+    setCursorPos({
+      x: Math.max(0, Math.min(rect.width, x)),
+      y: Math.max(0, Math.min(rect.height, y)),
     });
+    if (containerSize.width !== rect.width || containerSize.height !== rect.height) {
+      setContainerSize({ width: rect.width, height: rect.height });
+    }
   };
 
   const handleMouseEnter = () => {
-    setIsZoomed(true);
+    if (imageContainerRef.current) {
+      const rect = imageContainerRef.current.getBoundingClientRect();
+      setContainerSize({ width: rect.width, height: rect.height });
+    }
+    setIsHovering(true);
   };
 
   const handleMouseLeave = () => {
-    setIsZoomed(false);
-    setZoomPos({ x: 50, y: 50 });
+    setIsHovering(false);
   };
 
   const openLightbox = (index) => {
@@ -292,33 +305,61 @@ Link: ${window.location.href}`;
             ))}
           </div>
 
-          {/* Main Display image with dynamic cursor-following fabric zoom */}
+          {/* Main Display image with Magnifier Glass Loupe */}
           <div 
+            ref={imageContainerRef}
             className="flex-1 aspect-[3/4] bg-luxury-cream border border-luxury-gray overflow-hidden relative group cursor-crosshair select-none"
             onMouseMove={handleMouseMove}
             onMouseEnter={handleMouseEnter}
             onMouseLeave={handleMouseLeave}
             onClick={() => openLightbox()}
           >
+            {/* Base Full Image: Stays completely normal and unzoomed */}
             <img
               src={activeImage}
               alt={product.name}
-              className="w-full h-full object-cover pointer-events-none"
-              style={{
-                transformOrigin: `${zoomPos.x}% ${zoomPos.y}%`,
-                transform: isZoomed ? 'scale(2.8)' : 'scale(1)',
-                transition: isZoomed ? 'transform 0.12s ease-out' : 'transform 0.35s cubic-bezier(0.25, 1, 0.5, 1)',
-              }}
+              className="w-full h-full object-cover pointer-events-none select-none"
             />
+
+            {/* Magnifying Glass Lens: Only zooms the circular area directly under the cursor */}
+            {isHovering && containerSize.width > 0 && (
+              <div
+                className="absolute rounded-full border-2 border-white/95 shadow-[0_4px_30px_rgba(0,0,0,0.5),0_0_0_1px_rgba(197,168,128,0.7)] overflow-hidden pointer-events-none z-20"
+                style={{
+                  width: `${LENS_SIZE}px`,
+                  height: `${LENS_SIZE}px`,
+                  left: `${cursorPos.x - LENS_SIZE / 2}px`,
+                  top: `${cursorPos.y - LENS_SIZE / 2}px`,
+                }}
+              >
+                {/* High-definition 3x Magnified Image inside the loupe */}
+                <img
+                  src={activeImage}
+                  alt=""
+                  className="absolute max-w-none object-cover pointer-events-none select-none"
+                  style={{
+                    width: `${containerSize.width * ZOOM_LEVEL}px`,
+                    height: `${containerSize.height * ZOOM_LEVEL}px`,
+                    left: `${-(cursorPos.x * ZOOM_LEVEL - LENS_SIZE / 2)}px`,
+                    top: `${-(cursorPos.y * ZOOM_LEVEL - LENS_SIZE / 2)}px`,
+                  }}
+                />
+
+                {/* Realistic Lens Glass Ring & Reflection */}
+                <div className="absolute inset-0 rounded-full ring-1 ring-inset ring-black/20 pointer-events-none bg-gradient-to-br from-white/25 via-transparent to-black/20" />
+                {/* Center focus indicator */}
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-luxury-goldDark/70 shadow-sm pointer-events-none" />
+              </div>
+            )}
 
             {/* Hint overlay badge */}
             <div 
               className={`absolute bottom-3 left-3 bg-white/90 backdrop-blur-sm border border-luxury-gray/80 px-2.5 py-1 rounded shadow-sm text-[11px] font-medium text-luxury-dark flex items-center gap-1.5 pointer-events-none transition-opacity duration-200 ${
-                isZoomed ? 'opacity-0' : 'opacity-100'
+                isHovering ? 'opacity-0' : 'opacity-100'
               }`}
             >
               <ZoomIn size={13} className="text-luxury-goldDark" />
-              <span>Hover to Zoom Fabric</span>
+              <span>Hover to Magnify Fabric</span>
             </div>
 
             {/* Expand / Fullscreen button */}
@@ -328,7 +369,7 @@ Link: ${window.location.href}`;
                 e.stopPropagation();
                 openLightbox();
               }}
-              className="absolute top-3 right-3 w-9 h-9 rounded-full bg-white/90 hover:bg-white text-luxury-dark shadow-md flex items-center justify-center transition-all opacity-0 group-hover:opacity-100 hover:scale-110"
+              className="absolute top-3 right-3 w-9 h-9 rounded-full bg-white/90 hover:bg-white text-luxury-dark shadow-md flex items-center justify-center transition-all opacity-0 group-hover:opacity-100 hover:scale-110 z-10"
               title="Fullscreen View"
             >
               <Maximize2 size={16} />
