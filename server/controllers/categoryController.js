@@ -3,6 +3,8 @@ const asyncHandler = require('../middleware/async');
 const ErrorResponse = require('../utils/errorResponse');
 const { uploadSingleImage, deleteImage } = require('../services/upload');
 
+const Product = require('../models/product');
+
 // @desc    Get all categories
 // @route   GET /api/categories
 // @access  Public
@@ -12,11 +14,32 @@ exports.getCategories = asyncHandler(async (req, res, next) => {
   if (!req.user || (req.user.role !== 'admin' && req.user.role !== 'staff')) {
     filter.isActive = true;
   }
-  const categories = await Category.find(filter).sort({ name: 1 });
+  const categories = await Category.find(filter).sort({ name: 1 }).lean();
+
+  // Aggregate active product counts per category
+  const productFilter = (!req.user || (req.user.role !== 'admin' && req.user.role !== 'staff'))
+    ? { isActive: true }
+    : {};
+  const productCounts = await Product.aggregate([
+    { $match: productFilter },
+    { $group: { _id: '$category', count: { $sum: 1 } } },
+  ]);
+
+  const countMap = {};
+  productCounts.forEach((pc) => {
+    if (pc._id) {
+      countMap[pc._id.toString()] = pc.count;
+    }
+  });
+
+  const data = categories.map((cat) => ({
+    ...cat,
+    productCount: countMap[cat._id.toString()] || 0,
+  }));
 
   res.status(200).json({
     success: true,
-    data: categories,
+    data,
   });
 });
 
@@ -24,15 +47,23 @@ exports.getCategories = asyncHandler(async (req, res, next) => {
 // @route   GET /api/categories/:slug
 // @access  Public
 exports.getCategory = asyncHandler(async (req, res, next) => {
-  const category = await Category.findOne({ slug: req.params.slug });
+  const category = await Category.findOne({ slug: req.params.slug }).lean();
 
   if (!category) {
     return next(new ErrorResponse(`Category not found with slug of ${req.params.slug}`, 404));
   }
 
+  const productFilter = (!req.user || (req.user.role !== 'admin' && req.user.role !== 'staff'))
+    ? { category: category._id, isActive: true }
+    : { category: category._id };
+  const productCount = await Product.countDocuments(productFilter);
+
   res.status(200).json({
     success: true,
-    data: category,
+    data: {
+      ...category,
+      productCount,
+    },
   });
 });
 
@@ -112,7 +143,6 @@ exports.deleteCategory = asyncHandler(async (req, res, next) => {
   }
 
   // Optional: Check if products are associated with this category before deleting
-  const Product = require('../models/product');
   const associatedProducts = await Product.countDocuments({ category: req.params.id });
   if (associatedProducts > 0) {
     return next(

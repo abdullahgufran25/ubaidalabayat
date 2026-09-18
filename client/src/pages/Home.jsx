@@ -361,30 +361,40 @@ const Home = () => {
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
-          {categories.slice(0, 4).map((cat) => (
-            <Link
-              key={cat._id}
-              to={`/shop?category=${cat.slug}`}
-              className="group relative block aspect-[4/5] bg-luxury-cream border border-luxury-gray overflow-hidden shadow-sm"
-            >
-              <img
-                src={cat.image || 'https://images.unsplash.com/photo-1596783074918-c84cb06531ca?auto=format&fit=crop&q=80&w=400'}
-                alt={cat.name}
-                className="w-full h-full object-cover transition-transform duration-750 ease-out group-hover:scale-105"
-                loading="lazy"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent flex items-end p-4 sm:p-6">
-                <div className="text-white">
-                  <h3 className="font-sans text-sm sm:text-base font-bold uppercase tracking-wider">
-                    {cat.name}
-                  </h3>
-                  <span className="text-[11px] sm:text-xs tracking-widest text-luxury-gold uppercase font-bold group-hover:underline flex items-center mt-1">
-                    Discover Collection <ArrowRight size={12} className="ml-1" />
+          {categories.slice(0, 4).map((cat) => {
+            const isComingSoon = cat.productCount === 0;
+            return (
+              <Link
+                key={cat._id}
+                to={`/shop?category=${cat.slug}`}
+                className="group relative block aspect-[4/5] bg-luxury-cream border border-luxury-gray overflow-hidden shadow-sm"
+              >
+                {/* Coming Soon Badge */}
+                {isComingSoon && (
+                  <span className="absolute top-3 right-3 bg-black/85 backdrop-blur-sm border border-luxury-gold/70 text-luxury-gold text-[9px] font-bold uppercase tracking-widest px-2.5 py-1 rounded shadow-md z-10">
+                    Coming Soon
                   </span>
+                )}
+
+                <img
+                  src={cat.image || 'https://images.unsplash.com/photo-1596783074918-c84cb06531ca?auto=format&fit=crop&q=80&w=400'}
+                  alt={cat.name}
+                  className="w-full h-full object-cover transition-transform duration-750 ease-out group-hover:scale-105"
+                  loading="lazy"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent flex items-end p-4 sm:p-6">
+                  <div className="text-white">
+                    <h3 className="font-sans text-sm sm:text-base font-bold uppercase tracking-wider">
+                      {cat.name}
+                    </h3>
+                    <span className="text-[11px] sm:text-xs tracking-widest text-luxury-gold uppercase font-bold group-hover:underline flex items-center mt-1">
+                      {isComingSoon ? 'Coming Soon' : 'Discover Collection'} <ArrowRight size={12} className="ml-1" />
+                    </span>
+                  </div>
                 </div>
-              </div>
-            </Link>
-          ))}
+              </Link>
+            );
+          })}
         </div>
       </section>
 

@@ -127,9 +127,14 @@ const Navbar = ({ onCartOpen, onSearchOpen }) => {
                         <Link
                           key={cat._id}
                           to={`/shop?category=${cat.slug}`}
-                          className="block px-4 py-2 text-[11px] uppercase tracking-wider text-luxury-dark hover:bg-luxury-cream hover:text-luxury-goldDark font-medium"
+                          className="flex items-center justify-between px-4 py-2 text-[11px] uppercase tracking-wider text-luxury-dark hover:bg-luxury-cream hover:text-luxury-goldDark font-medium"
                         >
-                          {cat.name}
+                          <span>{cat.name}</span>
+                          {cat.productCount === 0 && (
+                            <span className="text-[8.5px] bg-luxury-cream text-luxury-goldDark font-bold px-1.5 py-0.5 rounded tracking-widest">
+                              Coming Soon
+                            </span>
+                          )}
                         </Link>
                       ))}
                       <Link
@@ -379,9 +384,14 @@ const Navbar = ({ onCartOpen, onSearchOpen }) => {
                         key={cat._id}
                         to={`/shop?category=${cat.slug}`}
                         onClick={() => setMobileMenuOpen(false)}
-                        className="text-luxury-dark/90 hover:text-luxury-gold transition-colors py-0.5"
+                        className="flex items-center justify-between text-luxury-dark/90 hover:text-luxury-gold transition-colors py-0.5"
                       >
-                        {cat.name}
+                        <span>{cat.name}</span>
+                        {cat.productCount === 0 && (
+                          <span className="text-[8.5px] bg-luxury-cream text-luxury-goldDark font-bold px-1.5 py-0.5 rounded tracking-widest">
+                            Coming Soon
+                          </span>
+                        )}
                       </Link>
                     ))}
                     <Link
