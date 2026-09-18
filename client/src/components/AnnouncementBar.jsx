@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ChevronLeft, ChevronRight, Sparkles } from 'lucide-react';
 import { useSettings } from '../context/SettingsContext';
@@ -42,6 +42,9 @@ const AnnouncementBar = () => {
   }
 
   const currentMsg = messages[currentIndex] || messages[0];
+  if (!currentMsg || !currentMsg.text) {
+    return null;
+  }
 
   const handlePrev = (e) => {
     e.preventDefault();

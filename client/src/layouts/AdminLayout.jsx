@@ -16,7 +16,8 @@ import {
   X,
   Store,
   Users,
-  Mail
+  Mail,
+  Megaphone
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
@@ -50,6 +51,7 @@ const AdminLayout = () => {
     { name: 'Customers', path: '/admin/customers', icon: Users },
     { name: 'Messages', path: '/admin/messages', icon: Mail },
     { name: 'Banners', path: '/admin/banners', icon: Image },
+    { name: 'Promotions (Top Bar)', path: '/admin/promotions', icon: Megaphone },
     { name: 'Store Settings', path: '/admin/settings', icon: Settings },
   ];
 

@@ -40,6 +40,7 @@ import AdminCoupons from './pages/admin/Coupons';
 import AdminReviews from './pages/admin/Reviews';
 import AdminSettings from './pages/admin/Settings';
 import AdminBanners from './pages/admin/Banners';
+import AdminPromotions from './pages/admin/Promotions';
 import AdminCustomers from './pages/admin/Customers';
 import AdminMessages from './pages/admin/Messages';
 
@@ -102,6 +103,7 @@ function App() {
                 <Route path="messages" element={<AdminMessages />} />
                 <Route path="settings" element={<AdminSettings />} />
                 <Route path="banners" element={<AdminBanners />} />
+                <Route path="promotions" element={<AdminPromotions />} />
               </Route>
 
               {/* Catch-all route */}

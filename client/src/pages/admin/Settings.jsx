@@ -19,8 +19,10 @@ import {
   Plus,
   Sparkles,
   Eye,
-  Percent
+  Percent,
+  ExternalLink
 } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import axios from 'axios';
 import { useSettings } from '../../context/SettingsContext';
 import { useToast } from '../../context/ToastContext';
@@ -74,6 +76,32 @@ const Settings = () => {
   const [newPromoLink, setNewPromoLink] = useState('/shop');
 
   const [submitLoading, setSubmitLoading] = useState(false);
+  const [promoSaving, setPromoSaving] = useState(false);
+
+  const handleSavePromotionsOnly = async () => {
+    setPromoSaving(true);
+    try {
+      const payload = {
+        announcementBar: {
+          enabled: announcementEnabled,
+          speed: Math.max(1, Number(announcementSpeed)) * 1000,
+          messages: announcements.map((m) => ({
+            text: m.text.trim(),
+            link: m.link ? m.link.trim() : '',
+          })),
+        },
+      };
+      const res = await axios.put('/api/settings', payload);
+      if (res.data.success) {
+        addToast('Promotions bar saved and updated live!', 'success');
+        if (reloadAll) reloadAll();
+      }
+    } catch (err) {
+      addToast(err.response?.data?.message || 'Failed to update promotions', 'error');
+    } finally {
+      setPromoSaving(false);
+    }
+  };
 
   // Sync settings when loaded
   useEffect(() => {
@@ -259,12 +287,33 @@ const Settings = () => {
                 </p>
               </div>
 
-              {/* Status Badge */}
-              <span className={`self-start sm:self-auto px-2.5 py-1 rounded text-[10px] font-bold uppercase tracking-wider ${
-                announcementEnabled ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-600'
-              }`}>
-                {announcementEnabled ? '● Active on Site' : '○ Disabled'}
-              </span>
+              {/* Actions & Status Badge */}
+              <div className="flex flex-wrap items-center gap-2 self-start sm:self-auto">
+                <Link
+                  to="/admin/promotions"
+                  className="bg-luxury-cream text-luxury-goldDark hover:bg-luxury-gold/20 border border-luxury-gold/40 px-2.5 py-1 rounded text-[10px] font-bold uppercase tracking-wider flex items-center space-x-1 transition-colors"
+                  title="Open Dedicated Promotions Page"
+                >
+                  <ExternalLink size={11} />
+                  <span>Promotions Page</span>
+                </Link>
+
+                <button
+                  type="button"
+                  onClick={handleSavePromotionsOnly}
+                  disabled={promoSaving}
+                  className="luxury-btn py-1 px-3 text-[10px] font-bold uppercase tracking-wider flex items-center space-x-1"
+                >
+                  <Save size={11} />
+                  <span>{promoSaving ? 'Saving...' : 'Save Slider'}</span>
+                </button>
+
+                <span className={`px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider ${
+                  announcementEnabled ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-600'
+                }`}>
+                  {announcementEnabled ? '● Active' : '○ Disabled'}
+                </span>
+              </div>
             </div>
 
             {/* Top Bar Config Controls (Toggle & Speed) */}
