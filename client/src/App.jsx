@@ -43,6 +43,7 @@ import AdminBanners from './pages/admin/Banners';
 import AdminPromotions from './pages/admin/Promotions';
 import AdminCustomers from './pages/admin/Customers';
 import AdminMessages from './pages/admin/Messages';
+import AdminWhatsAppChat from './pages/admin/WhatsAppChat';
 
 // Route Guards
 const CustomerRoute = ({ children }) => {
@@ -104,6 +105,7 @@ function App() {
                 <Route path="settings" element={<AdminSettings />} />
                 <Route path="banners" element={<AdminBanners />} />
                 <Route path="promotions" element={<AdminPromotions />} />
+                <Route path="whatsapp" element={<AdminWhatsAppChat />} />
               </Route>
 
               {/* Catch-all route */}

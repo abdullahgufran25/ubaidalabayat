@@ -17,7 +17,8 @@ import {
   Store,
   Users,
   Mail,
-  Megaphone
+  Megaphone,
+  MessageCircle
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
@@ -42,6 +43,7 @@ const AdminLayout = () => {
 
   const navItems = [
     { name: 'Overview', path: '/admin', icon: LayoutDashboard },
+    { name: 'WhatsApp AI Chat', path: '/admin/whatsapp', icon: MessageCircle },
     { name: 'Products', path: '/admin/products', icon: ShoppingBag },
     { name: 'Categories', path: '/admin/categories', icon: FolderOpen },
     { name: 'Orders', path: '/admin/orders', icon: ClipboardList },

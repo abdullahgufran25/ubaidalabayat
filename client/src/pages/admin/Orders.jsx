@@ -148,7 +148,16 @@ const Orders = () => {
               <tbody className="divide-y divide-luxury-gray">
                 {orders.map((order) => (
                   <tr key={order._id} className="hover:bg-gray-55 transition-colors">
-                    <td className="p-4 font-sans font-bold text-luxury-dark text-sm">{order.orderNumber}</td>
+                    <td className="p-4 font-sans font-bold text-luxury-dark text-sm">
+                      <div className="flex items-center space-x-1.5">
+                        <span>{order.orderNumber}</span>
+                        {order.source === 'whatsapp' && (
+                          <span className="bg-emerald-100 text-emerald-800 text-[9px] font-bold px-1.5 py-0.5 rounded border border-emerald-300">
+                            WhatsApp
+                          </span>
+                        )}
+                      </div>
+                    </td>
                     <td className="p-4 font-mono">{new Date(order.createdAt).toLocaleDateString()}</td>
                     <td className="p-4">
                       <div>
@@ -207,6 +216,11 @@ const Orders = () => {
                 <span className="bg-luxury-cream text-luxury-goldDark px-2 py-0.5 text-xs font-bold font-sans rounded ml-3">
                   {selectedOrder.orderNumber}
                 </span>
+                {selectedOrder.source === 'whatsapp' && (
+                  <span className="bg-emerald-100 text-emerald-800 text-[10px] font-bold px-2 py-0.5 rounded border border-emerald-300 ml-2">
+                    Source: WhatsApp
+                  </span>
+                )}
               </h3>
               <button onClick={() => setModalOpen(false)} className="p-1 hover:text-luxury-gold">
                 <X size={20} />

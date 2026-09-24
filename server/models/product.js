@@ -1,5 +1,46 @@
 const mongoose = require('mongoose');
 
+const variantSchema = new mongoose.Schema({
+  sku: {
+    type: String,
+    trim: true,
+    uppercase: true,
+  },
+  color: {
+    type: String,
+    trim: true,
+  },
+  shade: {
+    type: String,
+    trim: true,
+  },
+  size: {
+    type: String,
+    trim: true,
+  },
+  sizes: {
+    type: [String],
+    default: [],
+  },
+  price: {
+    type: Number,
+    min: [0, 'Price must be positive'],
+  },
+  salePrice: {
+    type: Number,
+    min: [0, 'Sale price must be positive'],
+  },
+  stock: {
+    type: Number,
+    min: [0, 'Stock cannot be negative'],
+    default: 0,
+  },
+  images: {
+    type: [String],
+    default: [],
+  },
+});
+
 const productSchema = new mongoose.Schema(
   {
     name: {
@@ -111,11 +152,35 @@ const productSchema = new mongoose.Schema(
       type: Number,
       default: 0,
     },
+    variants: {
+      type: [variantSchema],
+      default: [],
+    },
   },
   {
     timestamps: true,
   }
 );
+
+// Returns actual variants if defined, or synthesizes a default variant from the product
+productSchema.methods.getEffectiveVariants = function () {
+  if (this.variants && this.variants.length > 0) {
+    return this.variants;
+  }
+  return [
+    {
+      _id: this._id,
+      sku: this.sku,
+      color: this.colors && this.colors.length > 0 ? this.colors[0] : 'Standard',
+      shade: '',
+      sizes: this.sizes || [],
+      price: this.price,
+      salePrice: this.salePrice,
+      stock: this.stock,
+      images: this.images || [],
+    },
+  ];
+};
 
 // Auto-generate slug from name if not provided or modified
 productSchema.pre('validate', function (next) {

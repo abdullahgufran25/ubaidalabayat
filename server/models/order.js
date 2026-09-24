@@ -102,13 +102,19 @@ const orderSchema = new mongoose.Schema(
       enum: ['Pending', 'Confirmed', 'Processing', 'Shipped', 'Delivered', 'Cancelled', 'Returned'],
       default: 'Pending',
     },
+    source: {
+      type: String,
+      enum: ['web', 'whatsapp', 'admin'],
+      default: 'web',
+    },
     shippingAddress: {
       fullName: { type: String, required: true },
       phone: { type: String, required: true },
-      email: { type: String, required: true },
+      email: { type: String, default: '' },
       address: { type: String, required: true },
       city: { type: String, required: true },
-      postalCode: { type: String, required: true },
+      postalCode: { type: String, default: '00000' },
+      whatsappNumber: { type: String, default: '' },
     },
     notes: {
       type: String,

@@ -33,6 +33,7 @@ const inventoryRoutes = require('./routes/inventory');
 const settingsRoutes = require('./routes/settings');
 const bannerRoutes = require('./routes/banners');
 const contactRoutes = require('./routes/contact');
+const whatsappRoutes = require('./routes/whatsapp');
 
 // Error Handler
 const errorHandler = require('./middleware/error');
@@ -42,8 +43,14 @@ const app = express();
 // Database Connection
 connectDB();
 
-// Body Parser Middleware
-app.use(express.json());
+// Body Parser Middleware (with rawBody capture for webhook verification)
+app.use(
+  express.json({
+    verify: (req, res, buf) => {
+      req.rawBody = buf;
+    },
+  })
+);
 app.use(express.urlencoded({ extended: true }));
 
 // Security Middlewares
@@ -87,6 +94,7 @@ app.use('/api/inventory', inventoryRoutes);
 app.use('/api/settings', settingsRoutes);
 app.use('/api/banners', bannerRoutes);
 app.use('/api/contact', contactRoutes);
+app.use('/api/whatsapp', whatsappRoutes);
 
 // Mounting Centralized Error Handler
 app.use(errorHandler);
