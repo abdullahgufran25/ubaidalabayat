@@ -17,7 +17,9 @@ import {
   ArrowDown,
   Search,
   Flame,
-  SlidersHorizontal
+  SlidersHorizontal,
+  Percent,
+  Tag
 } from 'lucide-react';
 import axios from 'axios';
 import { useSettings } from '../../context/SettingsContext';
@@ -47,6 +49,7 @@ const Products = () => {
   const [name, setName] = useState('');
   const [sku, setSku] = useState('');
   const [price, setPrice] = useState('');
+  const [discountPercent, setDiscountPercent] = useState('');
   const [salePrice, setSalePrice] = useState('');
   const [stock, setStock] = useState('');
   const [category, setCategory] = useState('');
@@ -84,6 +87,87 @@ const Products = () => {
       setSizes([...selectedSizesList, val].join(', '));
     }
     setCustomSizeInput('');
+  };
+
+  // Automatic Price & Discount Calculation Handlers
+  const handlePriceChange = (val) => {
+    setPrice(val);
+    const numPrice = parseFloat(val);
+    const numDisc = parseFloat(discountPercent);
+
+    if (numPrice > 0 && numDisc > 0 && numDisc <= 100) {
+      const calculatedSale = Math.round(numPrice * (1 - numDisc / 100));
+      setSalePrice(calculatedSale > 0 ? String(calculatedSale) : '0');
+    } else if (numPrice > 0 && salePrice && (!discountPercent || numDisc <= 0)) {
+      const numSale = parseFloat(salePrice);
+      if (numSale > 0 && numSale < numPrice) {
+        const computedDisc = Math.round(((numPrice - numSale) / numPrice) * 100);
+        setDiscountPercent(String(computedDisc));
+      }
+    } else if (!val) {
+      setSalePrice('');
+    }
+  };
+
+  const handleDiscountPercentChange = (val) => {
+    if (val === '') {
+      setDiscountPercent('');
+      setSalePrice('');
+      return;
+    }
+
+    const numDisc = parseFloat(val);
+    if (isNaN(numDisc) || numDisc < 0) {
+      setDiscountPercent('');
+      setSalePrice('');
+      return;
+    }
+
+    const clampedDisc = Math.min(100, Math.max(0, numDisc));
+    setDiscountPercent(val);
+
+    const numPrice = parseFloat(price);
+    if (numPrice > 0) {
+      if (clampedDisc === 0) {
+        setSalePrice('');
+      } else {
+        const calculatedSale = Math.round(numPrice * (1 - clampedDisc / 100));
+        setSalePrice(calculatedSale > 0 ? String(calculatedSale) : '0');
+      }
+    }
+  };
+
+  const handleApplyPresetDiscount = (pct) => {
+    if (String(discountPercent) === String(pct)) {
+      // Toggle off if already selected
+      setDiscountPercent('');
+      setSalePrice('');
+      return;
+    }
+    setDiscountPercent(String(pct));
+    const numPrice = parseFloat(price);
+    if (numPrice > 0) {
+      const calculatedSale = Math.round(numPrice * (1 - pct / 100));
+      setSalePrice(calculatedSale > 0 ? String(calculatedSale) : '0');
+    }
+  };
+
+  const handleClearDiscount = () => {
+    setDiscountPercent('');
+    setSalePrice('');
+  };
+
+  const handleSalePriceChange = (val) => {
+    setSalePrice(val);
+    const numSale = parseFloat(val);
+    const numPrice = parseFloat(price);
+
+    if (numPrice > 0 && numSale > 0 && numSale < numPrice) {
+      const computedDisc = Math.round(((numPrice - numSale) / numPrice) * 100);
+      setDiscountPercent(String(computedDisc));
+    } else if (!val || numSale >= numPrice || numSale <= 0) {
+      setDiscountPercent('');
+    }
   };
 
   // Toggles
@@ -232,6 +316,7 @@ const Products = () => {
     setName('');
     setSku('');
     setPrice('');
+    setDiscountPercent('');
     setSalePrice('');
     setStock('');
     setCategory(categories[0]?._id || '');
@@ -253,6 +338,12 @@ const Products = () => {
     setSku(product.sku);
     setPrice(product.price);
     setSalePrice(product.salePrice || '');
+    if (product.price && product.salePrice && Number(product.salePrice) < Number(product.price)) {
+      const computedPct = Math.round(((Number(product.price) - Number(product.salePrice)) / Number(product.price)) * 100);
+      setDiscountPercent(String(computedPct));
+    } else {
+      setDiscountPercent('');
+    }
     setStock(product.stock);
     setCategory(product.category?._id || '');
     setSizes(product.sizes?.join(', ') || '');
@@ -382,6 +473,11 @@ const Products = () => {
 
     if (!name || !sku || !price || !stock || !category || !description) {
       addToast('Please fill in all required fields', 'warning');
+      return;
+    }
+
+    if (salePrice && price && Number(salePrice) >= Number(price)) {
+      addToast('Sale price must be less than original price', 'warning');
       return;
     }
 
@@ -638,11 +734,18 @@ const Products = () => {
                     <td className="p-4 font-sans font-semibold">
                       {prod.salePrice ? (
                         <div className="flex flex-col">
-                          <span className="text-red-600 font-bold">PKR {prod.salePrice}</span>
-                          <span className="line-through text-[10px] text-luxury-textGray">PKR {prod.price}</span>
+                          <span className="text-red-600 font-bold">PKR {Number(prod.salePrice).toLocaleString()}</span>
+                          <div className="flex items-center space-x-1">
+                            <span className="line-through text-[10px] text-luxury-textGray">PKR {Number(prod.price).toLocaleString()}</span>
+                            {Number(prod.price) > Number(prod.salePrice) && (
+                              <span className="text-[9px] font-bold text-red-600 bg-red-50 border border-red-200 px-1 rounded">
+                                {Math.round(((prod.price - prod.salePrice) / prod.price) * 100)}% OFF
+                              </span>
+                            )}
+                          </div>
                         </div>
                       ) : (
-                        <span>PKR {prod.price}</span>
+                        <span>PKR {Number(prod.price).toLocaleString()}</span>
                       )}
                     </td>
 
@@ -764,29 +867,148 @@ const Products = () => {
                   />
                 </div>
 
-                {/* Price */}
-                <div className="space-y-1">
-                  <label className="text-xs uppercase font-bold tracking-wider text-luxury-dark">Original Price (PKR) *</label>
-                  <input
-                    type="number"
-                    required
-                    value={price}
-                    onChange={(e) => setPrice(e.target.value)}
-                    className="w-full text-sm border-2 border-luxury-gray p-2 px-3 rounded focus:outline-none focus:border-luxury-gold text-black font-medium placeholder-gray-400 bg-white"
-                    placeholder="7500"
-                  />
-                </div>
+                {/* Pricing & Automatic % Discount Calculator */}
+                <div className="sm:col-span-3 bg-luxury-cream/40 border border-luxury-gray p-4 rounded-lg space-y-3">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 border-b border-gray-200/80 pb-2">
+                    <div>
+                      <div className="flex items-center space-x-2">
+                        <label className="text-xs uppercase font-bold tracking-wider text-luxury-dark flex items-center space-x-1.5">
+                          <Percent size={14} className="text-luxury-goldDark" />
+                          <span>Pricing & Automatic % Discount Engine</span>
+                        </label>
+                        <span className="bg-amber-100 text-amber-800 text-[10px] font-bold px-2 py-0.5 rounded border border-amber-300">
+                          Auto-Adjust
+                        </span>
+                      </div>
+                      <p className="text-[10px] text-luxury-textGray mt-0.5">
+                        Original Price aur Discount % likhein, after-discount price khud ba khud adjust ho jayegi.
+                      </p>
+                    </div>
 
-                {/* Sale Price */}
-                <div className="space-y-1">
-                  <label className="text-xs uppercase font-bold tracking-wider text-luxury-dark">Sale Price (PKR - Optional)</label>
-                  <input
-                    type="number"
-                    value={salePrice}
-                    onChange={(e) => setSalePrice(e.target.value)}
-                    className="w-full text-sm border-2 border-luxury-gray p-2 px-3 rounded focus:outline-none focus:border-luxury-gold text-black font-medium placeholder-gray-400 bg-white"
-                    placeholder="6500"
-                  />
+                    {discountPercent && Number(discountPercent) > 0 && price && salePrice && (
+                      <div className="inline-flex items-center space-x-1.5 bg-red-50 text-red-700 px-2.5 py-1 rounded text-xs font-bold border border-red-200 shadow-sm">
+                        <Sparkles size={12} className="text-red-500" />
+                        <span>{discountPercent}% OFF Active</span>
+                        <span className="text-[10px] text-red-600 font-semibold ml-1">
+                          (Save: PKR {(Number(price) - Number(salePrice)).toLocaleString()})
+                        </span>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    {/* 1. Original Price */}
+                    <div className="space-y-1">
+                      <label className="text-xs uppercase font-bold tracking-wider text-luxury-dark block">
+                        Original Price (PKR) *
+                      </label>
+                      <div className="relative">
+                        <span className="absolute left-3 top-2.5 text-xs text-gray-500 font-bold">PKR</span>
+                        <input
+                          type="number"
+                          required
+                          min="0"
+                          value={price}
+                          onChange={(e) => handlePriceChange(e.target.value)}
+                          className="w-full text-sm border-2 border-luxury-gray pl-12 pr-3 py-2 rounded focus:outline-none focus:border-luxury-gold text-black font-bold placeholder-gray-400 bg-white"
+                          placeholder="7500"
+                        />
+                      </div>
+                    </div>
+
+                    {/* 2. Discount Percentage */}
+                    <div className="space-y-1">
+                      <div className="flex items-center justify-between">
+                        <label className="text-xs uppercase font-bold tracking-wider text-luxury-dark flex items-center space-x-1">
+                          <span>Discount (% Off)</span>
+                        </label>
+                        {discountPercent && (
+                          <button
+                            type="button"
+                            onClick={handleClearDiscount}
+                            className="text-[10px] uppercase font-bold text-red-600 hover:underline"
+                          >
+                            Clear %
+                          </button>
+                        )}
+                      </div>
+                      <div className="relative">
+                        <input
+                          type="number"
+                          min="0"
+                          max="100"
+                          value={discountPercent}
+                          onChange={(e) => handleDiscountPercentChange(e.target.value)}
+                          className="w-full text-sm border-2 border-luxury-gray pr-8 pl-3 py-2 rounded focus:outline-none focus:border-luxury-gold text-black font-bold placeholder-gray-400 bg-white"
+                          placeholder="e.g. 20"
+                        />
+                        <span className="absolute right-3 top-2.5 text-xs text-gray-500 font-bold">%</span>
+                      </div>
+                    </div>
+
+                    {/* 3. Sale Price (After Discount) */}
+                    <div className="space-y-1">
+                      <div className="flex items-center justify-between">
+                        <label className="text-xs uppercase font-bold tracking-wider text-luxury-dark">
+                          After Discount Price (PKR)
+                        </label>
+                        {salePrice && price && Number(salePrice) < Number(price) && (
+                          <span className="text-[9px] text-green-700 bg-green-100 border border-green-300 px-1.5 py-0.2 rounded font-bold uppercase">
+                            Final Sale
+                          </span>
+                        )}
+                      </div>
+                      <div className="relative">
+                        <span className="absolute left-3 top-2.5 text-xs text-gray-500 font-bold">PKR</span>
+                        <input
+                          type="number"
+                          min="0"
+                          value={salePrice}
+                          onChange={(e) => handleSalePriceChange(e.target.value)}
+                          className={`w-full text-sm border-2 pl-12 pr-3 py-2 rounded focus:outline-none text-black font-bold placeholder-gray-400 bg-white transition-colors ${
+                            salePrice && price && Number(salePrice) < Number(price)
+                              ? 'border-green-600 bg-green-50/30 text-green-900 focus:border-green-600'
+                              : 'border-luxury-gray focus:border-luxury-gold'
+                          }`}
+                          placeholder="Auto-calculated"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Quick Preset % Buttons */}
+                  <div className="flex flex-wrap items-center gap-1.5 pt-1 border-t border-gray-200/80">
+                    <span className="text-[10px] uppercase font-bold text-gray-500 mr-1 flex items-center space-x-1">
+                      <Tag size={11} />
+                      <span>Quick % Off:</span>
+                    </span>
+                    {[10, 15, 20, 25, 30, 40, 50].map((pct) => {
+                      const isSelected = String(discountPercent) === String(pct);
+                      return (
+                        <button
+                          key={pct}
+                          type="button"
+                          onClick={() => handleApplyPresetDiscount(pct)}
+                          className={`text-xs px-2.5 py-1 rounded font-bold transition-all border ${
+                            isSelected
+                              ? 'bg-red-600 text-white border-red-700 shadow-sm'
+                              : 'bg-white text-gray-700 border-gray-300 hover:border-luxury-gold hover:bg-white'
+                          }`}
+                        >
+                          {pct}% OFF
+                        </button>
+                      );
+                    })}
+                    {salePrice && (
+                      <button
+                        type="button"
+                        onClick={handleClearDiscount}
+                        className="text-[10px] uppercase font-bold text-gray-500 hover:text-red-600 px-2 py-1 rounded border border-dashed border-gray-300 hover:border-red-300 bg-white ml-auto"
+                      >
+                        ✕ No Discount (Original Only)
+                      </button>
+                    )}
+                  </div>
                 </div>
 
                 {/* Initial Stock */}
@@ -803,7 +1025,7 @@ const Products = () => {
                 </div>
 
                 {/* Category selector */}
-                <div className="space-y-1">
+                <div className="sm:col-span-2 space-y-1">
                   <label className="text-xs uppercase font-bold tracking-wider text-luxury-dark">Category *</label>
                   <select
                     value={category}
