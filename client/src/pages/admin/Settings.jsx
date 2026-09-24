@@ -3,24 +3,14 @@ import {
   Save, 
   Settings as SettingsIcon, 
   Landmark, 
-  Phone, 
   Mail, 
-  MapPin, 
   DollarSign, 
   Facebook, 
-  Instagram, 
   CreditCard, 
   ShieldCheck, 
-  AlertCircle,
   Megaphone,
-  ArrowUp,
-  ArrowDown,
-  Trash2,
-  Plus,
-  Sparkles,
-  Eye,
-  Percent,
-  ExternalLink
+  ExternalLink,
+  Plus
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
@@ -64,51 +54,14 @@ const Settings = () => {
   const [aboutUsText, setAboutUsText] = useState('');
   const [footerText, setFooterText] = useState('');
 
-  // Top Announcement Slider CMS State
-  const [announcementEnabled, setAnnouncementEnabled] = useState(true);
-  const [announcementSpeed, setAnnouncementSpeed] = useState(4);
-  const [announcements, setAnnouncements] = useState([
-    { text: '10% OFF ON CARD & ONLINE PAYMENTS | USE CODE: LUXURY10', link: '/shop' },
-    { text: 'FREE SHIPPING ON ALL ORDERS ABOVE RS. 10,000 NATIONWIDE', link: '/shop' },
-    { text: 'BESPOKE SAUDI NIDHA FABRIC ABAYAS | HANDCRAFTED ELEGANCE', link: '/shop' },
-  ]);
-  const [newPromoText, setNewPromoText] = useState('');
-  const [newPromoLink, setNewPromoLink] = useState('/shop');
-
   const [submitLoading, setSubmitLoading] = useState(false);
-  const [promoSaving, setPromoSaving] = useState(false);
-
-  const handleSavePromotionsOnly = async () => {
-    setPromoSaving(true);
-    try {
-      const payload = {
-        announcementBar: {
-          enabled: announcementEnabled,
-          speed: Math.max(1, Number(announcementSpeed)) * 1000,
-          messages: announcements.map((m) => ({
-            text: m.text.trim(),
-            link: m.link ? m.link.trim() : '',
-          })),
-        },
-      };
-      const res = await axios.put('/api/settings', payload);
-      if (res.data.success) {
-        addToast('Promotions bar saved and updated live!', 'success');
-        if (reloadAll) reloadAll();
-      }
-    } catch (err) {
-      addToast(err.response?.data?.message || 'Failed to update promotions', 'error');
-    } finally {
-      setPromoSaving(false);
-    }
-  };
 
   // Sync settings when loaded
   useEffect(() => {
     if (settings) {
       setWhatsappNumber(settings.whatsappNumber || '');
-      setShippingCharges(settings.shippingCharges || '');
-      setFreeShippingThreshold(settings.freeShippingThreshold || '');
+      setShippingCharges(settings.shippingCharges !== undefined ? settings.shippingCharges : 200);
+      setFreeShippingThreshold(settings.freeShippingThreshold !== undefined ? settings.freeShippingThreshold : 5000);
       setCurrency(settings.currency || 'PKR');
       setContactEmail(settings.contactEmail || '');
       setContactPhone(settings.contactPhone || '');
@@ -129,63 +82,9 @@ const Settings = () => {
       setCodEnabled(settings.codEnabled !== false);
       setCardPaymentEnabled(settings.cardPaymentEnabled === true);
       setCardDiscountPercentage(settings.cardDiscountPercentage !== undefined ? settings.cardDiscountPercentage : 10);
-      // Top Announcement Bar CMS sync
-      if (settings.announcementBar) {
-        setAnnouncementEnabled(settings.announcementBar.enabled !== false);
-        setAnnouncementSpeed(Math.round((settings.announcementBar.speed || 4000) / 1000));
-        if (Array.isArray(settings.announcementBar.messages) && settings.announcementBar.messages.length > 0) {
-          setAnnouncements(settings.announcementBar.messages);
-        }
-      }
+      setCardDiscountEnabled(settings.cardDiscountEnabled !== false);
     }
   }, [settings]);
-
-  // Announcement Bar Handlers
-  const handleAddAnnouncement = (e) => {
-    e.preventDefault();
-    if (!newPromoText.trim()) {
-      addToast('Please enter announcement / promotional message text', 'warning');
-      return;
-    }
-    setAnnouncements([
-      ...announcements,
-      { text: newPromoText.trim(), link: newPromoLink.trim() },
-    ]);
-    setNewPromoText('');
-    setNewPromoLink('/shop');
-    addToast('Promotion message added to slider list', 'info');
-  };
-
-  const handleDeleteAnnouncement = (index, e) => {
-    e.preventDefault();
-    if (announcements.length <= 1) {
-      addToast('Keep at least one announcement, or disable the bar above.', 'warning');
-    }
-    setAnnouncements(announcements.filter((_, i) => i !== index));
-    addToast('Promotion message removed', 'info');
-  };
-
-  const handleMoveAnnouncement = (index, direction, e) => {
-    e.preventDefault();
-    if (direction === 'up' && index > 0) {
-      const updated = [...announcements];
-      const temp = updated[index - 1];
-      updated[index - 1] = updated[index];
-      updated[index] = temp;
-      setAnnouncements(updated);
-    } else if (direction === 'down' && index < announcements.length - 1) {
-      const updated = [...announcements];
-      const temp = updated[index + 1];
-      updated[index + 1] = updated[index];
-      updated[index] = temp;
-      setAnnouncements(updated);
-    }
-  };
-
-  const handleApplyPreset = (presetText, presetLink) => {
-    setNewPromoText(presetText);
-    setNewPromoLink(presetLink);
-  };
 
   const handleAddSocial = (e) => {
     e.preventDefault();
@@ -208,7 +107,7 @@ const Settings = () => {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
+    if (e && e.preventDefault) e.preventDefault();
     setSubmitLoading(true);
 
     const payload = {
@@ -236,19 +135,13 @@ const Settings = () => {
       cardPaymentEnabled,
       cardDiscountPercentage: Number(cardDiscountPercentage),
       cardDiscountEnabled,
-      // Top Announcement Bar / Promotional Slider CMS
-      announcementBar: {
-        enabled: announcementEnabled,
-        speed: Math.max(1, Number(announcementSpeed)) * 1000,
-        messages: announcements,
-      },
     };
 
     try {
       const res = await axios.put('/api/settings', payload);
       if (res.data.success) {
-        addToast(res.data.message, 'success');
-        reloadAll(); // Reload settings globally
+        addToast(res.data.message || 'Store settings updated successfully', 'success');
+        if (reloadAll) reloadAll();
       }
     } catch (err) {
       addToast(err.response?.data?.message || 'Failed to update store settings', 'error');
@@ -258,735 +151,464 @@ const Settings = () => {
   };
 
   return (
-    <div className="space-y-8 animate-fade-in font-sans">
-      
-      {/* Header */}
-      <div className="border-b border-luxury-gray pb-4">
-        <h1 className="text-3xl font-sans font-bold uppercase tracking-wider">Store Settings</h1>
-        <p className="text-xs text-luxury-textGray uppercase tracking-widest mt-1">
-          Customize contact details, social media URLs, shipping fees, and footer texts
-        </p>
+    <div className="space-y-6 animate-fade-in font-sans pb-12">
+      {/* Header Bar with Save Button */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between pb-4 border-b border-luxury-gray gap-4">
+        <div>
+          <h1 className="text-2xl sm:text-3xl font-sans font-bold uppercase tracking-wider text-luxury-dark">
+            Store Settings
+          </h1>
+          <p className="text-xs text-luxury-textGray tracking-wide mt-1">
+            Configure contact coordinates, payment accounts, shipping thresholds, and social channels.
+          </p>
+        </div>
+
+        <button
+          type="button"
+          onClick={handleSubmit}
+          disabled={submitLoading}
+          className="luxury-btn py-2.5 px-6 text-xs font-bold uppercase tracking-widest flex items-center justify-center space-x-2 shadow-md hover:shadow-lg transition-all self-start sm:self-auto"
+        >
+          {submitLoading ? (
+            <>
+              <div className="w-3.5 h-3.5 border-2 border-luxury-dark border-t-transparent rounded-full animate-spin mr-1" />
+              <span>Saving...</span>
+            </>
+          ) : (
+            <>
+              <Save size={15} />
+              <span>Save Settings</span>
+            </>
+          )}
+        </button>
       </div>
 
-      {/* Settings Form Grid */}
-      <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+      {/* Banner directing to Promotions CMS */}
+      <div className="bg-gradient-to-r from-luxury-dark to-[#1f1f1f] text-white p-4 sm:p-5 rounded-lg border border-gray-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-sm">
+        <div className="flex items-center space-x-3.5">
+          <div className="w-10 h-10 rounded-full bg-luxury-gold/15 text-luxury-gold flex items-center justify-center flex-shrink-0 border border-luxury-gold/30">
+            <Megaphone size={18} />
+          </div>
+          <div>
+            <h3 className="text-xs sm:text-sm font-bold uppercase tracking-wider text-white">
+              Top Announcement & Promotions Slider (CMS)
+            </h3>
+            <p className="text-[11px] text-gray-300 mt-0.5">
+              Manage your rotating announcements, discount codes, and banner speeds in its dedicated section.
+            </p>
+          </div>
+        </div>
+
+        <Link
+          to="/admin/promotions"
+          className="luxury-btn-gold py-2 px-4 text-xs font-bold uppercase tracking-wider flex items-center space-x-1.5 flex-shrink-0 self-start sm:self-auto"
+        >
+          <span>Open Promotions Manager</span>
+          <ExternalLink size={12} />
+        </Link>
+      </div>
+
+      {/* Main Settings Form */}
+      <form onSubmit={handleSubmit} className="space-y-6">
         
-        {/* Core settings */}
-        <div className="lg:col-span-2 space-y-8">
+        {/* Section 1: General & Shipping Coordinates (2 Columns) */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           
-          {/* Top Announcement Bar & Promotions Slider (CMS) */}
-          <div className="bg-white border border-luxury-gray p-6 sm:p-8 rounded space-y-6">
-            <div className="border-b border-luxury-gray pb-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-              <div>
-                <h2 className="font-sans text-base font-bold uppercase tracking-wider text-luxury-gold flex items-center">
-                  <Megaphone size={18} className="mr-2" />
-                  <span>Top Announcement Bar & Promotions Slider</span>
-                </h2>
-                <p className="text-[11px] text-luxury-textGray mt-0.5">
-                  Manage the rotating announcement slider displayed at the very top of the website above the Navbar.
-                </p>
-              </div>
+          {/* General Store Configs Card */}
+          <div className="bg-white border border-luxury-gray p-6 rounded-lg shadow-sm space-y-4">
+            <h2 className="text-sm font-bold uppercase tracking-wider text-luxury-dark flex items-center border-b border-luxury-gray pb-3">
+              <SettingsIcon size={16} className="mr-2 text-luxury-gold" />
+              <span>General Store Configs</span>
+            </h2>
 
-              {/* Actions & Status Badge */}
-              <div className="flex flex-wrap items-center gap-2 self-start sm:self-auto">
-                <Link
-                  to="/admin/promotions"
-                  className="bg-luxury-cream text-luxury-goldDark hover:bg-luxury-gold/20 border border-luxury-gold/40 px-2.5 py-1 rounded text-[10px] font-bold uppercase tracking-wider flex items-center space-x-1 transition-colors"
-                  title="Open Dedicated Promotions Page"
-                >
-                  <ExternalLink size={11} />
-                  <span>Promotions Page</span>
-                </Link>
-
-                <button
-                  type="button"
-                  onClick={handleSavePromotionsOnly}
-                  disabled={promoSaving}
-                  className="luxury-btn py-1 px-3 text-[10px] font-bold uppercase tracking-wider flex items-center space-x-1"
-                >
-                  <Save size={11} />
-                  <span>{promoSaving ? 'Saving...' : 'Save Slider'}</span>
-                </button>
-
-                <span className={`px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider ${
-                  announcementEnabled ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-600'
-                }`}>
-                  {announcementEnabled ? '● Active' : '○ Disabled'}
-                </span>
-              </div>
-            </div>
-
-            {/* Top Bar Config Controls (Toggle & Speed) */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-luxury-light p-4 rounded border border-luxury-gray/70">
-              <label className="flex items-center space-x-3 cursor-pointer select-none">
+            <div className="space-y-3.5">
+              <div className="space-y-1">
+                <label className="text-[10px] uppercase font-bold tracking-wider text-luxury-textGray block">
+                  WhatsApp Stylist Number
+                </label>
                 <input
-                  type="checkbox"
-                  checked={announcementEnabled}
-                  onChange={(e) => setAnnouncementEnabled(e.target.checked)}
-                  className="rounded text-luxury-gold focus:ring-luxury-gold h-4 w-4"
+                  type="text"
+                  required
+                  value={whatsappNumber}
+                  onChange={(e) => setWhatsappNumber(e.target.value)}
+                  className="w-full text-xs border border-luxury-gray p-2.5 rounded focus:outline-none focus:border-luxury-gold"
+                  placeholder="923287512751"
                 />
-                <div>
-                  <span className="text-xs font-bold text-luxury-dark block">Enable Announcement Slider</span>
-                  <span className="text-[10px] text-luxury-textGray">Show promotional slider at top of website</span>
-                </div>
-              </label>
+              </div>
 
               <div className="space-y-1">
-                <label className="text-[10px] uppercase font-bold tracking-wider text-luxury-textGray flex items-center justify-between">
-                  <span>Slide Duration (Seconds)</span>
-                  <span className="text-luxury-gold font-bold">{announcementSpeed}s</span>
+                <label className="text-[10px] uppercase font-bold tracking-wider text-luxury-textGray block">
+                  Store Currency
                 </label>
-                <div className="flex items-center space-x-2">
+                <input
+                  type="text"
+                  value={currency}
+                  disabled
+                  className="w-full text-xs border border-luxury-gray p-2.5 rounded bg-gray-50 text-gray-400 cursor-not-allowed font-mono"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                <div className="space-y-1">
+                  <label className="text-[10px] uppercase font-bold tracking-wider text-luxury-textGray block">
+                    Default Shipping Fee (PKR)
+                  </label>
                   <input
-                    type="range"
-                    min="2"
-                    max="10"
-                    step="1"
-                    value={announcementSpeed}
-                    onChange={(e) => setAnnouncementSpeed(Number(e.target.value))}
-                    className="w-full accent-luxury-gold cursor-pointer"
+                    type="number"
+                    required
+                    value={shippingCharges}
+                    onChange={(e) => setShippingCharges(e.target.value)}
+                    className="w-full text-xs border border-luxury-gray p-2.5 rounded focus:outline-none focus:border-luxury-gold"
+                    placeholder="200"
                   />
-                  <span className="text-xs font-mono font-bold text-luxury-dark w-6 text-center">{announcementSpeed}s</span>
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-[10px] uppercase font-bold tracking-wider text-luxury-textGray block">
+                    Free Shipping Threshold (PKR)
+                  </label>
+                  <input
+                    type="number"
+                    required
+                    value={freeShippingThreshold}
+                    onChange={(e) => setFreeShippingThreshold(e.target.value)}
+                    className="w-full text-xs border border-luxury-gray p-2.5 rounded focus:outline-none focus:border-luxury-gold"
+                    placeholder="5000"
+                  />
                 </div>
               </div>
             </div>
+          </div>
 
-            {/* Live Store Preview */}
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <span className="text-[10px] uppercase font-bold tracking-wider text-luxury-textGray flex items-center">
-                  <Eye size={12} className="mr-1 text-luxury-gold" />
-                  <span>Live Appearance Preview</span>
-                </span>
-                <span className="text-[10px] text-luxury-textGray">
-                  {announcements.length} {announcements.length === 1 ? 'Message' : 'Messages'} in rotation
-                </span>
+          {/* Contact Coordinates Card */}
+          <div className="bg-white border border-luxury-gray p-6 rounded-lg shadow-sm space-y-4">
+            <h2 className="text-sm font-bold uppercase tracking-wider text-luxury-dark flex items-center border-b border-luxury-gray pb-3">
+              <Mail size={16} className="mr-2 text-luxury-gold" />
+              <span>Contact Coordinates</span>
+            </h2>
+
+            <div className="space-y-3.5">
+              <div className="space-y-1">
+                <label className="text-[10px] uppercase font-bold tracking-wider text-luxury-textGray block">
+                  Public Phone Number
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={contactPhone}
+                  onChange={(e) => setContactPhone(e.target.value)}
+                  className="w-full text-xs border border-luxury-gray p-2.5 rounded focus:outline-none focus:border-luxury-gold"
+                  placeholder="+92 328 7512751"
+                />
               </div>
-              
-              {announcementEnabled && announcements.length > 0 ? (
-                <div className="bg-[#0D0D0D] border border-[#222222] py-2.5 px-4 rounded text-center select-none shadow-inner">
-                  <div className="flex items-center justify-center space-x-2 text-white/90">
-                    <Sparkles size={11} className="text-luxury-gold flex-shrink-0 animate-pulse" />
-                    <span className="text-[11px] font-medium tracking-[0.14em] uppercase text-luxury-light truncate">
-                      {announcements[0]?.text}
-                    </span>
-                    {announcements[0]?.link && (
-                      <span className="text-[9px] text-luxury-gold underline underline-offset-2 ml-1">
-                        Shop Now →
-                      </span>
-                    )}
-                  </div>
-                </div>
-              ) : (
-                <div className="bg-gray-100 border border-dashed border-gray-300 py-2.5 px-4 rounded text-center text-xs text-gray-500 italic">
-                  Top announcement bar is currently turned OFF.
+
+              <div className="space-y-1">
+                <label className="text-[10px] uppercase font-bold tracking-wider text-luxury-textGray block">
+                  Public Email Address
+                </label>
+                <input
+                  type="email"
+                  required
+                  value={contactEmail}
+                  onChange={(e) => setContactEmail(e.target.value)}
+                  className="w-full text-xs border border-luxury-gray p-2.5 rounded focus:outline-none focus:border-luxury-gold"
+                  placeholder="sales@ubaidalabayat.com"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-[10px] uppercase font-bold tracking-wider text-luxury-textGray block">
+                  Boutique Mailing Address
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={contactAddress}
+                  onChange={(e) => setContactAddress(e.target.value)}
+                  className="w-full text-xs border border-luxury-gray p-2.5 rounded focus:outline-none focus:border-luxury-gold"
+                  placeholder="123 Fashion Street, Karachi, Pakistan"
+                />
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        {/* Section 2: Payment Methods & Direct Bank Transfer CMS */}
+        <div className="bg-white border border-luxury-gray p-6 sm:p-8 rounded-lg shadow-sm space-y-6">
+          <div className="border-b border-luxury-gray pb-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+            <div>
+              <h2 className="text-sm font-bold uppercase tracking-wider text-luxury-dark flex items-center">
+                <Landmark size={18} className="mr-2 text-luxury-gold" />
+                <span>Payment Methods & Direct Bank Account (CMS)</span>
+              </h2>
+              <p className="text-[11px] text-luxury-textGray mt-0.5">
+                Enable or disable checkout payment channels, configure direct bank transfer details, and set online payment discounts.
+              </p>
+            </div>
+          </div>
+
+          {/* 3 Payment Methods Toggles */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {/* Direct Bank Transfer Channel */}
+            <div className={`p-4 rounded-lg border transition-all ${
+              bankTransferEnabled ? 'border-luxury-gold/60 bg-luxury-cream/20 shadow-sm' : 'border-gray-200 bg-gray-50'
+            }`}>
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold uppercase tracking-wider text-luxury-dark flex items-center">
+                  <Landmark size={14} className="mr-1.5 text-luxury-gold" />
+                  Bank Transfer
+                </span>
+                <input
+                  type="checkbox"
+                  checked={bankTransferEnabled}
+                  onChange={(e) => setBankTransferEnabled(e.target.checked)}
+                  className="rounded text-luxury-gold focus:ring-luxury-gold h-4 w-4"
+                />
+              </div>
+              <p className="text-[10px] text-luxury-textGray mt-1.5 leading-relaxed">
+                Customers transfer funds directly to your verified bank account and upload receipt.
+              </p>
+              {bankTransferEnabled && (
+                <div className="mt-3 pt-3 border-t border-luxury-gray/60 space-y-2">
+                  <label className="flex items-center space-x-2 text-[10px] font-bold text-luxury-dark cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={bankTransferDiscountEnabled}
+                      onChange={(e) => setBankTransferDiscountEnabled(e.target.checked)}
+                      className="rounded text-luxury-gold h-3.5 w-3.5"
+                    />
+                    <span>Offer Instant Discount</span>
+                  </label>
+                  {bankTransferDiscountEnabled && (
+                    <div className="flex items-center space-x-2">
+                      <input
+                        type="number"
+                        min="0"
+                        max="100"
+                        value={bankTransferDiscountPercentage}
+                        onChange={(e) => setBankTransferDiscountPercentage(e.target.value)}
+                        className="w-16 text-xs border border-luxury-gray p-1.5 rounded text-center font-bold"
+                      />
+                      <span className="text-[11px] text-luxury-textGray">% Off Order Total</span>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
 
-            {/* Existing Announcements List */}
-            <div className="space-y-3">
-              <label className="text-[10px] uppercase font-bold tracking-wider text-luxury-textGray block">
-                Active Promotional Messages ({announcements.length})
-              </label>
+            {/* Cash on Delivery Channel */}
+            <div className={`p-4 rounded-lg border transition-all ${
+              codEnabled ? 'border-luxury-gold/60 bg-luxury-cream/20 shadow-sm' : 'border-gray-200 bg-gray-50'
+            }`}>
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold uppercase tracking-wider text-luxury-dark flex items-center">
+                  <DollarSign size={14} className="mr-1.5 text-luxury-gold" />
+                  Cash on Delivery
+                </span>
+                <input
+                  type="checkbox"
+                  checked={codEnabled}
+                  onChange={(e) => setCodEnabled(e.target.checked)}
+                  className="rounded text-luxury-gold focus:ring-luxury-gold h-4 w-4"
+                />
+              </div>
+              <p className="text-[10px] text-luxury-textGray mt-1.5 leading-relaxed">
+                Customer pays cash upon doorstep package delivery nationwide.
+              </p>
+            </div>
 
-              {announcements.length === 0 ? (
-                <p className="text-xs text-luxury-textGray italic bg-luxury-light p-3 rounded">
-                  No announcements configured. Add a promotion below to display it in the top slider.
+            {/* Card Payment Channel */}
+            <div className={`p-4 rounded-lg border transition-all ${
+              cardPaymentEnabled ? 'border-luxury-gold/60 bg-luxury-cream/20 shadow-sm' : 'border-gray-200 bg-gray-50'
+            }`}>
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold uppercase tracking-wider text-luxury-dark flex items-center">
+                  <CreditCard size={14} className="mr-1.5 text-luxury-gold" />
+                  Debit / Credit Card
+                </span>
+                <input
+                  type="checkbox"
+                  checked={cardPaymentEnabled}
+                  onChange={(e) => setCardPaymentEnabled(e.target.checked)}
+                  className="rounded text-luxury-gold focus:ring-luxury-gold h-4 w-4"
+                />
+              </div>
+              <p className="text-[10px] text-luxury-textGray mt-1.5 leading-relaxed">
+                Online payment via Visa/Mastercard payment gateway.
+              </p>
+              {cardPaymentEnabled && (
+                <div className="mt-3 pt-3 border-t border-luxury-gray/60 space-y-2">
+                  <label className="flex items-center space-x-2 text-[10px] font-bold text-luxury-dark cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={cardDiscountEnabled}
+                      onChange={(e) => setCardDiscountEnabled(e.target.checked)}
+                      className="rounded text-luxury-gold h-3.5 w-3.5"
+                    />
+                    <span>Card Discount</span>
+                  </label>
+                  {cardDiscountEnabled && (
+                    <div className="flex items-center space-x-2">
+                      <input
+                        type="number"
+                        min="0"
+                        max="100"
+                        value={cardDiscountPercentage}
+                        onChange={(e) => setCardDiscountPercentage(e.target.value)}
+                        className="w-16 text-xs border border-luxury-gray p-1.5 rounded text-center font-bold"
+                      />
+                      <span className="text-[11px] text-luxury-textGray">% Off Order Total</span>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Bank Account Details Inputs */}
+          {bankTransferEnabled && (
+            <div className="bg-luxury-light p-5 rounded-lg border border-luxury-gray space-y-4">
+              <h3 className="text-xs font-bold uppercase tracking-wider text-luxury-goldDark">
+                Direct Bank Account Credentials
+              </h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5">
+                <div className="space-y-1">
+                  <label className="text-[9.5px] uppercase font-bold text-luxury-textGray">Bank Name *</label>
+                  <input
+                    type="text"
+                    required={bankTransferEnabled}
+                    value={bankName}
+                    onChange={(e) => setBankName(e.target.value)}
+                    className="w-full text-xs border border-luxury-gray p-2.5 rounded bg-white"
+                    placeholder="Faysal Bank Limited (FBL)"
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-[9.5px] uppercase font-bold text-luxury-textGray">Account Title *</label>
+                  <input
+                    type="text"
+                    required={bankTransferEnabled}
+                    value={accountTitle}
+                    onChange={(e) => setAccountTitle(e.target.value)}
+                    className="w-full text-xs border border-luxury-gray p-2.5 rounded bg-white uppercase"
+                    placeholder="UBAID ULLAH"
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-[9.5px] uppercase font-bold text-luxury-textGray">Account Number *</label>
+                  <input
+                    type="text"
+                    value={accountNumber}
+                    onChange={(e) => setAccountNumber(e.target.value)}
+                    className="w-full text-xs border border-luxury-gray p-2.5 rounded bg-white font-mono"
+                    placeholder="301012345678"
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-[9.5px] uppercase font-bold text-luxury-textGray">IBAN (International Bank Account Number)</label>
+                  <input
+                    type="text"
+                    value={iban}
+                    onChange={(e) => setIban(e.target.value)}
+                    className="w-full text-xs border border-luxury-gray p-2.5 rounded bg-white font-mono uppercase"
+                    placeholder="PK36FAYS0000301012345678"
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-[9.5px] uppercase font-bold text-luxury-textGray">Branch Name / Code</label>
+                  <input
+                    type="text"
+                    value={bankBranch}
+                    onChange={(e) => setBankBranch(e.target.value)}
+                    className="w-full text-xs border border-luxury-gray p-2.5 rounded bg-white"
+                    placeholder="DHA Phase 5 Branch, Karachi"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-[9.5px] uppercase font-bold text-luxury-textGray">Payment Instructions for Customer</label>
+                <textarea
+                  rows={2}
+                  value={bankInstructions}
+                  onChange={(e) => setBankInstructions(e.target.value)}
+                  className="w-full text-xs border border-luxury-gray p-2.5 rounded bg-white"
+                  placeholder="Please transfer the exact order amount and share screenshot on WhatsApp..."
+                />
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Section 3: Social Media Channels CMS */}
+        <div className="bg-white border border-luxury-gray p-6 sm:p-8 rounded-lg shadow-sm space-y-6">
+          <div className="border-b border-luxury-gray pb-3 flex items-center justify-between">
+            <div>
+              <h2 className="text-sm font-bold uppercase tracking-wider text-luxury-dark flex items-center">
+                <Facebook size={16} className="mr-2 text-luxury-gold" />
+                <span>Social Media Channels (CMS)</span>
+              </h2>
+              <p className="text-[11px] text-luxury-textGray mt-0.5">
+                Active social links are displayed in the footer and contact sections across the storefront.
+              </p>
+            </div>
+            <span className="text-[11px] text-luxury-gold font-bold">
+              {socialLinks.length} Active Links
+            </span>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
+            {/* Active links list */}
+            <div className="space-y-2">
+              <label className="text-[10px] uppercase font-bold tracking-wider text-luxury-textGray block">
+                Configured Channels
+              </label>
+              {socialLinks.length === 0 ? (
+                <p className="text-xs text-luxury-textGray italic p-3 bg-luxury-light rounded border border-dashed border-luxury-gray">
+                  No social links added yet. Add one on the right.
                 </p>
               ) : (
                 <div className="space-y-2">
-                  {announcements.map((promo, idx) => (
-                    <div 
-                      key={idx}
-                      className="flex flex-col sm:flex-row sm:items-center justify-between bg-white border border-luxury-gray p-3 rounded hover:border-luxury-gold/50 transition-colors gap-2"
-                    >
-                      <div className="flex items-start space-x-2.5 flex-1 min-w-0">
-                        <span className="bg-luxury-cream text-luxury-goldDark font-mono text-[10px] font-bold px-2 py-0.5 rounded flex-shrink-0 mt-0.5">
-                          #{idx + 1}
-                        </span>
-                        <div className="min-w-0 flex-1">
-                          <p className="text-xs font-semibold text-luxury-dark uppercase tracking-wider break-words">
-                            {promo.text}
-                          </p>
-                          {promo.link && (
-                            <p className="text-[10px] text-luxury-textGray truncate mt-0.5 flex items-center">
-                              <span className="text-luxury-gold mr-1 font-semibold">Link:</span> {promo.link}
-                            </p>
-                          )}
+                  {socialLinks.map((link) => (
+                    <div key={link.platform} className="flex justify-between items-center bg-luxury-light border border-luxury-gray p-2.5 rounded text-xs hover:border-luxury-gold/50 transition-colors">
+                      <div className="flex items-center space-x-2.5 min-w-0">
+                        <div className="w-7 h-7 rounded-full bg-luxury-dark text-luxury-gold flex items-center justify-center flex-shrink-0 shadow-sm">
+                          <SocialIcon platform={link.platform} url={link.url} size={14} />
+                        </div>
+                        <div className="min-w-0">
+                          <p className="font-bold text-luxury-dark uppercase tracking-wider text-[10px]">{link.platform}</p>
+                          <p className="text-[10px] text-luxury-textGray truncate max-w-[180px] sm:max-w-[220px]" title={link.url}>{link.url}</p>
                         </div>
                       </div>
-
-                      {/* Reorder and Delete Actions */}
-                      <div className="flex items-center space-x-1 self-end sm:self-auto flex-shrink-0">
-                        <button
-                          type="button"
-                          onClick={(e) => handleMoveAnnouncement(idx, 'up', e)}
-                          disabled={idx === 0}
-                          className={`p-1.5 rounded transition-colors ${
-                            idx === 0 ? 'text-gray-300 cursor-not-allowed' : 'text-gray-600 hover:bg-luxury-cream hover:text-luxury-dark'
-                          }`}
-                          title="Move Up in Rotation"
-                        >
-                          <ArrowUp size={14} />
-                        </button>
-                        <button
-                          type="button"
-                          onClick={(e) => handleMoveAnnouncement(idx, 'down', e)}
-                          disabled={idx === announcements.length - 1}
-                          className={`p-1.5 rounded transition-colors ${
-                            idx === announcements.length - 1 ? 'text-gray-300 cursor-not-allowed' : 'text-gray-600 hover:bg-luxury-cream hover:text-luxury-dark'
-                          }`}
-                          title="Move Down in Rotation"
-                        >
-                          <ArrowDown size={14} />
-                        </button>
-                        <button
-                          type="button"
-                          onClick={(e) => handleDeleteAnnouncement(idx, e)}
-                          className="p-1.5 text-red-500 hover:bg-red-50 hover:text-red-700 rounded transition-colors"
-                          title="Delete message"
-                        >
-                          <Trash2 size={14} />
-                        </button>
-                      </div>
+                      <button
+                        type="button"
+                        onClick={(e) => handleDeleteSocial(link.platform, e)}
+                        className="text-red-500 hover:text-red-700 text-[10px] font-bold uppercase tracking-wider p-1.5 flex-shrink-0"
+                      >
+                        Delete
+                      </button>
                     </div>
                   ))}
                 </div>
               )}
             </div>
 
-            {/* Add New Announcement Form Panel */}
-            <div className="border-t border-luxury-gray pt-4 space-y-4">
-              <h3 className="text-xs font-sans font-bold uppercase tracking-wider text-luxury-dark flex items-center">
-                <Plus size={14} className="mr-1.5 text-luxury-gold" />
-                <span>Add New Promotional Message</span>
-              </h3>
-
-              {/* Quick Fill Suggestion Chips */}
-              <div>
-                <p className="text-[9px] uppercase font-bold tracking-wider text-luxury-textGray mb-1.5">Quick Inspiration Presets:</p>
-                <div className="flex flex-wrap gap-1.5">
-                  <button
-                    type="button"
-                    onClick={() => handleApplyPreset('10% OFF ON CARD & ONLINE PAYMENTS | USE CODE: LUXURY10', '/shop')}
-                    className="text-[10px] bg-luxury-cream hover:bg-luxury-gold/20 text-luxury-dark px-2.5 py-1 rounded transition-colors font-medium border border-luxury-gold/30"
-                  >
-                    + 10% Off Card Payment
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => handleApplyPreset('FREE SHIPPING ON ORDERS ABOVE RS. 10,000 NATIONWIDE', '/shop')}
-                    className="text-[10px] bg-luxury-cream hover:bg-luxury-gold/20 text-luxury-dark px-2.5 py-1 rounded transition-colors font-medium border border-luxury-gold/30"
-                  >
-                    + Free Shipping Over Rs. 10,000
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => handleApplyPreset('NEW ARRIVALS: LUXURY BESPOKE SAUDI NIDHA ABAYAS', '/shop?newArrival=true')}
-                    className="text-[10px] bg-luxury-cream hover:bg-luxury-gold/20 text-luxury-dark px-2.5 py-1 rounded transition-colors font-medium border border-luxury-gold/30"
-                  >
-                    + New Arrivals
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => handleApplyPreset('RAMADAN SPECIAL: COMPLIMENTARY HIJAB WITH EVERY ABAYA', '/shop')}
-                    className="text-[10px] bg-luxury-cream hover:bg-luxury-gold/20 text-luxury-dark px-2.5 py-1 rounded transition-colors font-medium border border-luxury-gold/30"
-                  >
-                    + Complimentary Gift Promo
-                  </button>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                <div className="sm:col-span-2 space-y-1">
-                  <label className="text-[10px] uppercase font-bold tracking-wider text-luxury-textGray">
-                    Promotional Text *
-                  </label>
-                  <input
-                    type="text"
-                    value={newPromoText}
-                    onChange={(e) => setNewPromoText(e.target.value)}
-                    placeholder="e.g. 10% OFF ON CARD PAYMENT | FREE SHIPPING OVER 10,000"
-                    className="w-full text-xs border border-luxury-gray p-2.5 rounded focus:outline-none uppercase"
-                  />
-                </div>
-
-                <div className="space-y-1">
-                  <label className="text-[10px] uppercase font-bold tracking-wider text-luxury-textGray">
-                    Target Page Link (Optional)
-                  </label>
-                  <input
-                    type="text"
-                    value={newPromoLink}
-                    onChange={(e) => setNewPromoLink(e.target.value)}
-                    placeholder="e.g. /shop or /shop?category=abayas"
-                    className="w-full text-xs border border-luxury-gray p-2.5 rounded focus:outline-none"
-                  />
-                </div>
-              </div>
-
-              <button
-                type="button"
-                onClick={handleAddAnnouncement}
-                className="luxury-btn-outline py-2.5 px-4 text-[10px] font-bold uppercase tracking-widest flex items-center justify-center space-x-1.5"
-              >
-                <Plus size={14} />
-                <span>Add Message to Slider</span>
-              </button>
-            </div>
-          </div>
-
-          {/* General Metadata */}
-          <div className="bg-white border border-luxury-gray p-6 sm:p-8 rounded space-y-6">
-            <h2 className="font-sans text-base font-bold uppercase tracking-wider text-luxury-gold border-b border-luxury-gray pb-2 flex items-center">
-              <SettingsIcon size={16} className="mr-2" />
-              <span>General Store Configs</span>
-            </h2>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="space-y-1">
-                <label className="text-[10px] uppercase font-bold tracking-wider text-luxury-textGray">WhatsApp Stylist Number</label>
-                <input
-                  type="text"
-                  required
-                  value={whatsappNumber}
-                  onChange={(e) => setWhatsappNumber(e.target.value)}
-                  className="w-full text-xs border border-luxury-gray p-2.5 rounded focus:outline-none"
-                  placeholder="923001234567"
-                />
-              </div>
-
-              <div className="space-y-1">
-                <label className="text-[10px] uppercase font-bold tracking-wider text-luxury-textGray">Store Currency</label>
-                <input
-                  type="text"
-                  required
-                  value={currency}
-                  onChange={(e) => setCurrency(e.target.value)}
-                  className="w-full text-xs border border-luxury-gray p-2.5 rounded focus:outline-none bg-gray-50 text-gray-400 cursor-not-allowed"
-                  disabled
-                />
-              </div>
-
-              <div className="space-y-1">
-                <label className="text-[10px] uppercase font-bold tracking-wider text-luxury-textGray">Default Shipping Fee (PKR)</label>
-                <input
-                  type="number"
-                  required
-                  value={shippingCharges}
-                  onChange={(e) => setShippingCharges(e.target.value)}
-                  className="w-full text-xs border border-luxury-gray p-2.5 rounded focus:outline-none"
-                  placeholder="200"
-                />
-              </div>
-
-              <div className="space-y-1">
-                <label className="text-[10px] uppercase font-bold tracking-wider text-luxury-textGray">Free Shipping Threshold Limit (PKR)</label>
-                <input
-                  type="number"
-                  required
-                  value={freeShippingThreshold}
-                  onChange={(e) => setFreeShippingThreshold(e.target.value)}
-                  className="w-full text-xs border border-luxury-gray p-2.5 rounded focus:outline-none"
-                  placeholder="5000"
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Contact coordinates */}
-          <div className="bg-white border border-luxury-gray p-6 sm:p-8 rounded space-y-6">
-            <h2 className="font-sans text-base font-bold uppercase tracking-wider text-luxury-gold border-b border-luxury-gray pb-2 flex items-center">
-              <Mail size={16} className="mr-2" />
-              <span>Contact Coordinates</span>
-            </h2>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="space-y-1">
-                <label className="text-[10px] uppercase font-bold tracking-wider text-luxury-textGray">Public Phone Number</label>
-                <input
-                  type="text"
-                  required
-                  value={contactPhone}
-                  onChange={(e) => setContactPhone(e.target.value)}
-                  className="w-full text-xs border border-luxury-gray p-2.5 rounded focus:outline-none"
-                  placeholder="+92 300 1234567"
-                />
-              </div>
-
-              <div className="space-y-1">
-                <label className="text-[10px] uppercase font-bold tracking-wider text-luxury-textGray">Public Email Address</label>
-                <input
-                  type="email"
-                  required
-                  value={contactEmail}
-                  onChange={(e) => setContactEmail(e.target.value)}
-                  className="w-full text-xs border border-luxury-gray p-2.5 rounded focus:outline-none"
-                  placeholder="sales@ubaidalabayat.com"
-                />
-              </div>
-
-              <div className="sm:col-span-2 space-y-1">
-                <label className="text-[10px] uppercase font-bold tracking-wider text-luxury-textGray">Boutique Mailing Address</label>
-                <input
-                  type="text"
-                  required
-                  value={contactAddress}
-                  onChange={(e) => setContactAddress(e.target.value)}
-                  className="w-full text-xs border border-luxury-gray p-2.5 rounded focus:outline-none"
-                  placeholder="Street 10, DHA Karachi"
-                />
-              </div>
-            </div>
-          </div>
-          {/* Payment Methods & Direct Bank Transfer CMS */}
-          <div className="bg-white border border-luxury-gray p-6 sm:p-8 rounded space-y-6">
-            <div className="border-b border-luxury-gray pb-3">
-              <h2 className="font-sans text-base font-bold uppercase tracking-wider text-luxury-gold flex items-center">
-                <Landmark size={18} className="mr-2" />
-                <span>Payment Methods & Direct Bank Account (CMS)</span>
-              </h2>
-              <p className="text-[11px] text-luxury-textGray mt-1">
-                Manage your official bank account details for direct customer transfers and enable/disable checkout payment options.
-              </p>
-            </div>
-
-            {/* Payment Method Active Toggles */}
-            <div className="space-y-3">
-              <label className="text-[10px] uppercase font-bold tracking-wider text-luxury-textGray block">
-                Active Checkout Payment Methods
+            {/* Add new link form */}
+            <div className="bg-luxury-light p-4 rounded-lg border border-luxury-gray space-y-3">
+              <label className="text-[10px] uppercase font-bold tracking-wider text-luxury-dark block">
+                Add New Social Link
               </label>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                {/* COD Toggle */}
-                <label className={`flex items-center p-3 border rounded cursor-pointer transition-all ${
-                  codEnabled ? 'border-green-500 bg-green-50/40' : 'border-gray-200 bg-gray-50 opacity-60'
-                }`}>
-                  <input
-                    type="checkbox"
-                    checked={codEnabled}
-                    onChange={(e) => setCodEnabled(e.target.checked)}
-                    className="rounded text-green-600 focus:ring-green-500 h-4 w-4"
-                  />
-                  <div className="ml-2.5">
-                    <span className="text-xs font-bold text-luxury-dark block">Cash on Delivery</span>
-                    <span className="text-[10px] text-luxury-textGray">{codEnabled ? 'Enabled' : 'Disabled'}</span>
-                  </div>
-                </label>
-
-                {/* Bank Transfer Toggle */}
-                <label className={`flex items-center p-3 border rounded cursor-pointer transition-all ${
-                  bankTransferEnabled ? 'border-luxury-gold bg-luxury-cream/40' : 'border-gray-200 bg-gray-50 opacity-60'
-                }`}>
-                  <input
-                    type="checkbox"
-                    checked={bankTransferEnabled}
-                    onChange={(e) => setBankTransferEnabled(e.target.checked)}
-                    className="rounded text-luxury-gold focus:ring-luxury-gold h-4 w-4"
-                  />
-                  <div className="ml-2.5">
-                    <span className="text-xs font-bold text-luxury-dark block">Bank Transfer</span>
-                    <span className="text-[10px] text-luxury-textGray">{bankTransferEnabled ? 'Enabled (Manual)' : 'Disabled'}</span>
-                  </div>
-                </label>
-
-                {/* Card Payment Toggle */}
-                <label className={`flex items-center p-3 border rounded cursor-pointer transition-all ${
-                  cardPaymentEnabled ? 'border-purple-500 bg-purple-50/40' : 'border-gray-200 bg-gray-50 opacity-60'
-                }`}>
-                  <input
-                    type="checkbox"
-                    checked={cardPaymentEnabled}
-                    onChange={(e) => setCardPaymentEnabled(e.target.checked)}
-                    className="rounded text-purple-600 focus:ring-purple-500 h-4 w-4"
-                  />
-                  <div className="ml-2.5">
-                    <span className="text-xs font-bold text-luxury-dark block">Credit / Debit Card</span>
-                    <span className="text-[10px] text-luxury-textGray">
-                      {cardPaymentEnabled ? 'Enabled (Simulation)' : 'Off (Gateway Needed)'}
-                    </span>
-                  </div>
-                </label>
-              </div>
-
-              {!cardPaymentEnabled && (
-                <p className="text-[10px] text-amber-700 bg-amber-50 border border-amber-200 p-2 rounded flex items-center">
-                  <AlertCircle size={12} className="mr-1.5 flex-shrink-0" />
-                  <span>
-                    Card payment is kept OFF by default to prevent fraud orders until a payment gateway (Safepay / Paymob) is linked.
-                  </span>
-                </p>
-              )}
-
-              {/* Card Payment Instant Discount Configuration */}
-              <div className="bg-purple-50/60 border border-purple-200 p-4 rounded space-y-3">
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-                  <div>
-                    <h4 className="text-xs font-bold uppercase tracking-wider text-purple-900 flex items-center">
-                      <Percent size={14} className="mr-1.5 text-purple-700" />
-                      <span>Card Payment Instant Privilege Discount</span>
-                    </h4>
-                    <p className="text-[11px] text-purple-800/80 mt-0.5">
-                      Automatic percentage discount deducted directly from the customer's bill when selecting Credit / Debit card at checkout.
-                    </p>
-                  </div>
-
-                  <label className="flex items-center space-x-2 cursor-pointer bg-white px-2.5 py-1 rounded border border-purple-200">
-                    <input
-                      type="checkbox"
-                      checked={cardDiscountEnabled}
-                      onChange={(e) => setCardDiscountEnabled(e.target.checked)}
-                      className="rounded text-purple-600 focus:ring-purple-500 h-4 w-4"
-                    />
-                    <span className="text-xs font-bold text-purple-900">
-                      {cardDiscountEnabled ? 'Discount Active' : 'Discount Disabled'}
-                    </span>
-                  </label>
-                </div>
-
-                {cardDiscountEnabled && (
-                  <div className="flex flex-col sm:flex-row sm:items-center space-y-2 sm:space-y-0 sm:space-x-4 pt-1">
-                    <div className="w-full sm:w-36 space-y-1">
-                      <label className="text-[9px] uppercase font-bold tracking-wider text-purple-900 block">
-                        Discount Rate (%) *
-                      </label>
-                      <div className="relative">
-                        <input
-                          type="number"
-                          min="0"
-                          max="100"
-                          value={cardDiscountPercentage}
-                          onChange={(e) => setCardDiscountPercentage(e.target.value)}
-                          className="w-full text-xs border border-purple-300 p-2 pr-7 rounded bg-white font-bold text-purple-950 focus:outline-none focus:border-purple-600 font-mono"
-                        />
-                        <span className="absolute right-2.5 top-2 text-xs font-bold text-purple-700">%</span>
-                      </div>
-                    </div>
-                    <p className="text-[10px] text-purple-900 font-medium">
-                      Customers will automatically receive an instant <strong>{cardDiscountPercentage || 0}% OFF</strong> on their total bill whenever Credit / Debit Card is selected!
-                    </p>
-                  </div>
-                )}
-              </div>
-
-              {/* Bank Transfer Instant Privilege Discount Configuration */}
-              <div className="bg-emerald-50/60 border border-emerald-200 p-4 rounded space-y-3">
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-                  <div>
-                    <h4 className="text-xs font-bold uppercase tracking-wider text-emerald-900 flex items-center">
-                      <Percent size={14} className="mr-1.5 text-emerald-700" />
-                      <span>Direct Bank Transfer Privilege Discount</span>
-                    </h4>
-                    <p className="text-[11px] text-emerald-800/80 mt-0.5">
-                      Automatic percentage discount deducted directly from the customer's bill when selecting Direct Bank Transfer / EasyPaisa / Raast at checkout.
-                    </p>
-                  </div>
-
-                  <label className="flex items-center space-x-2 cursor-pointer bg-white px-2.5 py-1 rounded border border-emerald-200">
-                    <input
-                      type="checkbox"
-                      checked={bankTransferDiscountEnabled}
-                      onChange={(e) => setBankTransferDiscountEnabled(e.target.checked)}
-                      className="rounded text-emerald-600 focus:ring-emerald-500 h-4 w-4"
-                    />
-                    <span className="text-xs font-bold text-emerald-900">
-                      {bankTransferDiscountEnabled ? 'Discount Active' : 'Discount Disabled'}
-                    </span>
-                  </label>
-                </div>
-
-                {bankTransferDiscountEnabled && (
-                  <div className="flex flex-col sm:flex-row sm:items-center space-y-2 sm:space-y-0 sm:space-x-4 pt-1">
-                    <div className="w-full sm:w-36 space-y-1">
-                      <label className="text-[9px] uppercase font-bold tracking-wider text-emerald-900 block">
-                        Discount Rate (%) *
-                      </label>
-                      <div className="relative">
-                        <input
-                          type="number"
-                          min="0"
-                          max="100"
-                          value={bankTransferDiscountPercentage}
-                          onChange={(e) => setBankTransferDiscountPercentage(e.target.value)}
-                          className="w-full text-xs border border-emerald-300 p-2 pr-7 rounded bg-white font-bold text-emerald-950 focus:outline-none focus:border-emerald-600 font-mono"
-                        />
-                        <span className="absolute right-2.5 top-2 text-xs font-bold text-emerald-700">%</span>
-                      </div>
-                    </div>
-                    <p className="text-[10px] text-emerald-900 font-medium">
-                      Customers will automatically receive an instant <strong>{bankTransferDiscountPercentage || 0}% OFF</strong> on their total bill whenever Direct Bank Transfer is selected!
-                    </p>
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* Bank Account Details Grid */}
-            <div className="border-t border-luxury-gray pt-4 space-y-4">
-              <h3 className="text-xs font-sans font-bold uppercase tracking-wider text-luxury-dark flex items-center">
-                <span>Official Bank Coordinates (Shown to Customers)</span>
-              </h3>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="space-y-1">
-                  <label className="text-[10px] uppercase font-bold tracking-wider text-luxury-textGray">
-                    Bank Name *
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={bankName}
-                    onChange={(e) => setBankName(e.target.value)}
-                    className="w-full text-xs border border-luxury-gray p-2.5 rounded focus:outline-none"
-                    placeholder="e.g. Faysal Bank Limited (FBL) or Meezan Bank"
-                  />
-                </div>
-
-                <div className="space-y-1">
-                  <label className="text-[10px] uppercase font-bold tracking-wider text-luxury-textGray">
-                    Account Title / Beneficiary Name *
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={accountTitle}
-                    onChange={(e) => setAccountTitle(e.target.value)}
-                    className="w-full text-xs border border-luxury-gray p-2.5 rounded focus:outline-none"
-                    placeholder="e.g. UBAID ULLAH"
-                  />
-                </div>
-
-                <div className="space-y-1">
-                  <label className="text-[10px] uppercase font-bold tracking-wider text-luxury-textGray">
-                    Account Number *
-                  </label>
-                  <input
-                    type="text"
-                    value={accountNumber}
-                    onChange={(e) => setAccountNumber(e.target.value)}
-                    className="w-full text-xs border border-luxury-gray p-2.5 rounded focus:outline-none font-mono"
-                    placeholder="e.g. 3010123456789012"
-                  />
-                </div>
-
-                <div className="space-y-1">
-                  <label className="text-[10px] uppercase font-bold tracking-wider text-luxury-textGray">
-                    IBAN (International Bank Account Number)
-                  </label>
-                  <input
-                    type="text"
-                    value={iban}
-                    onChange={(e) => setIban(e.target.value.toUpperCase())}
-                    className="w-full text-xs border border-luxury-gray p-2.5 rounded focus:outline-none font-mono uppercase"
-                    placeholder="e.g. PK36FAYS0000001234567890"
-                  />
-                </div>
-
-                <div className="sm:col-span-2 space-y-1">
-                  <label className="text-[10px] uppercase font-bold tracking-wider text-luxury-textGray">
-                    Branch Name / Code (Optional)
-                  </label>
-                  <input
-                    type="text"
-                    value={bankBranch}
-                    onChange={(e) => setBankBranch(e.target.value)}
-                    className="w-full text-xs border border-luxury-gray p-2.5 rounded focus:outline-none"
-                    placeholder="e.g. Main Boulevard Branch, Lahore"
-                  />
-                </div>
-
-                <div className="sm:col-span-2 space-y-1">
-                  <label className="text-[10px] uppercase font-bold tracking-wider text-luxury-textGray">
-                    Transfer & WhatsApp Instructions for Buyer
-                  </label>
-                  <textarea
-                    rows={2}
-                    value={bankInstructions}
-                    onChange={(e) => setBankInstructions(e.target.value)}
-                    className="w-full text-xs border border-luxury-gray p-2.5 rounded focus:outline-none"
-                    placeholder="Please transfer the exact amount and share the screenshot on WhatsApp..."
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* About us text */}
-          <div className="bg-white border border-luxury-gray p-6 sm:p-8 rounded space-y-6">
-            <h2 className="font-sans text-base font-bold uppercase tracking-wider text-luxury-dark border-b border-luxury-gray pb-2">
-              Website Texts
-            </h2>
-
-            <div className="space-y-4">
-              <div className="space-y-1">
-                <label className="text-[10px] uppercase font-bold tracking-wider text-luxury-textGray">Boutique Brand Story (About Us Summary)</label>
-                <textarea
-                  rows={4}
-                  required
-                  value={aboutUsText}
-                  onChange={(e) => setAboutUsText(e.target.value)}
-                  className="w-full text-xs border border-luxury-gray p-2.5 rounded focus:outline-none"
-                />
-              </div>
 
               <div className="space-y-1">
-                <label className="text-[10px] uppercase font-bold tracking-wider text-luxury-textGray">Footer Copyright Notice</label>
-                <input
-                  type="text"
-                  required
-                  value={footerText}
-                  onChange={(e) => setFooterText(e.target.value)}
-                  className="w-full text-xs border border-luxury-gray p-2.5 rounded focus:outline-none"
-                />
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Right column: socials */}
-        <div className="space-y-6">
-          <div className="bg-white border border-luxury-gray p-6 rounded space-y-6">
-            <h2 className="font-sans text-base font-bold uppercase tracking-wider text-luxury-gold border-b border-luxury-gray pb-2 flex items-center">
-              <Landmark size={16} className="mr-2" />
-              <span>Social Links CMS</span>
-            </h2>
-
-            {/* List of active social links */}
-            {socialLinks.length === 0 ? (
-              <p className="text-xs italic text-luxury-textGray">No social links configured yet.</p>
-            ) : (
-              <div className="space-y-2.5">
-                {socialLinks.map((link) => (
-                  <div key={link.platform} className="flex justify-between items-center bg-luxury-light border border-luxury-gray p-2.5 rounded text-xs">
-                    <div className="flex items-center space-x-2.5 min-w-0">
-                      <div className="w-7 h-7 rounded-full bg-luxury-dark text-luxury-gold flex items-center justify-center flex-shrink-0 shadow-sm">
-                        <SocialIcon platform={link.platform} url={link.url} size={14} />
-                      </div>
-                      <div className="min-w-0">
-                        <p className="font-bold text-luxury-dark uppercase tracking-wider text-[10px]">{link.platform}</p>
-                        <p className="text-[10px] text-luxury-textGray truncate max-w-[130px] sm:max-w-[160px]" title={link.url}>{link.url}</p>
-                      </div>
-                    </div>
-                    <button
-                      onClick={(e) => handleDeleteSocial(link.platform, e)}
-                      className="text-red-500 hover:text-red-700 text-[10px] font-bold uppercase tracking-wider p-1.5 flex-shrink-0"
-                    >
-                      Delete
-                    </button>
-                  </div>
-                ))}
-              </div>
-            )}
-
-            {/* Add new link form panel */}
-            <div className="border-t border-luxury-gray pt-4 space-y-3.5">
-              <p className="text-[10px] uppercase font-bold tracking-wider text-luxury-dark">Add New Platform Link</p>
-              
-              <div className="space-y-1.5">
-                <label className="text-[9px] uppercase font-bold tracking-wider text-luxury-textGray block font-semibold">Select Social Media *</label>
+                <label className="text-[9px] uppercase font-bold tracking-wider text-luxury-textGray block">Select Platform</label>
                 <div className="flex items-center space-x-2">
                   <div className="w-8 h-8 rounded bg-luxury-dark text-luxury-gold flex items-center justify-center flex-shrink-0 shadow-sm">
-                    <SocialIcon platform={newPlatform} url={newUrl} size={16} />
+                    <SocialIcon platform={newPlatform} url={newUrl} size={15} />
                   </div>
                   <select
                     value={newPlatform}
@@ -1007,38 +629,83 @@ const Settings = () => {
                 </div>
               </div>
 
-              <div className="space-y-1.5">
-                <label className="text-[9px] uppercase font-bold tracking-wider text-luxury-textGray block">Platform URL *</label>
+              <div className="space-y-1">
+                <label className="text-[9px] uppercase font-bold tracking-wider text-luxury-textGray block">URL *</label>
                 <input
                   type="url"
                   value={newUrl}
                   onChange={(e) => setNewUrl(e.target.value)}
-                  className="w-full text-xs border border-luxury-gray p-2.5 rounded focus:outline-none"
-                  placeholder="https://tiktok.com/@ubaidalabayat"
+                  className="w-full text-xs border border-luxury-gray p-2.5 rounded bg-white focus:outline-none"
+                  placeholder="https://instagram.com/ubaidalabayat"
                 />
               </div>
 
               <button
                 type="button"
                 onClick={handleAddSocial}
-                className="w-full luxury-btn-outline py-2 text-[10px] font-bold uppercase tracking-widest"
+                className="w-full luxury-btn-outline py-2.5 text-[10px] font-bold uppercase tracking-widest mt-1"
               >
-                + Add Social Link
-              </button>
-            </div>
-
-            {/* Submit button */}
-            <div className="border-t border-luxury-gray pt-4">
-              <button
-                type="submit"
-                disabled={submitLoading}
-                className="w-full luxury-btn py-3 text-xs tracking-widest font-semibold flex items-center justify-center space-x-2"
-              >
-                <Save size={14} />
-                <span>{submitLoading ? 'Saving...' : 'Save Settings'}</span>
+                + Add Social Channel
               </button>
             </div>
           </div>
+        </div>
+
+        {/* Section 4: Brand Text & Footer Coordinates */}
+        <div className="bg-white border border-luxury-gray p-6 sm:p-8 rounded-lg shadow-sm space-y-4">
+          <h2 className="text-sm font-bold uppercase tracking-wider text-luxury-dark flex items-center border-b border-luxury-gray pb-3">
+            <ShieldCheck size={16} className="mr-2 text-luxury-gold" />
+            <span>Brand Story & Footer Metadata</span>
+          </h2>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-1">
+              <label className="text-[10px] uppercase font-bold tracking-wider text-luxury-textGray block">
+                About Us Snippet
+              </label>
+              <textarea
+                rows={3}
+                value={aboutUsText}
+                onChange={(e) => setAboutUsText(e.target.value)}
+                className="w-full text-xs border border-luxury-gray p-2.5 rounded focus:outline-none focus:border-luxury-gold"
+                placeholder="Ubaid Al Abayat is a premium fashion destination dedicated to elegant, minimal, and high-quality Abayas, Hijabs, and luxury accessories."
+              />
+            </div>
+
+            <div className="space-y-1">
+              <label className="text-[10px] uppercase font-bold tracking-wider text-luxury-textGray block">
+                Footer Copyright Text
+              </label>
+              <textarea
+                rows={3}
+                value={footerText}
+                onChange={(e) => setFooterText(e.target.value)}
+                className="w-full text-xs border border-luxury-gray p-2.5 rounded focus:outline-none focus:border-luxury-gold font-mono text-[11px]"
+                placeholder="© 2026 Ubaid Al Abayat. All Rights Reserved. Designed for elegance."
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Bottom Save Action Bar */}
+        <div className="flex items-center justify-end pt-2 pb-6">
+          <button
+            type="submit"
+            disabled={submitLoading}
+            className="luxury-btn py-3 px-8 text-xs font-bold uppercase tracking-widest flex items-center space-x-2 shadow-lg hover:shadow-xl transition-all"
+          >
+            {submitLoading ? (
+              <>
+                <div className="w-3.5 h-3.5 border-2 border-luxury-dark border-t-transparent rounded-full animate-spin mr-1" />
+                <span>Saving All Settings...</span>
+              </>
+            ) : (
+              <>
+                <Save size={15} />
+                <span>Save Store Settings</span>
+              </>
+            )}
+          </button>
         </div>
 
       </form>
