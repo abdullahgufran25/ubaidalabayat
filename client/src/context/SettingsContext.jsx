@@ -10,7 +10,7 @@ export const SettingsProvider = ({ children }) => {
     shippingCharges: 200,
     freeShippingThreshold: 5000,
     currency: 'PKR',
-    contactEmail: 'info@ubaidalabayat.com',
+    contactEmail: 'ubaidalabayat@gmail.com',
     contactPhone: '+92 300 1234567',
     contactAddress: 'Karachi, Pakistan',
     facebookUrl: '',

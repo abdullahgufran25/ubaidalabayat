@@ -20,7 +20,7 @@ const storeSettingsSchema = new mongoose.Schema(
     },
     contactEmail: {
       type: String,
-      default: 'info@ubaidalabayat.com',
+      default: 'ubaidalabayat@gmail.com',
     },
     contactPhone: {
       type: String,
